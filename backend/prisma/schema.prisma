@@ -23,7 +23,7 @@ model University {
   city        String
   state       String?
   website     String?
-  established DateTime?
+  established String?
   schools     School[]
 }
 
