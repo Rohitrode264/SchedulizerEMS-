@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model University {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  adminEmail   String      @unique
+  password     String
+  country     String
+  city        String
+  state       String?
+  website     String?
+  established DateTime?
+  schools     School[]
+}
+
+model School {
+  id          String      @id @default(uuid())
+  name        String
+  password     String
+  university  University @relation(fields: [universityId], references: [id])
+  universityId String
+  departments Department[]
+}
+
+model Department {
+  id          String      @id @default(uuid())
+  name        String
+  password     String
+  school      School      @relation(fields: [schoolId], references: [id])
+  schoolId    String
+  schemes       Scheme[]
+  faculties   faculty[]
+}
+
+model Scheme {
+  id      String @id @default(uuid())
+  name    String
+  department Department? @relation(fields: [departmentId], references: [id])
+  departmentId String
+  semester Semester[]
+}
+
+model Semester {
+  id          String      @id @default(uuid())
+  number        Int
+  startDate   DateTime
+  endDate     DateTime
+  schema       Scheme     @relation(fields: [schemaId], references: [id])
+  schemaId     String
+  courses     Course[]
+}
+
+model Course {
+  id          String      @id @default(uuid())
+  name        String
+  code        String
+  description String?
+  credits     Float?
+  courseType String
+  semester  Semester @relation(fields: [SemesterId], references: [id])
+  SemesterId String
+}
+
+model faculty {
+  id          String      @id @default(uuid())
+  name        String
+  organizationEmail       String      @unique
+  personalEmail       String      @unique
+  phone       String?
+  department  Department @relation(fields: [departmentId], references: [id])
+  departmentId String
+  designation String
+}
