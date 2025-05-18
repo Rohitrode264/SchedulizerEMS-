@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
-dotenv.config({path:'../../prisma/.env'});
+import path from 'path';
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 export const JWT_SECRET=process.env.JWT_SECRET;
 export const PORT=process.env.PORT;

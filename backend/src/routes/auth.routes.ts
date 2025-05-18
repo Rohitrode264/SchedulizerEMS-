@@ -8,6 +8,86 @@ import { verifyToken } from '../middleware/auth.middleware';
 const router = express.Router();
 const prisma = new PrismaClient();
 
+router.get('/universities', async (req, res) => {
+  try { 
+    const universities = await prisma.university.findMany({
+      select: {
+        id: true,
+        name: true,
+        country: true,
+        city: true,
+        state: true,
+        website: true,
+        established: true,
+      },
+    }); 
+    res.status(200).json(universities);
+  } catch (error) {
+    res.status(500).json({ error: 'error fetching unis' });
+  }
+  })
+
+router.get('/universities/:universityId', async (req,res) => {
+  try {
+    const uni = await prisma.university.findUnique({
+      where: {
+        id: req.params.universityId,
+      },
+      select: {
+        id: true,
+        name: true,
+        country: true,
+        city: true,
+        state: true,
+        website: true,
+        established: true,
+      
+      },
+    });
+    res.status(200).json(uni);
+  } catch (error) {
+    res.status(500).json({ error: 'error fetching unis' });
+  }
+});
+
+router.get('/schools/:universityId',async(req,res)=>{
+  try {
+    const schools = await prisma.school.findMany({
+      where: {
+        universityId: req.params.universityId,
+      },
+      select: {
+        id: true,
+        name: true,
+        universityId: true,
+      },
+    });
+    res.status(200).json(schools);
+  } catch (error) {
+    res.status(500).json({ error: 'error fetching schools' });
+  }
+})
+
+router.get('/departments/:universityId/:schoolId',async(req,res)=>{
+  try {
+    const departments = await prisma.department.findMany({
+      where: {
+        schoolId: req.params.schoolId,
+        school: {
+          universityId: req.params.universityId,
+        },    
+      },
+      select: {
+        id: true,
+        name: true,
+        schoolId: true,
+      },
+    });
+    res.status(200).json(departments);
+  } catch (error) {
+    res.status(500).json({ error: 'error fetching departments' });
+  }
+})  
 
 
 //uni

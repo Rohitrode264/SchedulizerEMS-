@@ -1,17 +1,20 @@
-import './App.css'
-import {BrowserRouter ,Routes,Route} from "react-router-dom";
-import ExcelUpload from './excelpage';
-function App() {
+import './App.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { UniversityToggle } from './Components/Univeristy/unitoggle';
+import UniversityDashboard from './Pages/UniversityDashboard';
+import DepartmentDashboard from './Pages/DepartmentDashboard';
 
+function App() {
   return (
-      <div>
-        <BrowserRouter>
-            <Routes>
-              <Route path='/excel' element={<ExcelUpload/>} />
-            </Routes>
-        </BrowserRouter>
-      </div>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<UniversityToggle />} />
+        <Route path="/university/:universityId/dashboard" element={<UniversityDashboard />} />
+        <Route path="/department/:departmentId/dashboard" element={<DepartmentDashboard />} />
+        
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
