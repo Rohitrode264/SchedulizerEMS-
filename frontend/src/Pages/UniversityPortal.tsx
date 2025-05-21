@@ -1,10 +1,10 @@
-import UniversityForm from './UniversityForm';
-import UniversityList from '../univlist';
+import UniversityForm from '../Components/Forms/UniversityForm';
+import UniversityList from '../Components/Univeristy/UniversityFetchList';
 import { HiAcademicCap, HiLogin } from 'react-icons/hi';
 
 export const UniversityToggle = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12">
+    <div className="min-h-screen   py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <HiAcademicCap className="mx-auto h-12 w-12 text-indigo-500 mb-4" />
@@ -17,7 +17,7 @@ export const UniversityToggle = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Create University Section */}
+          {/*Univeristy Creation*/}
           <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl 
                         transition-all duration-300 border border-gray-100">
             <div className="flex items-center space-x-3 mb-8 pb-4 
@@ -30,7 +30,7 @@ export const UniversityToggle = () => {
             <UniversityForm />
           </div>
 
-          {/* Existing Universities Section */}
+          {/* Login To Existing */}
           <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl 
                         transition-all duration-300 border border-gray-100">
             <div className="flex items-center space-x-3 mb-8 pb-4 

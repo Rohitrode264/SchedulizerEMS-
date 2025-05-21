@@ -1,8 +1,8 @@
 import { HiAcademicCap, HiLocationMarker, HiGlobe, HiCalendar } from 'react-icons/hi';
-import type{ Univeristy } from '../../types/auth';
+import type{ University } from '../../types/auth';
 
 interface UniversityCardProps {
-  university: Univeristy;
+  university: University | null;
 }
 
 export const UniversityCard = ({ university }: UniversityCardProps) => {
@@ -11,7 +11,7 @@ export const UniversityCard = ({ university }: UniversityCardProps) => {
       <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 px-8 py-8">
         <div className="flex items-center space-x-3 mb-4">
           <HiAcademicCap className="h-8 w-8 text-indigo-100" />
-          <h3 className="text-2xl font-bold text-white">{university.name}</h3>
+          <h3 className="text-2xl font-bold text-white">{university?.name}</h3>
         </div>
         <p className="text-indigo-100 opacity-90">University Dashboard</p>
       </div>
@@ -21,9 +21,9 @@ export const UniversityCard = ({ university }: UniversityCardProps) => {
           <InfoSection
             icon={<HiLocationMarker className="w-5 h-5" />}
             label="Location"
-            value={`${university.city}${university.state ? `, ${university.state}` : ''}`}
+            value={`${university?.city}${university?.state ? `, ${university.state}` : ''}`}
           />
-          {university.website && (
+          {university?.website && (
             <InfoSection
               icon={<HiGlobe className="w-5 h-5" />}
               label="Website"
@@ -37,7 +37,7 @@ export const UniversityCard = ({ university }: UniversityCardProps) => {
               }
             />
           )}
-          {university.established && (
+          {university?.established && (
             <InfoSection
               icon={<HiCalendar className="w-5 h-5" />}
               label="Established"

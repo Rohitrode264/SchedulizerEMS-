@@ -1,11 +1,25 @@
 export interface School {
     id: string;
     name: string;
+    universityId: string;
+  }
+
+  
+  export interface SchoolFormData {
+    name: string;
+    password: string;
+}
+ 
+
+ export  interface Department {
+      id: string;
+      name: string;
+      schoolId: string;
   }
   
- export interface Department {
-    id: string;
-    name: string;
+  export interface DepartmentFormData {
+      name: string;
+      password: string;
   }
   
   export interface ManagerProps {

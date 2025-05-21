@@ -1,37 +1,47 @@
-import { NextFunction, Request, RequestHandler, Response } from "express";
-import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../config/env";
-
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../config/env';
 
 interface AuthRequest extends Request {
     user?: any;
-  }
-
-export const verifyToken:RequestHandler= (req:AuthRequest, res:Response, next:NextFunction)=>{
-    const token=req.header('Authorization');
-    const secret = JWT_SECRET;
-
-    if(!secret){
-        throw new Error('JWT secret is not defined in env');
-    }
-
-    if(!token){
-        res.status(401).json({Message:"No Token Provided"});
-    }
-
-    try{
-        if(token){
-        const decoded= jwt.verify(token,secret);
-        req.user=decoded;
-        next();
-    }
-    else{
-        res.status(401).json({Message:"No Token Provided"});
-    }
-    }
-    catch(e){
-         res.status(401).json({
-            message:"Invalid or expired token"
-        });
-    }
 }
+
+export const verifyToken = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader) {
+            res.status(401).json({ message: "No authorization header found" });
+            return;
+        }
+
+        
+        const token = authHeader.startsWith('Bearer ') 
+            ? authHeader.split(' ')[1] 
+            : authHeader;
+
+        if (!token) {
+            res.status(401).json({ message: "No token provided" });
+            return;
+        }
+
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET!);
+            req.user = decoded;
+            next();
+        } catch (jwtError) {
+            res.status(401).json({ 
+                message: "Invalid or expired token",
+                error: jwtError instanceof Error ? jwtError.message : 'Token verification failed'
+            });
+            return;
+        }
+    } catch (error) {
+        console.error('Auth middleware error:', error);
+        res.status(500).json({ 
+            message: "Authentication failed",
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+        return;
+    }
+};

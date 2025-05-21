@@ -185,23 +185,56 @@ router.post('/login/school', async (req: Request, res: Response) => {
 
 //uni-school-dept
 //creation-dept
-router.post('/signup/department',verifyToken, async (req: Request, res: Response) => {
-  const { name, password, schoolId } = req.body;
+router.post('/signup/department', verifyToken, async (req: Request, res: Response): Promise<void> => {
+    const { name, password, schoolId, universityId } = req.body;
 
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const department = await prisma.department.create({
-      data: {
-        name,
-        password: hashedPassword,
-        schoolId,
-      },
-    });
+    try {
+        
+        if (!name || !password || !schoolId || !universityId) {
+            res.status(400).json({ 
+                success: false, 
+                message: 'Missing required fields' 
+            });
+            return;
+        }
 
-    res.status(201).json({ success: true,  user: department });
-  } catch (err) {
-    res.status(500).json({ success: false, message: 'Signup failed', error: err });
-  }
+       
+        const school = await prisma.school.findFirst({
+            where: {
+                id: schoolId,
+                universityId: universityId
+            }
+        });
+
+        if (!school) {
+            res.status(404).json({ 
+                success: false, 
+                message: 'School not found or does not belong to university' 
+            });
+            return;
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const department = await prisma.department.create({
+            data: {
+                name,
+                password: hashedPassword,
+                schoolId,
+            },
+        });
+
+        res.status(201).json({ 
+            success: true,  
+            user: department 
+        });
+    } catch (err) {
+        console.error('Department creation error:', err);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to create department', 
+            error: err instanceof Error ? err.message : 'Unknown error'
+        });
+    }
 });
 
 router.post('/login/department', async (req: Request, res: Response) => {

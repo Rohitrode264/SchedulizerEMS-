@@ -1,6 +1,6 @@
 
 
-export interface Univeristy{
+export interface University{
     id:string;
     name:string;
     adminEmail:string;

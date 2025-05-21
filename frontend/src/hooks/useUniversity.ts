@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Univeristy, School, Department } from '../types/auth';
+import type { University, School, Department } from '../types/auth';
 
 export const useUniversity = (universityId: string | undefined) => {
-    const [university, setUniversity] = useState<Univeristy | null>(null);
+    const [university, setUniversity] = useState<University | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
