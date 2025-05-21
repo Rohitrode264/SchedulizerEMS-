@@ -16,9 +16,9 @@ export const verifyToken = async (req: AuthRequest, res: Response, next: NextFun
         }
 
         
-        const token = authHeader.startsWith('Bearer ') 
-            ? authHeader.split(' ')[1] 
-            : authHeader;
+        const token = authHeader;
+            
+            
 
         if (!token) {
             res.status(401).json({ message: "No token provided" });

@@ -61,7 +61,7 @@ export const useSchools = (universityId: string | undefined) => {
                 `http://localhost:3000/api/auth/schools/${universityId}`,
                 {
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': ` Bearer ${token}`
                     }
                 }
             );

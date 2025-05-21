@@ -35,16 +35,21 @@ export default function SchoolDepartments() {
     };
 
     if (loading) return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-500 border-opacity-50"></div>
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12">
+        <div className="min-h-screen  py-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
                 <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-bold text-gray-900">Departments</h2>
+                    <div className="flex flex-col space-y-2">
+                        <h2 className="text-2xl font-bold text-gray-900">Departments</h2>
+                        <p className="text-md text-indigo-500 font-medium">
+                            Manage academic departments and create new ones
+                        </p>
+                    </div>
                     <button
                         onClick={() => setIsCreatingDepartment(!isCreatingDepartment)}
                         className="inline-flex items-center px-4 py-2 bg-indigo-500 

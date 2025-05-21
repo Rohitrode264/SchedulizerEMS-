@@ -76,12 +76,17 @@ export default function UniversityDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12">
+        <div className="min-h-screen  py-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
                 <UniversityCard university={university} />
                 
                 <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-bold text-gray-900">Schools</h2>
+                    <div className="flex flex-col space-y-2">
+                        <h2 className="text-2xl font-bold text-gray-900">Schools</h2>
+                        <p className="text-md text-indigo-500 font-medium">
+                            Manage your institutions and create new schools
+                        </p>
+                    </div>
                     <button
                         onClick={() => setIsCreatingSchool(!isCreatingSchool)}
                         className="inline-flex items-center px-4 py-2 bg-indigo-500 

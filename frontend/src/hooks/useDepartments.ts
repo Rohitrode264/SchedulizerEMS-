@@ -41,7 +41,7 @@ export const useDepartments = (schoolId: string | undefined) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token.replace(/^"|"$/g, '')}`
+                    'Authorization': `  ${token.replace(/^"|"$/g, '')}`
                 },
                 body: JSON.stringify({
                     ...departmentData,
