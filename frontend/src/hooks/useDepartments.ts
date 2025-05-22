@@ -1,23 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 import type { Department } from '../types/auth';
 import type { DepartmentFormData } from '../types/SchoolDepartment';
 import { API_URL } from '../config/config';
+
 export const useDepartments = (schoolId: string | undefined) => {
     const [departments, setDepartments] = useState<Department[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    const getAuthHeaders = () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('No auth token found');
-        }
-        return {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token.replace(/['"]+/g, '')}`
-        };
-    };
 
     const createDepartment = async (departmentData: DepartmentFormData) => {
         const loadingToast = toast.loading('Creating department...');
@@ -30,32 +21,21 @@ export const useDepartments = (schoolId: string | undefined) => {
                 throw new Error('Missing required credentials');
             }
 
-            
-            console.log('Request details:', {
-                token: token.substring(0, 20) + '...',
-                universityId,
-                schoolId
-            });
-
-            const response = await fetch(`${API_URL}/auth/signup/department`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `  ${token.replace(/^"|"$/g, '')}`
-                },
-                body: JSON.stringify({
+            const { data } = await axios.post(
+                `${API_URL}/auth/signup/department`,
+                {
                     ...departmentData,
                     schoolId,
                     universityId
-                }),
-            });
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': ` ${token.replace(/['"]+/g, '')}`
+                    }
+                }
+            );
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to create department');
-            }
-
-            const data = await response.json();
             if (data.success) {
                 setDepartments(prev => [...prev, data.user]);
                 toast.dismiss(loadingToast);
@@ -67,7 +47,12 @@ export const useDepartments = (schoolId: string | undefined) => {
         } catch (err) {
             console.error('Failed to create department:', err);
             toast.dismiss(loadingToast);
-            toast.error(err instanceof Error ? err.message : 'Failed to create department');
+            const errorMessage = axios.isAxiosError(err)
+                ? err.response?.data?.message || 'Failed to create department'
+                : err instanceof Error 
+                    ? err.message 
+                    : 'Failed to create department';
+            toast.error(errorMessage);
             return false;
         }
     };
@@ -76,28 +61,33 @@ export const useDepartments = (schoolId: string | undefined) => {
         if (!schoolId) return;
 
         try {
+            const token = localStorage.getItem('token');
             const universityId = localStorage.getItem('universityId');
-            if (!universityId) {
-                throw new Error('University ID not found');
+
+            if (!token || !universityId) {
+                throw new Error('Missing credentials');
             }
 
-            const response = await fetch(
+            const { data } = await axios.get(
                 `${API_URL}/auth/departments/${universityId}/${schoolId}`,
                 {
-                    headers: getAuthHeaders()
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token.replace(/['"]+/g, '')}`
+                    }
                 }
             );
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch departments');
-            }
-
-            const data = await response.json();
             setDepartments(data);
             setError(null);
         } catch (err) {
             console.error('Error fetching departments:', err);
-            setError(err instanceof Error ? err.message : 'Failed to fetch departments');
+            const errorMessage = axios.isAxiosError(err)
+                ? err.response?.data?.message || 'Failed to fetch departments'
+                : err instanceof Error 
+                    ? err.message 
+                    : 'Failed to fetch departments';
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }

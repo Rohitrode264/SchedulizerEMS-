@@ -1,4 +1,4 @@
-// Theme constants to use across components
+// Theme FOR Consistency
 export const theme = {
   primary: {
     main: 'bg-indigo-500',

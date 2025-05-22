@@ -5,6 +5,7 @@ import { useUniversities } from '../../hooks/fetchUniversities';
 import { SearchDropdown } from '../SearchDropdown';
 import { InputField } from '../InputField';
 import { API_URL } from '../../config/config';
+import axios from 'axios';
 
 export default function UniversityList() {
   const { universities, loading, error } = useUniversities();
@@ -28,18 +29,19 @@ export default function UniversityList() {
     });
 
     try {
-      const response = await fetch(`${API_URL}/auth/login/university`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data } = await axios.post(
+        `${API_URL}/auth/login/university`,
+        {
           universityId: selectedUniversityRef.current,
           ...loginData
-        }),
-      });
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
-      const data = await response.json();
       console.log('Login response:', data);
 
       if (data.success) {
@@ -51,9 +53,14 @@ export default function UniversityList() {
         console.log('Login failed:', data.message);
         setLoginError(data.message);
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      setLoginError('Failed to login. Please try again.');
+    } catch (err) {
+      console.error('Login error:', err);
+      const errorMessage = axios.isAxiosError(err)
+        ? err.response?.data?.message || 'Failed to login'
+        : err instanceof Error 
+          ? err.message 
+          : 'Failed to login. Please try again.';
+      setLoginError(errorMessage);
     }
   };
 

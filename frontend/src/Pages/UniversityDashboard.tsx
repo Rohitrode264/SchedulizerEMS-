@@ -5,16 +5,18 @@ import { SchoolForm } from '../Components/Forms/SchoolForm';
 import { SchoolCard } from '../Components/Cards/SchoolCard';
 import { useUniversity, useSchools } from '../hooks/useUniversity';
 import { useAuth } from '../hooks/useAuth';
+import { useSchoolOperations } from '../hooks/useSchool';
 import type { SchoolFormData } from '../types/auth';
-import toast from 'react-hot-toast';
-import { API_URL } from '../config/config';
+
+
 
 export default function UniversityDashboard() {
     const { universityId } = useParams();
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth(universityId);
     const { university, loading, error } = useUniversity(universityId);
-    const { schools, setSchools } = useSchools(universityId);
+    const { schools, getSchools } = useSchools(universityId);
+    const { createSchool } = useSchoolOperations(universityId);
     
     const [isCreatingSchool, setIsCreatingSchool] = useState(false);
     const [newSchoolData, setNewSchoolData] = useState<SchoolFormData>({
@@ -46,33 +48,13 @@ export default function UniversityDashboard() {
 
     const handleCreateSchool = async (e: React.FormEvent) => {
         e.preventDefault();
-        const loadingToast = toast.loading('Creating school...');
-
-        try {
-            const response = await fetch(`${API_URL}/auth/signup/school`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': localStorage.getItem('token') || '',
-                },
-                body: JSON.stringify({
-                    ...newSchoolData,
-                    universityId,
-                }),
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                setSchools([...schools, data.user]);
-                setIsCreatingSchool(false);
-                setNewSchoolData({ name: '', password: '' });
-                toast.dismiss(loadingToast);
-                toast.success('School created successfully!');
-            }
-        } catch (error) {
-            console.error('Failed to create school:', error);
-            toast.dismiss(loadingToast);
-            toast.error('Failed to create school');
+        
+        const success = await createSchool(newSchoolData);
+        
+        if (success) {
+            setIsCreatingSchool(false);
+            setNewSchoolData({ name: '', password: '' });
+            await getSchools();
         }
     };
 

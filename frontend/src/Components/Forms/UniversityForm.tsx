@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HiAcademicCap, HiMail, HiKey, HiGlobe, HiLocationMarker, HiCalendar } from 'react-icons/hi';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 import { InputField } from '../InputField';
 import type { UniversityFormData, FormHeaderProps } from '../../types/UniversityForm';
 import { API_URL } from '../../config/config';
@@ -31,26 +32,21 @@ export default function UniversityForm() {
     const loadingToast = toast.loading('Creating university...');
     
     try {
-      // Format the data
       const formattedData = {
         ...formData,
         adminEmail: formData.adminEmail.toLowerCase().trim(),
         established: formData.established ? new Date(formData.established).toISOString() : null
       };
 
-      const response = await fetch(`${API_URL}/auth/signup/university`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formattedData),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to create university');
-      }
+      const { data } = await axios.post(
+        `${API_URL}/auth/signup/university`,
+        formattedData,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
       if (data.success) {
         toast.dismiss(loadingToast);
@@ -74,10 +70,15 @@ export default function UniversityForm() {
           navigate(`/university/${data.user.id}/dashboard`);
         }, 1000);
       }
-    } catch (error) {
-      console.error('Error:', error);
+    } catch (err) {
+      console.error('Error creating university:', err);
       toast.dismiss(loadingToast);
-      toast.error(error instanceof Error ? error.message : 'Failed to create university');
+      const errorMessage = axios.isAxiosError(err)
+        ? err.response?.data?.message || 'Failed to create university'
+        : err instanceof Error 
+          ? err.message 
+          : 'Failed to create university';
+      toast.error(errorMessage);
     }
   };
 

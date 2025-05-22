@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import axios from 'axios';
 import toast from 'react-hot-toast';
 import type { School, SchoolFormData } from '../types/auth';
 import { API_URL } from '../config/config';
@@ -12,32 +13,43 @@ export const useSchoolOperations = (universityId: string | undefined) => {
         setLoading(true);
 
         try {
-            const response = await fetch(`${API_URL}/auth/signup/school`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': ` Bearer ${localStorage.getItem('token')}`,
-                },
-                body: JSON.stringify({
+            const token = localStorage.getItem('token');
+            
+            if (!token || !universityId) {
+                throw new Error('Missing required credentials');
+            }
+
+            const { data } = await axios.post(
+                `${API_URL}/auth/signup/school`,
+                {
                     ...schoolData,
                     universityId,
-                }),
-            });
-
-            const data = await response.json();
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': ` ${token.replace(/['"]+/g, '')}`
+                    }
+                }
+            );
 
             if (data.success) {
                 setSchools(prevSchools => [...prevSchools, data.user]);
                 toast.dismiss(loadingToast);
                 toast.success('School created successfully!');
                 return true;
-            } else {
-                throw new Error(data.message || 'Failed to create school');
             }
-        } catch (error) {
-            console.error('Failed to create school:', error);
+
+            throw new Error(data.message || 'Failed to create school');
+        } catch (err) {
+            console.error('Failed to create school:', err);
             toast.dismiss(loadingToast);
-            toast.error(error instanceof Error ? error.message : 'Failed to create school');
+            const errorMessage = axios.isAxiosError(err)
+                ? err.response?.data?.message || 'Failed to create school'
+                : err instanceof Error 
+                    ? err.message 
+                    : 'Failed to create school';
+            toast.error(errorMessage);
             return false;
         } finally {
             setLoading(false);

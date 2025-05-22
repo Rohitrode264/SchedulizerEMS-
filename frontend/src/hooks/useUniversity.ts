@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
 import type { University, School, Department } from '../types/auth';
 import { API_URL } from '../config/config';
 
@@ -10,32 +11,17 @@ export const useUniversity = (universityId: string | undefined) => {
     useEffect(() => {
         const fetchUniversityData = async () => {
             try {
-                const response = await fetch(
-                    `${API_URL}/auth/universities/${universityId}`
-                );
-                
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(
-                        errorData.message || 
-                        `Server error: ${response.status} ${response.statusText}`
-                    );
-                }
-
-                const data = await response.json();
-                if (!data) {
-                    throw new Error('No data received from server');
-                }
-
+                const { data } = await axios.get(`${API_URL}/auth/universities/${universityId}`);
                 setUniversity(data);
                 setError(null);
-            } catch (error) {
-                console.error('University fetch error:', error);
-                setError(
-                    error instanceof Error 
-                        ? error.message 
-                        : 'Failed to fetch university data'
-                );
+            } catch (err) {
+                console.error('University fetch error:', err);
+                const errorMessage = axios.isAxiosError(err)
+                    ? err.response?.data?.message || 'Failed to fetch university'
+                    : err instanceof Error 
+                        ? err.message 
+                        : 'Failed to fetch university data';
+                setError(errorMessage);
                 setUniversity(null);
             } finally {
                 setLoading(false);
@@ -52,39 +38,34 @@ export const useUniversity = (universityId: string | undefined) => {
 
 export const useSchools = (universityId: string | undefined) => {
     const [schools, setSchools] = useState<School[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    const fetchSchools = useCallback(async () => {
+    
+    const getSchools = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(
+            
+            if (!token) {
+                throw new Error('No auth token found');
+            }
+
+            const { data } = await axios.get(
                 `${API_URL}/auth/schools/${universityId}`,
                 {
                     headers: {
-                        'Authorization': ` Bearer ${token}`
+                        'Authorization': ` ${token.replace(/['"]+/g, '')}`
                     }
                 }
             );
-            if (!response.ok) {
-                throw new Error('Failed to fetch schools');
-            }
-            const data = await response.json();
             setSchools(data);
-        } catch (error) {
-            setError(error instanceof Error ? error.message : 'Failed to fetch schools');
-        } finally {
-            setLoading(false);
+        } catch (err) {
+            console.error('Failed to fetch schools:', err);
         }
-    }, [universityId]);
+    };
 
     useEffect(() => {
-        if (universityId) {
-            fetchSchools();
-        }
-    }, [universityId, fetchSchools]);
+        getSchools();
+    }, [universityId]);
 
-    return { schools, setSchools, loading, error, fetchSchools };
+    return { schools, getSchools };
 };
 
 export const useDepartments = (universityId: string | undefined, schoolId: string) => {
@@ -97,21 +78,29 @@ export const useDepartments = (universityId: string | undefined, schoolId: strin
         
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(
+            
+            if (!token) {
+                throw new Error('No auth token found');
+            }
+
+            const { data } = await axios.get(
                 `${API_URL}/auth/departments/${universityId}/${schoolId}`,
                 {
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': ` ${token.replace(/['"]+/g, '')}`
                     }
                 }
             );
-            if (!response.ok) {
-                throw new Error('Failed to fetch departments');
-            }
-            const data = await response.json();
             setDepartments(data);
-        } catch (error) {
-            setError(error instanceof Error ? error.message : 'Failed to fetch departments');
+            setError(null);
+        } catch (err) {
+            console.error('Failed to fetch departments:', err);
+            const errorMessage = axios.isAxiosError(err)
+                ? err.response?.data?.message || 'Failed to fetch departments'
+                : err instanceof Error 
+                    ? err.message 
+                    : 'Failed to fetch departments';
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
