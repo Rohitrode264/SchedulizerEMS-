@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { University, School, Department } from '../types/auth';
+import { API_URL } from '../config/config';
 
 export const useUniversity = (universityId: string | undefined) => {
     const [university, setUniversity] = useState<University | null>(null);
@@ -10,7 +11,7 @@ export const useUniversity = (universityId: string | undefined) => {
         const fetchUniversityData = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:3000/api/auth/universities/${universityId}`
+                    `${API_URL}/auth/universities/${universityId}`
                 );
                 
                 if (!response.ok) {
@@ -58,7 +59,7 @@ export const useSchools = (universityId: string | undefined) => {
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(
-                `http://localhost:3000/api/auth/schools/${universityId}`,
+                `${API_URL}/auth/schools/${universityId}`,
                 {
                     headers: {
                         'Authorization': ` Bearer ${token}`
@@ -97,7 +98,7 @@ export const useDepartments = (universityId: string | undefined, schoolId: strin
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(
-                `http://localhost:3000/api/auth/departments/${universityId}/${schoolId}`,
+                `${API_URL}/auth/departments/${universityId}/${schoolId}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`

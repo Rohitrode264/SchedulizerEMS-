@@ -4,6 +4,7 @@ import { HiLogin, HiMail, HiKey } from 'react-icons/hi';
 import { useUniversities } from '../../hooks/fetchUniversities';
 import { SearchDropdown } from '../SearchDropdown';
 import { InputField } from '../InputField';
+import { API_URL } from '../../config/config';
 
 export default function UniversityList() {
   const { universities, loading, error } = useUniversities();
@@ -27,7 +28,7 @@ export default function UniversityList() {
     });
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login/university', {
+      const response = await fetch(`${API_URL}/auth/login/university`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,6 +115,7 @@ export default function UniversityList() {
               <InputField
                 label="Admin Email"
                 type="email"
+                name="adminEmail"
                 value={loginData.adminEmail}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLoginData({...loginData, adminEmail: e.target.value})}
                 icon={<HiMail className="w-5 h-5 text-gray-400" />}
@@ -121,6 +123,7 @@ export default function UniversityList() {
               <InputField
                 label="Password"
                 type="password"
+                name="password"
                 value={loginData.password}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLoginData({...loginData, password: e.target.value})}
                 icon={<HiKey className="w-5 h-5 text-gray-400" />}

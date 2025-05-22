@@ -19,6 +19,7 @@ export function DepartmentForm({ newDepartmentData, setNewDepartmentData, onSubm
         <InputField
           label="Department Name"
           type="text"
+          name="departmentName"
           value={newDepartmentData.name}
           onChange={(e) => setNewDepartmentData({...newDepartmentData, name: e.target.value})}
           icon={<HiAcademicCap className="w-5 h-5 text-gray-400" />}
@@ -28,12 +29,14 @@ export function DepartmentForm({ newDepartmentData, setNewDepartmentData, onSubm
         <InputField
           label="Password"
           type="password"
+          name="password"
           value={newDepartmentData.password}
           onChange={(e) => setNewDepartmentData({...newDepartmentData, password: e.target.value})}
           icon={<HiKey className="w-5 h-5 text-gray-400" />}
           required
           placeholder="••••••••"
         />
+        
 
         <div className="pt-6 border-t border-gray-100">
           <button

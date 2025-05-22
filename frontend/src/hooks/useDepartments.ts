@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import type { Department } from '../types/auth';
 import type { DepartmentFormData } from '../types/SchoolDepartment';
-
+import { API_URL } from '../config/config';
 export const useDepartments = (schoolId: string | undefined) => {
     const [departments, setDepartments] = useState<Department[]>([]);
     const [loading, setLoading] = useState(true);
@@ -30,14 +30,14 @@ export const useDepartments = (schoolId: string | undefined) => {
                 throw new Error('Missing required credentials');
             }
 
-            // Debug logs
+            
             console.log('Request details:', {
                 token: token.substring(0, 20) + '...',
                 universityId,
                 schoolId
             });
 
-            const response = await fetch('http://localhost:3000/api/auth/signup/department', {
+            const response = await fetch(`${API_URL}/auth/signup/department`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ export const useDepartments = (schoolId: string | undefined) => {
             }
 
             const response = await fetch(
-                `http://localhost:3000/api/auth/departments/${universityId}/${schoolId}`,
+                `${API_URL}/auth/departments/${universityId}/${schoolId}`,
                 {
                     headers: getAuthHeaders()
                 }

@@ -3,6 +3,7 @@ import type{ InputFieldProps } from "../types/InputField";
 export const InputField = ({ 
   label, 
   type, 
+  name, 
   value, 
   onChange, 
   icon, 
@@ -16,13 +17,13 @@ export const InputField = ({
       </label>
       <div className="relative rounded-lg shadow-sm">
         {icon && (
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center 
-                       pointer-events-none">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             {icon}
           </div>
         )}
         <input
           type={type}
+          name={name}  
           value={value}
           onChange={onChange}
           required={required}

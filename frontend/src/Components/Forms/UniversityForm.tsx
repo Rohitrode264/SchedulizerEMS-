@@ -4,6 +4,7 @@ import { HiAcademicCap, HiMail, HiKey, HiGlobe, HiLocationMarker, HiCalendar } f
 import toast from 'react-hot-toast';
 import { InputField } from '../InputField';
 import type { UniversityFormData, FormHeaderProps } from '../../types/UniversityForm';
+import { API_URL } from '../../config/config';
 
 const FormHeader = ({ title, description }: FormHeaderProps) => (
   <div className="mb-8">
@@ -27,30 +28,36 @@ export default function UniversityForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    
     const loadingToast = toast.loading('Creating university...');
     
     try {
-      const response = await fetch('http://localhost:3000/api/auth/signup/university', {
+      // Format the data
+      const formattedData = {
+        ...formData,
+        adminEmail: formData.adminEmail.toLowerCase().trim(),
+        established: formData.established ? new Date(formData.established).toISOString() : null
+      };
+
+      const response = await fetch(`${API_URL}/auth/signup/university`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formattedData),
       });
       
       const data = await response.json();
       
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to create university');
+      }
+
       if (data.success) {
-        
         toast.dismiss(loadingToast);
         toast.success('University created successfully!');
         
-        
         localStorage.setItem('token', data.token);
         localStorage.setItem('universityId', data.user.id);
-        
         
         setFormData({
           name: '',
@@ -63,19 +70,14 @@ export default function UniversityForm() {
           established: '',
         });
         
-       
         setTimeout(() => {
           navigate(`/university/${data.user.id}/dashboard`);
         }, 1000);
-      } else {
-        
-        toast.dismiss(loadingToast);
-        toast.error(data.message || 'Failed to create university');
       }
     } catch (error) {
       console.error('Error:', error);
       toast.dismiss(loadingToast);
-      toast.error('Something went wrong. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to create university');
     }
   };
 
@@ -164,6 +166,7 @@ export default function UniversityForm() {
             {formFields.basicInfo.map((field) => (
               <InputField
                 key={field.name}
+                name={field.name}
                 label={field.label}
                 type={field.type}
                 value={formData[field.name as keyof UniversityFormData]}
@@ -180,6 +183,7 @@ export default function UniversityForm() {
               {formFields.location.slice(0, 2).map((field) => (
                 <InputField
                   key={field.name}
+                  name={field.name}
                   label={field.label}
                   type={field.type}
                   value={formData[field.name as keyof UniversityFormData]}
@@ -193,6 +197,7 @@ export default function UniversityForm() {
             {formFields.location.slice(2).map((field) => (
               <InputField
                 key={field.name}
+                name={field.name}
                 label={field.label}
                 type={field.type}
                 value={formData[field.name as keyof UniversityFormData]}

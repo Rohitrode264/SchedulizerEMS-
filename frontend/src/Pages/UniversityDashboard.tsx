@@ -7,6 +7,7 @@ import { useUniversity, useSchools } from '../hooks/useUniversity';
 import { useAuth } from '../hooks/useAuth';
 import type { SchoolFormData } from '../types/auth';
 import toast from 'react-hot-toast';
+import { API_URL } from '../config/config';
 
 export default function UniversityDashboard() {
     const { universityId } = useParams();
@@ -48,7 +49,7 @@ export default function UniversityDashboard() {
         const loadingToast = toast.loading('Creating school...');
 
         try {
-            const response = await fetch('http://localhost:3000/api/auth/signup/school', {
+            const response = await fetch(`${API_URL}/auth/signup/school`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

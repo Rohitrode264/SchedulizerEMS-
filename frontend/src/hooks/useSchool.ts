@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import type { School, SchoolFormData } from '../types/auth';
+import { API_URL } from '../config/config';
 
 export const useSchoolOperations = (universityId: string | undefined) => {
     const [schools, setSchools] = useState<School[]>([]);
@@ -11,7 +12,7 @@ export const useSchoolOperations = (universityId: string | undefined) => {
         setLoading(true);
 
         try {
-            const response = await fetch('http://localhost:3000/api/auth/signup/school', {
+            const response = await fetch(`${API_URL}/auth/signup/school`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

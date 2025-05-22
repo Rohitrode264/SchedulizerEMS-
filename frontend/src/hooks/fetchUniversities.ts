@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { University} from '../types/auth';
+import { API_URL } from '../config/config';
 export const useUniversities = () => {
   const [universities, setUniversities] = useState<University[]>([]);
   const [loading, setLoading] = useState(true);
@@ -7,7 +8,7 @@ export const useUniversities = () => {
 
   const fetchUniversities = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/auth/universities');
+      const response = await fetch(`${API_URL}/auth/universities`);
       if (!response.ok) {
         throw new Error('Failed to fetch universities');
       }
