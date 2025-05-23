@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
- 
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -49,14 +49,13 @@ model Scheme {
 }
 
 model Semester {
-  id          String      @id @default(uuid())
-  number        Int
-  startDate   DateTime
-  endDate     DateTime
-  schema       Scheme     @relation(fields: [schemaId], references: [id])
-  schemaId     String
-  courses     Course[]
-    @@unique([number, schemaId])
+  id        String   @id @default(uuid())
+  number    Int
+  startDate DateTime
+  endDate   DateTime
+  schemaId  String
+  courses   Course[]
+  schema    Scheme   @relation(fields: [schemaId], references: [id])
 }
 
 model Course {

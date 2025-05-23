@@ -9,6 +9,7 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 router.get('/universities', async (req, res) => {
+  console.log('Fetching universities');
   try { 
     const universities = await prisma.university.findMany({
       select: {
@@ -21,6 +22,7 @@ router.get('/universities', async (req, res) => {
         established: true,
       },
     }); 
+    
     res.status(200).json(universities);
   } catch (error) {
     res.status(500).json({ error: 'error fetching unis' });

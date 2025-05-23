@@ -11,7 +11,7 @@ function App() {
         <Route path="/" element={<UniversityToggle />} />
         <Route path="/university/:universityId/dashboard" element={<UniversityDashboard />} />
         <Route path="/department/:departmentId/dashboard" element={<DepartmentDashboard />} />
-        
+      
       </Routes>
     </BrowserRouter>
   );

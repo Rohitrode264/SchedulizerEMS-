@@ -5,86 +5,139 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 const excelRouter = Router();
-
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({ storage: multer.memoryStorage() });
 
 excelRouter.post('/upload-with-scheme', upload.single('file'), async (req: Request, res: Response) => {
   try {
-    const departmentId = req.body.departmentId;
-    if (!departmentId) {
-      res.status(400).json({ message: 'Department ID is required' });
+    const { departmentId, schemeName } = req.body;
+
+    if (!departmentId || !schemeName) {
+      res.status(400).json({ message: 'Department ID and Scheme Name are required' });
+      return;
     }
 
     if (!req.file || !req.file.buffer) {
       res.status(400).json({ message: 'No file uploaded' });
-       return
+      return;
     }
 
+    
     const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
-    const coursesDataStart = 5;
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const data: any[][] = xlsx.utils.sheet_to_json(sheet, { header: 1 });
 
-    for (const sheetName of workbook.SheetNames) {
-      const worksheet = workbook.Sheets[sheetName];
-      const data: any[][] = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+    console.log(`Excel data rows: ${data.length}`);
 
-      if (data.length < coursesDataStart) continue;
+ 
+    const scheme = await prisma.scheme.create({
+      data: {
+        name: schemeName.trim(),
+        departmentId: departmentId.trim(),
+      },
+    });
 
-      const schemeMap = new Map();
+    let i = 0;
+    while (i < data.length) {
+      const row = data[i];
+      if (!row || row.length === 0) {
+        i++;
+        continue;
+      }
 
-      for (let colIndex = 0; colIndex < data[2].length; colIndex += 6) {
-        const rawSchemeName = data[0][colIndex]; // Top row contains scheme name
-        if (!rawSchemeName || typeof rawSchemeName !== 'string') continue;
+      console.log('Row:', row);
 
-        const schemeName = rawSchemeName.trim();
+      const semesterRaw = row[0]?.toString().trim().toUpperCase();
+ 
+     
+      if (semesterRaw && (semesterRaw.startsWith('SEMESTER') || semesterRaw.startsWith('SEMESTSER'))) {
+        // Extract semester number
+        const semesterNumber = extractSemesterNumber(semesterRaw);
+        if (!semesterNumber) {
+          console.log(`Could not extract semester number from "${semesterRaw}"`);
+          i++;
+          continue;
+        }
 
-        // Create Scheme
-        const scheme = await prisma.scheme.create({
-          data: {
-            name: schemeName,
-            departmentId: departmentId,
-          },
-        });
-
-        schemeMap.set(colIndex, scheme);
-
-        // Create Semester (assumed as Semester-I for now)
+       
         const semester = await prisma.semester.create({
           data: {
-            number: 1,
+            number: semesterNumber,
             startDate: new Date(),
             endDate: new Date(),
             schemaId: scheme.id,
           },
         });
 
-        // Insert courses for the scheme
-        for (let rowIndex = coursesDataStart; rowIndex < data.length; rowIndex++) {
-          const row = data[rowIndex];
-          const code = row[colIndex];
-          const name = row[colIndex + 1];
-          const credits = row[colIndex + 4];
+        i += 2; 
 
-          if (!code || !name || typeof code !== 'string' || typeof name !== 'string') continue;
+        
+        while (i < data.length) {
+          const courseRow = data[i];
+          if (!courseRow || courseRow.length === 0) {
+            i++;
+            break;
+          }
 
-          await prisma.course.create({
-            data: {
-              code: code.trim(),
-              name: name.trim(),
-              credits: credits ? parseFloat(credits) : null,
-              courseType: 'Core',
-              SemesterId: semester.id,
-            },
-          });
+          const possibleSemester = courseRow[0]?.toString().trim().toUpperCase();
+          if (possibleSemester && (possibleSemester.startsWith('SEMESTER') || possibleSemester.startsWith('SEMESTSER'))) {
+            break;
+          }
+
+          const [code, name, L, P, C] = courseRow;
+
+          if (!code || !name) {
+            i++;
+            continue;
+          }
+
+          try {
+            await prisma.course.create({
+              data: {
+                code: code.toString().trim(),
+                name: name.toString().trim(),
+                credits: C ? Number(C) : null,
+                courseType: 'Core',
+                semester: { connect: { id: semester.id } }, 
+              },
+            });
+          } catch (courseErr) {
+            console.error(`Error creating course ${code}:`, courseErr);
+          }
+
+          i++;
         }
+
+        console.log(`Created semester ${semesterNumber} with courses`);
+      } else {
+        i++;
       }
     }
 
-    res.status(200).json({ message: 'All Excel sheets processed successfully' });
+    res.status(200).json({
+      message: 'Successfully created scheme, semesters, and courses',
+      schemeId: scheme.id,
+    });
+
   } catch (error) {
-    console.error("Error processing file", error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error processing upload:", error);
+    res.status(500).json({ message: 'Error processing Excel file', error });
   }
 });
+
+
+function extractSemesterNumber(input: string): number | null {
+
+  const romanMatch = input.match(/SEMEST(ER|SER)[-–]?(\w+)/i);
+  if (!romanMatch) return null;
+
+  const roman = romanMatch[2].toUpperCase();
+  const romanToInt: Record<string, number> = {
+    I: 1, II: 2, III: 3, IV: 4, V: 5,
+    VI: 6, VII: 7, VIII: 8, IX: 9, X: 10,
+  };
+
+  return romanToInt[roman] ?? null;
+}
 
 export default excelRouter;
