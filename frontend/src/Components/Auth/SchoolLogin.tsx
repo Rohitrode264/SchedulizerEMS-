@@ -28,7 +28,7 @@ export const SchoolLoginForm = ({ universityId, schoolId }: SchoolLoginFormProps
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('schoolId', schoolId);
                 localStorage.setItem('universityId', universityId);
-                navigate(`/university/${universityId}/school/${schoolId}/dashboard`);
+                navigate(`/school/${schoolId}/departments`);
             }
         } catch (err) {
             const errorMessage = axios.isAxiosError(err)

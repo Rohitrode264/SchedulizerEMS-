@@ -186,68 +186,73 @@ export default function UniversityList() {
             />
           )}
 
-          {/* Login Buttons with Unified Styling */}
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-3xl mx-auto w-full px-4">
             {selectedSchool && !showDepartmentLogin && (
               <button
                 onClick={() => setShowSchoolLogin(!showSchoolLogin)}
-                className="w-full md:max-w-md mx-auto py-3 px-4 bg-gradient-to-r 
-                         from-indigo-500 to-indigo-600 rounded-xl shadow-md 
-                         hover:shadow-lg transform transition-all duration-200 
-                         text-white font-medium flex items-center justify-center 
-                         space-x-2 hover:-translate-y-0.5"
+                className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-lg 
+                           transform transition-all duration-300 hover:-translate-y-1 h-20"
               >
-                <HiLogin className="w-5 h-5" />
-                <span>{showSchoolLogin ? 'Hide School Login' : 'Login as School'}</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-600 opacity-90"/>
+                <div className="relative px-4 py-3 flex items-center justify-center h-full">
+                  <HiLogin className="w-6 h-6 text-white mr-2 group-hover:scale-110 transition-transform" />
+                  <span className="text-white font-medium text-sm">
+                    {showSchoolLogin ? 'Hide School Login' : 'Login as School'}
+                  </span>
+                </div>
               </button>
             )}
 
             {selectedDepartment && (
               <button
                 onClick={() => setShowDepartmentLogin(!showDepartmentLogin)}
-                className="w-full md:max-w-md mx-auto py-3 px-4 bg-gradient-to-r 
-                         from-indigo-500 to-indigo-600 rounded-xl shadow-md 
-                         hover:shadow-lg transform transition-all duration-200 
-                         text-white font-medium flex items-center justify-center 
-                         space-x-2 hover:-translate-y-0.5"
+                className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-lg 
+                           transform transition-all duration-300 hover:-translate-y-1 h-20"
               >
-                <HiLogin className="w-5 h-5" />
-                <span>{showDepartmentLogin ? 'Hide Department Login' : 'Login as Department'}</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-700 opacity-90"/>
+                <div className="relative px-4 py-3 flex items-center justify-center h-full">
+                  <HiLogin className="w-6 h-6 text-white mr-2 group-hover:scale-110 transition-transform" />
+                  <span className="text-white font-medium text-sm">
+                    {showDepartmentLogin ? 'Hide Department Login' : 'Login as Department'}
+                  </span>
+                </div>
               </button>
             )}
 
-            {/* Login Forms */}
-            {showSchoolLogin && selectedSchool && (
-              <SchoolLoginForm
-                universityId={selectedUniversityRef.current}
-                schoolId={selectedSchool}
-              />
-            )}
-
-            {showDepartmentLogin && selectedDepartment && (
-              <DepartmentLoginForm
-                universityId={selectedUniversityRef.current}
-                schoolId={selectedSchool}
-                departmentId={selectedDepartment}
-              />
-            )}
+            <button
+              onClick={() => setShowLoginForm(!showLoginForm)}
+              className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-lg 
+                         transform transition-all duration-300 hover:-translate-y-1 h-20"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-700 opacity-90"/>
+              <div className="relative px-4 py-3 flex items-center justify-center h-full">
+                <HiLogin className="w-6 h-6 text-white mr-2 group-hover:scale-110 transition-transform" />
+                <span className="text-white font-medium text-sm">
+                  {showLoginForm ? 'Hide Admin Login' : 'Login as Admin'}
+                </span>
+              </div>
+            </button>
           </div>
+
+          {/* Login Forms */}
+          {showSchoolLogin && selectedSchool && (
+            <SchoolLoginForm
+              universityId={selectedUniversityRef.current}
+              schoolId={selectedSchool}
+            />
+          )}
+
+          {showDepartmentLogin && selectedDepartment && (
+            <DepartmentLoginForm
+              universityId={selectedUniversityRef.current}
+              schoolId={selectedSchool}
+              departmentId={selectedDepartment}
+            />
+          )}
         </div>
       )}
 
       <div className="mt-4 md:mt-8 space-y-4">
-        <button
-          onClick={() => setShowLoginForm(!showLoginForm)}
-          className="w-full md:max-w-md mx-auto py-3 px-4 bg-gradient-to-r 
-                   from-indigo-500 to-indigo-600 rounded-xl shadow-md 
-                   hover:shadow-lg transform transition-all duration-200 
-                   text-white font-medium flex items-center justify-center 
-                   space-x-2 hover:-translate-y-0.5"
-        >
-          <HiLogin className="w-5 h-5" />
-          <span>{showLoginForm ? 'Hide Login Form' : 'Login as Admin'}</span>
-        </button>
-
         {showLoginForm && (
           <div className="mt-4 bg-white rounded-xl shadow-lg p-8 
                          border border-gray-100">
