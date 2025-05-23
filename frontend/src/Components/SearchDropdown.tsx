@@ -1,25 +1,30 @@
+import type{ ReactNode } from 'react';
 import { HiSearch } from 'react-icons/hi';
-import type { University } from '../types/auth';
+import type{ BaseItem } from '../types/auth';
 
-interface SearchDropdownProps {
+interface SearchDropdownProps<T extends BaseItem> {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   showDropdown: boolean;
   onDropdownToggle: (show: boolean) => void;
-  universities: University[];
-  onUniversitySelect: (id: string, name: string) => void;
+  items: T[];
+  onItemSelect: (id: string, name: string) => void;
+  placeholder: string;
+  renderItem?: (item: T) => ReactNode;
 }
 
-export const SearchDropdown = ({
+export const SearchDropdown = <T extends BaseItem>({
   searchTerm,
   onSearchChange,
   showDropdown,
   onDropdownToggle,
-  universities,
-  onUniversitySelect
-}: SearchDropdownProps) => {
-  const filteredUniversities = universities.filter(university =>
-    university.name.toLowerCase().includes(searchTerm.toLowerCase())
+  items,
+  onItemSelect,
+  placeholder,
+  renderItem
+}: SearchDropdownProps<T>) => {
+  const filteredItems = items.filter(item =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -33,7 +38,7 @@ export const SearchDropdown = ({
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           onFocus={() => onDropdownToggle(true)}
-          placeholder="Search your university..."
+          placeholder={placeholder}
           className="w-full px-4 py-3.5 bg-transparent outline-none 
                     placeholder-gray-400 text-gray-900"
         />
@@ -45,24 +50,23 @@ export const SearchDropdown = ({
       {showDropdown && (
         <div className="absolute z-50 w-full mt-2 bg-white rounded-xl 
                       shadow-lg border border-gray-100 max-h-60 overflow-auto">
-          {filteredUniversities.length > 0 ? (
-            filteredUniversities.map((university) => (
+          {filteredItems.length > 0 ? (
+            filteredItems.map((item) => (
               <div
-                key={university.id}
-                onClick={() => onUniversitySelect(university.id, university.name)}
+                key={item.id}
+                onClick={() => onItemSelect(item.id, item.name)}
                 className="px-4 py-3 hover:bg-gray-50 cursor-pointer 
                          transition-all duration-200 border-b border-gray-50
                          last:border-b-0"
               >
-                <div className="font-medium text-gray-900">{university.name}</div>
-                <div className="text-sm text-indigo-500">
-                  {university.city}, {university.state}
-                </div>
+                {renderItem ? renderItem(item) : (
+                  <div className="font-medium text-gray-900">{item.name}</div>
+                )}
               </div>
             ))
           ) : (
             <div className="px-4 py-3 text-gray-500 text-center">
-              No universities found
+              No items found
             </div>
           )}
         </div>

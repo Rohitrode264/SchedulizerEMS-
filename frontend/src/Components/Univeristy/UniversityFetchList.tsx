@@ -1,11 +1,14 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HiLogin, HiMail, HiKey } from 'react-icons/hi';
 import { useUniversities } from '../../hooks/fetchUniversities';
 import { SearchDropdown } from '../SearchDropdown';
 import { InputField } from '../InputField';
-import { API_URL } from '../../config/config';
+import { SchoolLoginForm } from '../Auth/SchoolLogin';
+import { DepartmentLoginForm } from '../Auth/DepartmentLoginForm';
 import axios from 'axios';
+import { API_URL } from '../../config/config';
+import type { University, School, Department } from '../../types/auth';
 
 export default function UniversityList() {
   const { universities, loading, error } = useUniversities();
@@ -19,6 +22,47 @@ export default function UniversityList() {
   });
   const [loginError, setLoginError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  const [schools, setSchools] = useState<School[]>([]);
+  const [selectedSchool, setSelectedSchool] = useState('');
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [showSchoolLogin, setShowSchoolLogin] = useState(false);
+  const [showDepartmentLogin, setShowDepartmentLogin] = useState(false);
+  const [schoolSearchTerm, setSchoolSearchTerm] = useState('');
+  const [departmentSearchTerm, setDepartmentSearchTerm] = useState('');
+  const [showSchoolDropdown, setShowSchoolDropdown] = useState(false);
+  const [showDepartmentDropdown, setShowDepartmentDropdown] = useState(false);
+
+  useEffect(() => {
+    if (selectedUniversityRef.current) {
+      fetchSchools(selectedUniversityRef.current);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedSchool) {
+      fetchDepartments(selectedUniversityRef.current, selectedSchool);
+    }
+  }, [selectedSchool]);
+
+  const fetchSchools = async (universityId: string) => {
+    try {
+      const { data } = await axios.get<School[]>(`${API_URL}/auth/schools/${universityId}`);
+      setSchools(data);
+    } catch (err) {
+      console.error('Error fetching schools:', err);
+    }
+  };
+
+  const fetchDepartments = async (universityId: string, schoolId: string) => {
+    try {
+      const { data } = await axios.get<Department[]>(`${API_URL}/auth/departments/${universityId}/${schoolId}`);
+      setDepartments(data);
+    } catch (err) {
+      console.error('Error fetching departments:', err);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,8 +101,8 @@ export default function UniversityList() {
       console.error('Login error:', err);
       const errorMessage = axios.isAxiosError(err)
         ? err.response?.data?.message || 'Failed to login'
-        : err instanceof Error 
-          ? err.message 
+        : err instanceof Error
+          ? err.message
           : 'Failed to login. Please try again.';
       setLoginError(errorMessage);
     }
@@ -82,19 +126,114 @@ export default function UniversityList() {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6 p-4 md:p-0">
-      <SearchDropdown
+    <div className="space-y-6 md:space-y-8 p-4 md:p-0">
+      {/* University Search */}
+      <SearchDropdown<University>
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         showDropdown={showDropdown}
         onDropdownToggle={setShowDropdown}
-        universities={universities}
-        onUniversitySelect={(id, name) => {
+        items={universities}
+        onItemSelect={(id, name) => {
           selectedUniversityRef.current = id;
           setSearchTerm(name);
           setShowDropdown(false);
+          fetchSchools(id);
         }}
+        placeholder="Search your university..."
+        renderItem={(university) => (
+          <>
+            <div className="font-medium text-gray-900">{university.name}</div>
+            <div className="text-sm text-indigo-500">
+              {university.city}, {university.state}
+            </div>
+          </>
+        )}
       />
+
+      {selectedUniversityRef.current && (
+        <div className="space-y-6">
+          {/* School Search */}
+          <SearchDropdown<School>
+            searchTerm={schoolSearchTerm}
+            onSearchChange={setSchoolSearchTerm}
+            showDropdown={showSchoolDropdown}
+            onDropdownToggle={setShowSchoolDropdown}
+            items={schools}
+            onItemSelect={(id, name) => {
+              setSelectedSchool(id);
+              setSchoolSearchTerm(name);
+              setShowSchoolDropdown(false);
+              fetchDepartments(selectedUniversityRef.current, id);
+            }}
+            placeholder="Search for a school..."
+          />
+
+          {/* Department Search */}
+          {selectedSchool && (
+            <SearchDropdown<Department>
+              searchTerm={departmentSearchTerm}
+              onSearchChange={setDepartmentSearchTerm}
+              showDropdown={showDepartmentDropdown}
+              onDropdownToggle={setShowDepartmentDropdown}
+              items={departments}
+              onItemSelect={(id, name) => {
+                setSelectedDepartment(id);
+                setDepartmentSearchTerm(name);
+                setShowDepartmentDropdown(false);
+              }}
+              placeholder="Search for a department..."
+            />
+          )}
+
+          {/* Login Buttons with Unified Styling */}
+          <div className="space-y-4">
+            {selectedSchool && !showDepartmentLogin && (
+              <button
+                onClick={() => setShowSchoolLogin(!showSchoolLogin)}
+                className="w-full md:max-w-md mx-auto py-3 px-4 bg-gradient-to-r 
+                         from-indigo-500 to-indigo-600 rounded-xl shadow-md 
+                         hover:shadow-lg transform transition-all duration-200 
+                         text-white font-medium flex items-center justify-center 
+                         space-x-2 hover:-translate-y-0.5"
+              >
+                <HiLogin className="w-5 h-5" />
+                <span>{showSchoolLogin ? 'Hide School Login' : 'Login as School'}</span>
+              </button>
+            )}
+
+            {selectedDepartment && (
+              <button
+                onClick={() => setShowDepartmentLogin(!showDepartmentLogin)}
+                className="w-full md:max-w-md mx-auto py-3 px-4 bg-gradient-to-r 
+                         from-indigo-500 to-indigo-600 rounded-xl shadow-md 
+                         hover:shadow-lg transform transition-all duration-200 
+                         text-white font-medium flex items-center justify-center 
+                         space-x-2 hover:-translate-y-0.5"
+              >
+                <HiLogin className="w-5 h-5" />
+                <span>{showDepartmentLogin ? 'Hide Department Login' : 'Login as Department'}</span>
+              </button>
+            )}
+
+            {/* Login Forms */}
+            {showSchoolLogin && selectedSchool && (
+              <SchoolLoginForm
+                universityId={selectedUniversityRef.current}
+                schoolId={selectedSchool}
+              />
+            )}
+
+            {showDepartmentLogin && selectedDepartment && (
+              <DepartmentLoginForm
+                universityId={selectedUniversityRef.current}
+                schoolId={selectedSchool}
+                departmentId={selectedDepartment}
+              />
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="mt-4 md:mt-8 space-y-4">
         <button
@@ -117,14 +256,14 @@ export default function UniversityList() {
               <HiLogin className="w-6 h-6 text-indigo-500" />
               <span>University Admin Login</span>
             </h3>
-            
+
             <form onSubmit={handleLogin} className="space-y-5">
               <InputField
                 label="Admin Email"
                 type="email"
                 name="adminEmail"
                 value={loginData.adminEmail}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLoginData({...loginData, adminEmail: e.target.value})}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLoginData({ ...loginData, adminEmail: e.target.value })}
                 icon={<HiMail className="w-5 h-5 text-gray-400" />}
               />
               <InputField
@@ -132,7 +271,7 @@ export default function UniversityList() {
                 type="password"
                 name="password"
                 value={loginData.password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLoginData({...loginData, password: e.target.value})}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLoginData({ ...loginData, password: e.target.value })}
                 icon={<HiKey className="w-5 h-5 text-gray-400" />}
               />
               {loginError && (
