@@ -17,9 +17,20 @@ export default function useFetchScheme(departmentId: string|undefined) {
       return;
     }
 
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('No authentication token found');
+      return;
+    }
+
     setLoading(true);
     axios
-      .get(`http://localhost:3000/api/v1/scheme/${departmentId}`)
+      .get(`http://localhost:3000/api/v1/scheme/${departmentId}`, {
+        headers: {
+          'Authorization': ` ${token.replace(/['"]+/g, '')}`,
+          'Content-Type': 'application/json'
+        }
+      })
       .then((res) => {
         setSchemes(res.data);
         setError(null);

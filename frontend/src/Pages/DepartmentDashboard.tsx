@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import useFetchSemester from '../hooks/useSemester';
 import useFetchScheme from '../hooks/usefetchScheme';
 import useFetchCourses, { type CourseType } from '../hooks/useFetchCourses';
-import useFetchFaculty, { type FacultyType } from '../hooks/useFetchfaculty';
+import useFetchFaculty from '../hooks/useFetchfaculty';
 
 import Table from '../Components/Table';
 
@@ -41,6 +41,12 @@ export default function DepartmentDashboard() {
       return;
     }
 
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Authentication token not found. Please login again.');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('schemeName', schemeName);
@@ -51,7 +57,12 @@ export default function DepartmentDashboard() {
       const response = await axios.post(
         `http://localhost:3000/api/excel/upload-with-scheme`,
         formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        { 
+          headers: { 
+            'Content-Type': 'multipart/form-data',
+            'Authorization': ` ${token.replace(/['"]+/g, '')}`
+          } 
+        }
       );
       alert(response.data.message || 'Upload successful!');
     } catch (error: any) {
@@ -68,6 +79,12 @@ export default function DepartmentDashboard() {
       return;
     }
 
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Authentication token not found. Please login again.');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('file', facultyFile);
     formData.append('departmentId', departmentId);
@@ -77,7 +94,12 @@ export default function DepartmentDashboard() {
       const response = await axios.post(
         `http://localhost:3000/api/v1/faculty/upload-faculty`,
         formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        { 
+          headers: { 
+            'Content-Type': 'multipart/form-data',
+            'Authorization': ` ${token.replace(/['"]+/g, '')}`
+          } 
+        }
       );
       alert(response.data.message || 'Upload successful!');
     } catch (error: any) {
