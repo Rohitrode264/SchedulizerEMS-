@@ -10,7 +10,7 @@ import useFetchFaculty from '../hooks/useFetchfaculty';
 
 import Table from '../Components/Table';
 import Button from '../Components/Button';
-import { BookOpen, Calendar, CalendarDays, Cpu, Users } from 'lucide-react';
+import {  CalendarDays,  Users } from 'lucide-react';
 
 export default function DepartmentDashboard() {
   const { departmentId } = useParams();

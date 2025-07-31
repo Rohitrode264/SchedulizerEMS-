@@ -31,7 +31,7 @@ export default function useFetchCourses(semesterId: string) {
     axios
       .get(`http://localhost:3000/api/v1/scheme/course/${semesterId}`, {
         headers: {
-          'Authorization': ` ${token.replace(/['"]+/g, '')}`,
+          'Authorization': `${token.replace(/['"]+/g, '')}`,
           'Content-Type': 'application/json'
         }
       })

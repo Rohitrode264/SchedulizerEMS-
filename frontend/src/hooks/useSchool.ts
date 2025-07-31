@@ -28,7 +28,7 @@ export const useSchoolOperations = (universityId: string | undefined) => {
                 {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': ` ${token.replace(/['"]+/g, '')}`
+                        'Authorization': `${token.replace(/['"]+/g, '')}`
                     }
                 }
             );
