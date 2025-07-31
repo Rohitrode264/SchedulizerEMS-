@@ -31,7 +31,7 @@ export const useDepartments = (schoolId: string | undefined) => {
                 {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': ` ${token.replace(/['"]+/g, '')}`
+                        'Authorization': `${token.replace(/['"]+/g, '')}`
                     }
                 }
             );
@@ -73,7 +73,7 @@ export const useDepartments = (schoolId: string | undefined) => {
                 {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token.replace(/['"]+/g, '')}`
+                        'Authorization': `${token.replace(/['"]+/g, '')}`
                     }
                 }
             );

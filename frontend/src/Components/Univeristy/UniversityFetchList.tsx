@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HiLogin, HiMail, HiKey } from 'react-icons/hi';
+import { HiLogin, HiMail, HiKey, HiAcademicCap, HiOfficeBuilding, HiUserGroup } from 'react-icons/hi';
 import { useUniversities } from '../../hooks/fetchUniversities';
 import { SearchDropdown } from '../SearchDropdown';
 import { InputField } from '../InputField';
@@ -108,197 +108,274 @@ export default function UniversityList() {
     }
   };
 
+  const clearUniversitySelection = () => {
+    selectedUniversityRef.current = '';
+    setSearchTerm('');
+    setSchools([]);
+    setSelectedSchool('');
+    setSchoolSearchTerm('');
+    setDepartments([]);
+    setSelectedDepartment('');
+    setDepartmentSearchTerm('');
+    setShowLoginForm(false);
+    setShowSchoolLogin(false);
+    setShowDepartmentLogin(false);
+  };
+
+  const clearSchoolSelection = () => {
+    setSelectedSchool('');
+    setSchoolSearchTerm('');
+    setDepartments([]);
+    setSelectedDepartment('');
+    setDepartmentSearchTerm('');
+    setShowSchoolLogin(false);
+    setShowDepartmentLogin(false);
+  };
+
+  const clearDepartmentSelection = () => {
+    setSelectedDepartment('');
+    setDepartmentSearchTerm('');
+    setShowDepartmentLogin(false);
+  };
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[200px] md:min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 md:h-12 md:w-12 
-                     border-t-2 border-b-2 border-indigo-500"></div>
+      <div className="flex justify-center items-center min-h-[200px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center text-red-600 py-4 md:py-8">
+      <div className="text-center text-red-600 py-4">
         <p>Error: {error}</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 md:space-y-8 p-4 md:p-0">
-      {/* University Search */}
-      <SearchDropdown<University>
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        showDropdown={showDropdown}
-        onDropdownToggle={setShowDropdown}
-        items={universities}
-        onItemSelect={(id, name) => {
-          selectedUniversityRef.current = id;
-          setSearchTerm(name);
-          setShowDropdown(false);
-          fetchSchools(id);
-        }}
-        placeholder="Search your university..."
-        renderItem={(university) => (
-          <>
-            <div className="font-medium text-gray-900">{university.name}</div>
-            <div className="text-sm text-indigo-500">
-              {university.city}, {university.state}
-            </div>
-          </>
-        )}
-      />
+    <div className="space-y-6">
+      {/* Step 1: University Selection */}
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2 mb-4">
+          <div className="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+            1
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">Select University</h3>
+        </div>
+        
+        <SearchDropdown<University>
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          showDropdown={showDropdown}
+          onDropdownToggle={setShowDropdown}
+          items={universities}
+          onItemSelect={(id, name) => {
+            selectedUniversityRef.current = id;
+            setSearchTerm(name);
+            setShowDropdown(false);
+            fetchSchools(id);
+          }}
+          onClear={clearUniversitySelection}
+          selectedValue={selectedUniversityRef.current}
+          placeholder="Search your university..."
+          renderItem={(university) => (
+            <>
+              <div className="font-medium text-gray-900">{university.name}</div>
+              <div className="text-sm text-indigo-500">
+                {university.city}, {university.state}
+              </div>
+            </>
+          )}
+        />
+      </div>
 
       {selectedUniversityRef.current && (
         <div className="space-y-6">
-          {/* School Search */}
-          <SearchDropdown<School>
-            searchTerm={schoolSearchTerm}
-            onSearchChange={setSchoolSearchTerm}
-            showDropdown={showSchoolDropdown}
-            onDropdownToggle={setShowSchoolDropdown}
-            items={schools}
-            onItemSelect={(id, name) => {
-              setSelectedSchool(id);
-              setSchoolSearchTerm(name);
-              setShowSchoolDropdown(false);
-              fetchDepartments(selectedUniversityRef.current, id);
-            }}
-            placeholder="Search for a school..."
-          />
-
-          {/* Department Search */}
-          {selectedSchool && (
-            <SearchDropdown<Department>
-              searchTerm={departmentSearchTerm}
-              onSearchChange={setDepartmentSearchTerm}
-              showDropdown={showDepartmentDropdown}
-              onDropdownToggle={setShowDepartmentDropdown}
-              items={departments}
+          {/* Step 2: School Selection */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                2
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Select School (Optional)</h3>
+            </div>
+            
+            <SearchDropdown<School>
+              searchTerm={schoolSearchTerm}
+              onSearchChange={setSchoolSearchTerm}
+              showDropdown={showSchoolDropdown}
+              onDropdownToggle={setShowSchoolDropdown}
+              items={schools}
               onItemSelect={(id, name) => {
-                setSelectedDepartment(id);
-                setDepartmentSearchTerm(name);
-                setShowDepartmentDropdown(false);
+                setSelectedSchool(id);
+                setSchoolSearchTerm(name);
+                setShowSchoolDropdown(false);
+                fetchDepartments(selectedUniversityRef.current, id);
               }}
-              placeholder="Search for a department..."
+              onClear={clearSchoolSelection}
+              selectedValue={selectedSchool}
+              placeholder="Search for a school..."
             />
+          </div>
+
+          {/* Step 3: Department Selection */}
+          {selectedSchool && (
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                  3
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">Select Department (Optional)</h3>
+              </div>
+              
+              <SearchDropdown<Department>
+                searchTerm={departmentSearchTerm}
+                onSearchChange={setDepartmentSearchTerm}
+                showDropdown={showDepartmentDropdown}
+                onDropdownToggle={setShowDepartmentDropdown}
+                items={departments}
+                onItemSelect={(id, name) => {
+                  setSelectedDepartment(id);
+                  setDepartmentSearchTerm(name);
+                  setShowDepartmentDropdown(false);
+                }}
+                onClear={clearDepartmentSelection}
+                selectedValue={selectedDepartment}
+                placeholder="Search for a department..."
+              />
+            </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-3xl mx-auto w-full px-4">
-            {selectedSchool && !showDepartmentLogin && (
-              <button
-                onClick={() => setShowSchoolLogin(!showSchoolLogin)}
-                className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-lg 
-                           transform transition-all duration-300 hover:-translate-y-1 h-20"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-600 opacity-90"/>
-                <div className="relative px-4 py-3 flex items-center justify-center h-full">
-                  <HiLogin className="w-6 h-6 text-white mr-2 group-hover:scale-110 transition-transform" />
-                  <span className="text-white font-medium text-sm">
-                    {showSchoolLogin ? 'Hide School Login' : 'Login as School'}
-                  </span>
-                </div>
-              </button>
-            )}
-
-            {selectedDepartment && (
-              <button
-                onClick={() => setShowDepartmentLogin(!showDepartmentLogin)}
-                className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-lg 
-                           transform transition-all duration-300 hover:-translate-y-1 h-20"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-700 opacity-90"/>
-                <div className="relative px-4 py-3 flex items-center justify-center h-full">
-                  <HiLogin className="w-6 h-6 text-white mr-2 group-hover:scale-110 transition-transform" />
-                  <span className="text-white font-medium text-sm">
-                    {showDepartmentLogin ? 'Hide Department Login' : 'Login as Department'}
-                  </span>
-                </div>
-              </button>
-            )}
-
-            <button
-              onClick={() => setShowLoginForm(!showLoginForm)}
-              className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-lg 
-                         transform transition-all duration-300 hover:-translate-y-1 h-20"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-700 opacity-90"/>
-              <div className="relative px-4 py-3 flex items-center justify-center h-full">
-                <HiLogin className="w-6 h-6 text-white mr-2 group-hover:scale-110 transition-transform" />
-                <span className="text-white font-medium text-sm">
-                  {showLoginForm ? 'Hide Admin Login' : 'Login as Admin'}
-                </span>
+          {/* Login Options */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                4
               </div>
-            </button>
+              <h3 className="text-lg font-semibold text-gray-900">Choose Login Type</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* University Admin Login */}
+              <button
+                onClick={() => setShowLoginForm(!showLoginForm)}
+                className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg 
+                           transform transition-all duration-300 hover:-translate-y-1 h-24
+                           bg-gradient-to-r from-indigo-500 to-indigo-600"
+              >
+                <div className="relative px-4 py-3 flex flex-col items-center justify-center h-full text-white">
+                  <HiAcademicCap className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-sm text-center">
+                    {showLoginForm ? 'Hide Admin Login' : 'University Admin'}
+                  </span>
+                </div>
+              </button>
+
+              {/* School Login */}
+              {selectedSchool && (
+                <button
+                  onClick={() => setShowSchoolLogin(!showSchoolLogin)}
+                  className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg 
+                             transform transition-all duration-300 hover:-translate-y-1 h-24
+                             bg-gradient-to-r from-green-500 to-green-600"
+                >
+                  <div className="relative px-4 py-3 flex flex-col items-center justify-center h-full text-white">
+                    <HiOfficeBuilding className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
+                    <span className="font-medium text-sm text-center">
+                      {showSchoolLogin ? 'Hide School Login' : 'School Admin'}
+                    </span>
+                  </div>
+                </button>
+              )}
+
+              {/* Department Login */}
+              {selectedDepartment && (
+                <button
+                  onClick={() => setShowDepartmentLogin(!showDepartmentLogin)}
+                  className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg 
+                             transform transition-all duration-300 hover:-translate-y-1 h-24
+                             bg-gradient-to-r from-purple-500 to-purple-600"
+                >
+                  <div className="relative px-4 py-3 flex flex-col items-center justify-center h-full text-white">
+                    <HiUserGroup className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
+                    <span className="font-medium text-sm text-center">
+                      {showDepartmentLogin ? 'Hide Department Login' : 'Department Admin'}
+                    </span>
+                  </div>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Login Forms */}
           {showSchoolLogin && selectedSchool && (
-            <SchoolLoginForm
-              universityId={selectedUniversityRef.current}
-              schoolId={selectedSchool}
-            />
+            <div className="mt-6">
+              <SchoolLoginForm
+                universityId={selectedUniversityRef.current}
+                schoolId={selectedSchool}
+              />
+            </div>
           )}
 
           {showDepartmentLogin && selectedDepartment && (
-            <DepartmentLoginForm
-              universityId={selectedUniversityRef.current}
-              schoolId={selectedSchool}
-              departmentId={selectedDepartment}
-            />
+            <div className="mt-6">
+              <DepartmentLoginForm
+                universityId={selectedUniversityRef.current}
+                schoolId={selectedSchool}
+                departmentId={selectedDepartment}
+              />
+            </div>
           )}
         </div>
       )}
 
-      <div className="mt-4 md:mt-8 space-y-4">
-        {showLoginForm && (
-          <div className="mt-4 bg-white rounded-xl shadow-lg p-8 
-                         border border-gray-100">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6 
-                           flex items-center space-x-2">
-              <HiLogin className="w-6 h-6 text-indigo-500" />
-              <span>University Admin Login</span>
-            </h3>
+      {/* University Admin Login Form */}
+      {showLoginForm && (
+        <div className="mt-6 bg-gray-50 rounded-xl p-6 border border-gray-200">
+          <h3 className="text-xl font-semibold text-gray-900 mb-6 
+                         flex items-center space-x-2">
+            <HiAcademicCap className="w-6 h-6 text-indigo-500" />
+            <span>University Admin Login</span>
+          </h3>
 
-            <form onSubmit={handleLogin} className="space-y-5">
-              <InputField
-                label="Admin Email"
-                type="email"
-                name="adminEmail"
-                value={loginData.adminEmail}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLoginData({ ...loginData, adminEmail: e.target.value })}
-                icon={<HiMail className="w-5 h-5 text-gray-400" />}
-              />
-              <InputField
-                label="Password"
-                type="password"
-                name="password"
-                value={loginData.password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLoginData({ ...loginData, password: e.target.value })}
-                icon={<HiKey className="w-5 h-5 text-gray-400" />}
-              />
-              {loginError && (
-                <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
-                  <p className="text-sm text-red-600">{loginError}</p>
-                </div>
-              )}
-              <button
-                type="submit"
-                className="w-full py-3.5 bg-gradient-to-r from-indigo-500 
-                         to-indigo-600 rounded-xl shadow-md hover:shadow-lg 
-                         transform transition-all duration-200 text-white 
-                         font-medium hover:-translate-y-0.5 
-                         focus:outline-none focus:ring-2 focus:ring-indigo-500 
-                         focus:ring-offset-2"
-              >
-                Login to Dashboard
-              </button>
-            </form>
-          </div>
-        )}
-      </div>
+          <form onSubmit={handleLogin} className="space-y-5">
+            <InputField
+              label="Admin Email"
+              type="email"
+              name="adminEmail"
+              value={loginData.adminEmail}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLoginData({ ...loginData, adminEmail: e.target.value })}
+              icon={<HiMail className="w-5 h-5 text-gray-400" />}
+            />
+            <InputField
+              label="Password"
+              type="password"
+              name="password"
+              value={loginData.password}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLoginData({ ...loginData, password: e.target.value })}
+              icon={<HiKey className="w-5 h-5 text-gray-400" />}
+            />
+            {loginError && (
+              <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
+                <p className="text-sm text-red-600">{loginError}</p>
+              </div>
+            )}
+            <button
+              type="submit"
+              className="w-full py-3.5 bg-gradient-to-r from-indigo-500 
+                       to-indigo-600 rounded-xl shadow-md hover:shadow-lg 
+                       transform transition-all duration-200 text-white 
+                       font-medium hover:-translate-y-0.5 
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500 
+                       focus:ring-offset-2"
+            >
+              Login to Dashboard
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

@@ -56,6 +56,7 @@ model Semester {
   schemaId  String
   courses   Course[]
   schema    Scheme   @relation(fields: [schemaId], references: [id])
+  assignments Assignment[]
 }
 
 model Course {
@@ -67,6 +68,7 @@ model Course {
   courseType  String
   SemesterId  String
   semester    Semester @relation(fields: [SemesterId], references: [id])
+  assignments Assignment[]
 }
 
 model faculty {
@@ -78,4 +80,22 @@ model faculty {
   departmentId      String
   designation       String
   department        Department @relation(fields: [departmentId], references: [id])
+  assignments       Assignment[]
+}
+
+model Assignment {
+  id          String   @id @default(uuid())
+  courseId    String
+  facultyId   String
+  laboratory  String
+  room        String
+  credits     Float
+  hasLab      Boolean  @default(false)
+  semesterId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  course      Course   @relation(fields: [courseId], references: [id])
+  faculty     faculty  @relation(fields: [facultyId], references: [id])
+  semester    Semester @relation(fields: [semesterId], references: [id])
 }

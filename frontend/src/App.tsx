@@ -6,6 +6,7 @@ import DepartmentDashboard from './Pages/DepartmentDashboard';
 import SchoolDepartments from './Pages/SchoolDepartments';
 import { Toaster } from './ToastNotifications/Toaster';
 import { Classes } from './Pages/Classes';
+import { AssignClass } from './Pages/AssignClass'; // Added import
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/school/:schoolId/departments" element={<SchoolDepartments />} />
           <Route path="/department/:departmentId/dashboard" element={<DepartmentDashboard />}/>
           <Route path='/department/:departmentId/classes' element={<Classes/>}/>
+          <Route path='/department/:departmentId/assign-class/:semesterId' element={<AssignClass/>}/> {/* Added route */}
         </Routes>
       </BrowserRouter>
       <Toaster />

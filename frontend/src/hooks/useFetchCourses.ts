@@ -21,9 +21,20 @@ export default function useFetchCourses(semesterId: string) {
       return;
     }
 
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('No authentication token found');
+      return;
+    }
+
     setLoading(true);
     axios
-      .get(`http://localhost:3000/api/v1/scheme/course/${semesterId}`)
+      .get(`http://localhost:3000/api/v1/scheme/course/${semesterId}`, {
+        headers: {
+          'Authorization': `${token.replace(/['"]+/g, '')}`,
+          'Content-Type': 'application/json'
+        }
+      })
       .then((res) => {
         console.log(res);
         setCourses(res.data);

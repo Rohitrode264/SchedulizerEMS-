@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import useFetchClasses from '../hooks/useFetchClasees';
 import Button from '../Components/Button';
-import { CalendarDays, Trash2 } from 'lucide-react';
+import { CalendarDays, Trash2, Users } from 'lucide-react'; // Added Users
 import { API_URL } from '../config/config';
 import axios from 'axios';
 
@@ -82,16 +82,26 @@ export const Classes = () => {
                               {new Date(sem.endDate).toLocaleDateString()}
                             </p>
                           </div>
-                          <Button
-                            variant="outline"
-                            className="mt-4"
-                            onClick={() =>
-                              navigate(`/department/${departmentId}/timetable/${sem.id}`)
-                            }
-                          >
-                            <CalendarDays className="w-4 h-4 mr-2" />
-                            View Timetable
-                          </Button>
+                          <div className="flex gap-2 mt-4">
+                            <Button
+                              variant="outline"
+                              onClick={() =>
+                                navigate(`/department/${departmentId}/timetable/${sem.id}`)
+                              }
+                            >
+                              <CalendarDays className="w-4 h-4 mr-2" />
+                              View Timetable
+                            </Button>
+                            <Button
+                              variant="primary"
+                              onClick={() =>
+                                navigate(`/department/${departmentId}/assign-class/${sem.id}`)
+                              }
+                            >
+                              <Users className="w-4 h-4 mr-2" />
+                              Assign Class
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>

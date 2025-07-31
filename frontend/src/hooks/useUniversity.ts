@@ -51,7 +51,7 @@ export const useSchools = (universityId: string | undefined) => {
                 `${API_URL}/auth/schools/${universityId}`,
                 {
                     headers: {
-                        'Authorization': ` ${token.replace(/['"]+/g, '')}`
+                        'Authorization': `${token.replace(/['"]+/g, '')}`
                     }
                 }
             );
@@ -87,7 +87,7 @@ export const useDepartments = (universityId: string | undefined, schoolId: strin
                 `${API_URL}/auth/departments/${universityId}/${schoolId}`,
                 {
                     headers: {
-                        'Authorization': ` ${token.replace(/['"]+/g, '')}`
+                        'Authorization': `${token.replace(/['"]+/g, '')}`
                     }
                 }
             );
