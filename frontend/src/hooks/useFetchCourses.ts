@@ -36,6 +36,7 @@ export default function useFetchCourses(semesterId: string) {
         }
       })
       .then((res) => {
+        console.log(res);
         setCourses(res.data);
       })
       .catch((error) => {
@@ -45,7 +46,7 @@ export default function useFetchCourses(semesterId: string) {
       .finally(() => {
         setLoading(false);
       });
-  }, [semesterId]); // ✅ This is the correct syntax
+  }, [semesterId]); 
 
   return { courses, Loading, error };
 }

@@ -99,4 +99,72 @@ schemeRouter.delete('/course/:courseId', verifyToken, async (req, res) => {
     }
 });
 
+schemeRouter.get('/allCourses/:departmentId', async (req, res) => {
+  try {
+    const schemes = await prisma.scheme.findMany({
+      where: {
+        departmentId: req.params.departmentId
+      },
+      include: {
+        semester: true  
+      }
+    });
+
+    res.status(200).json(schemes);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+schemeRouter.delete('/deleteScheme/:schemeId',async(req,res)=>{
+  try{
+    const response=await prisma.scheme.delete({
+      where:{
+        id:req.params.schemeId
+      }
+    });
+
+    if(!response)
+        res.status(409).json({
+      message:"Unable to delete scheme"});
+
+    res.status(200).json({
+      message:"Successfully deleted scheme"
+    })
+  }catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+})
+//@ts-ignore
+schemeRouter.delete('/deleteSemester/:semesterId', async (req, res) => {
+  const semesterId = req.params.semesterId;
+
+  try {
+    await prisma.course.deleteMany({
+      where: {
+        SemesterId: semesterId
+      }
+    });
+
+    await prisma.semester.delete({
+      where: {
+        id: semesterId
+      }
+    });
+
+    res.status(200).json({
+      message: "Successfully deleted semester and its courses"
+    });
+
+  } catch (error) {
+
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error", error });
+  }
+});
+
+
+
 export default schemeRouter;

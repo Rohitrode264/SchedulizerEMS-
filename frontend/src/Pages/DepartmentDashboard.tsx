@@ -1,7 +1,7 @@
-import { HiUsers, HiAcademicCap, HiBookOpen } from 'react-icons/hi';
 import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { HiUsers, HiAcademicCap, HiBookOpen } from 'react-icons/hi';
 
 import useFetchSemester from '../hooks/useSemester';
 import useFetchScheme from '../hooks/usefetchScheme';
@@ -9,9 +9,13 @@ import useFetchCourses, { type CourseType } from '../hooks/useFetchCourses';
 import useFetchFaculty from '../hooks/useFetchfaculty';
 
 import Table from '../Components/Table';
+import Button from '../Components/Button';
+import { BookOpen, Calendar, CalendarDays, Cpu, Users } from 'lucide-react';
 
 export default function DepartmentDashboard() {
   const { departmentId } = useParams();
+
+  const navigate=useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [facultyFile, setFacultyFile] = useState<File | null>(null);
   const [schemeName, setSchemeName] = useState('');
@@ -22,17 +26,13 @@ export default function DepartmentDashboard() {
   const [courses, setCourses] = useState<CourseType[]>([]);
   const [selectedTab, setSelectedTab] = useState<'courses' | 'faculty'>('courses');
 
-  const { semesters } = useFetchSemester(selectedSchemeId);
   const { schemes } = useFetchScheme(departmentId);
+  const { semesters } = useFetchSemester(selectedSchemeId);
   const { courses: fetchedCourses } = useFetchCourses(selectedSemesterId);
   const { faculty } = useFetchFaculty(departmentId);
 
   useEffect(() => {
-    if (fetchedCourses && fetchedCourses.length > 0) {
-      setCourses(fetchedCourses);
-    } else {
-      setCourses([]);
-    }
+    setCourses(fetchedCourses?.length ? fetchedCourses : []);
   }, [fetchedCourses]);
 
   const handleUpload = async () => {
@@ -114,65 +114,110 @@ export default function DepartmentDashboard() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
-          <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 px-8 py-8 rounded-t-2xl">
-            <h1 className="text-3xl font-bold text-white">Department Dashboard</h1>
-            <p className="text-indigo-100 mt-2 opacity-90">Manage your department resources</p>
-          </div>
+          {/* Header */}
+          <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 px-8 py-8 rounded-2xl shadow-md flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Department Dashboard</h1>
+          <p className="text-indigo-100 mt-1 opacity-90">Manage your department resources</p>
+        </div>
 
+        <div className="flex gap-4">
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/department/${departmentId}/classes`)}
+          >
+            <Users className="w-4 h-4 mr-2" />
+            View Classes
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/department/${departmentId}/assign-courses`)}
+          >
+            <CalendarDays className="w-4 h-4 mr-2" />
+            Generate TimeTable
+          </Button>
+          
+        </div>
+      </div>
+
+          
+
+          {/* Stats */}
           <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
             <StatCard title="Students" value="0" icon={<HiUsers className="w-8 h-8" />} description="Total enrolled students" />
             <StatCard title="Courses" value={courses.length.toString()} icon={<HiBookOpen className="w-8 h-8" />} description="Active courses" />
             <StatCard title="Faculty" value={faculty.length.toString()} icon={<HiAcademicCap className="w-8 h-8" />} description="Teaching staff members" />
           </div>
 
-          {/* Upload Scheme Excel */}
-          <div className="px-8 py-6 border-t mt-8">
-            <h2 className="text-xl font-semibold mb-4">Upload Scheme Excel</h2>
-            <div className="space-y-4 max-w-md">
-              <input
-                type="text"
-                placeholder="Enter Scheme Name"
-                value={schemeName}
-                onChange={(e) => setSchemeName(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-4 py-2"
-              />
-              <input
-                type="file"
-                accept=".xlsx, .xls"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                className="w-full border border-gray-300 rounded-md p-2"
-              />
+          {/* Upload Scheme Excel (Improved) */}
+          <div className="px-8 py-6 border-t mt-8 ">
+            <h2 className="text-xl font-semibold mb-4 ">Upload Scheme Excel</h2>
+            <div className="bg-gray-50 p-6 rounded-lg border border-slate-300 space-y-4 max-w-xl">
+              <div className="space-y-2">
+                <label htmlFor="schemeName" className="block text-sm font-medium text-gray-700">
+                  Scheme Name
+                </label>
+                <input
+                  id="schemeName"
+                  type="text"
+                  placeholder="e.g., 2023 CSE Scheme"
+                  value={schemeName}
+                  onChange={(e) => setSchemeName(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="schemeFile" className="block text-sm font-medium text-gray-700">
+                  Upload Scheme File (.xlsx, .xls)
+                </label>
+                <input
+                  id="schemeFile"
+                  type="file"
+                  accept=".xlsx, .xls"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
+                />
+              </div>
+
               <button
                 onClick={handleUpload}
                 disabled={loading || !file || !schemeName}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md disabled:opacity-50"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md disabled:opacity-50"
               >
-                {loading ? 'Uploading...' : 'Upload'}
+                {loading ? 'Uploading...' : 'Upload Scheme'}
               </button>
             </div>
           </div>
 
-          {/* Upload Faculty Excel */}
+          {/* Upload Faculty Excel (Improved) */}
           <div className="px-8 py-6 border-t mt-8">
             <h2 className="text-xl font-semibold mb-4">Upload Faculty Data</h2>
-            <div className="space-y-4 max-w-md">
-              <input
-                type="file"
-                accept=".xlsx, .xls"
-                onChange={(e) => setFacultyFile(e.target.files?.[0] || null)}
-                className="w-full border border-gray-300 rounded-md p-2"
-              />
+            <div className="bg-gray-50 p-6 rounded-lg border border-slate-300 space-y-4 max-w-xl">
+              <div className="space-y-2">
+                <label htmlFor="facultyFile" className="block text-sm font-medium text-gray-700">
+                  Upload Faculty File (.xlsx, .xls)
+                </label>
+                <input
+                  id="facultyFile"
+                  type="file"
+                  accept=".xlsx, .xls"
+                  onChange={(e) => setFacultyFile(e.target.files?.[0] || null)}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
+                />
+              </div>
+
               <button
                 onClick={facultyUpload}
                 disabled={facultyExcelLoading || !facultyFile}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md disabled:opacity-50"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md disabled:opacity-50"
               >
-                {facultyExcelLoading ? 'Uploading...' : 'Upload'}
+                {facultyExcelLoading ? 'Uploading...' : 'Upload Faculty'}
               </button>
             </div>
           </div>
 
-          {/* Toggle Tabs */}
+          {/* Tabs */}
           <div className="px-8 pt-8">
             <div className="flex gap-4 mb-6">
               <button
@@ -190,6 +235,7 @@ export default function DepartmentDashboard() {
             </div>
           </div>
 
+          {/* Course List */}
           {selectedTab === 'courses' && (
             <div className="px-8 py-6 border-t">
               <h2 className="text-xl font-semibold mb-4">View Courses</h2>
@@ -237,6 +283,7 @@ export default function DepartmentDashboard() {
             </div>
           )}
 
+          {/* Faculty List */}
           {selectedTab === 'faculty' && (
             <div className="px-8 py-6 border-t">
               <h2 className="text-xl font-semibold mb-4">Faculty List</h2>
@@ -245,7 +292,8 @@ export default function DepartmentDashboard() {
                   data={faculty}
                   columns={[
                     { key: 'name', label: 'Name' },
-                    { key: 'organizationEmail' ,label:'organizationEmail '}, {key:'personalEmail',label: 'Email' },
+                    { key: 'organizationEmail', label: 'Organization Email' },
+                    { key: 'personalEmail', label: 'Email' },
                     { key: 'designation', label: 'Designation' },
                   ]}
                 />
@@ -260,6 +308,7 @@ export default function DepartmentDashboard() {
   );
 }
 
+// ─── Stat Card ───────────────────────────────────────────────────────────────────
 const StatCard = ({
   title,
   value,
