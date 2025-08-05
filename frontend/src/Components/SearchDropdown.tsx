@@ -1,5 +1,6 @@
 import type{ ReactNode } from 'react';
-import { HiSearch } from 'react-icons/hi';
+import { useRef, useEffect } from 'react';
+import { HiSearch, HiX } from 'react-icons/hi';
 import type{ BaseItem } from '../types/auth';
 
 interface SearchDropdownProps<T extends BaseItem> {
@@ -11,6 +12,8 @@ interface SearchDropdownProps<T extends BaseItem> {
   onItemSelect: (id: string, name: string) => void;
   placeholder: string;
   renderItem?: (item: T) => ReactNode;
+  onClear?: () => void;
+  selectedValue?: string;
 }
 
 export const SearchDropdown = <T extends BaseItem>({
@@ -21,14 +24,40 @@ export const SearchDropdown = <T extends BaseItem>({
   items,
   onItemSelect,
   placeholder,
-  renderItem
+  renderItem,
+  onClear,
+  selectedValue
 }: SearchDropdownProps<T>) => {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        onDropdownToggle(false);
+      }
+    };
+
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDropdown, onDropdownToggle]);
+
   const filteredItems = items.filter(item =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleClear = () => {
+    onSearchChange('');
+    onClear?.();
+    onDropdownToggle(false);
+  };
+
   return (
-    <div className="relative w-full md:max-w-2xl mx-auto">
+    <div className="relative w-full md:max-w-2xl mx-auto" ref={dropdownRef}>
       <div className="flex items-center bg-gray-50 border border-gray-200 
                     rounded-xl overflow-hidden focus-within:ring-2 
                     focus-within:ring-indigo-500 focus-within:border-indigo-500
@@ -42,7 +71,16 @@ export const SearchDropdown = <T extends BaseItem>({
           className="w-full px-4 py-3.5 bg-transparent outline-none 
                     placeholder-gray-400 text-gray-900"
         />
-        <div className="px-4 text-gray-400">
+        <div className="flex items-center px-4 text-gray-400">
+          {selectedValue && (
+            <button
+              onClick={handleClear}
+              className="mr-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
+              title="Clear selection"
+            >
+              <HiX className="w-4 h-4" />
+            </button>
+          )}
           <HiSearch className="w-5 h-5" />
         </div>
       </div>

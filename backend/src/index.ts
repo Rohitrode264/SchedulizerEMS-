@@ -5,6 +5,8 @@ import authRoutes from './routes/auth.routes';
 import excelRouter from "./routes/excelRouter";
 import schemeRouter from './routes/schemeRouter';
 import facultyRouter from './routes/facultyRouter';
+import assignmentRouter from './routes/assignmentRouter';
+
 dotenv.config();
 
 const app = express();
@@ -21,6 +23,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/excel',excelRouter);
 app.use('/api/v1/scheme',schemeRouter)
 app.use('/api/v1/faculty',facultyRouter)
+app.use('/api/v1/assignments', assignmentRouter)
+
 export default app;
 
 

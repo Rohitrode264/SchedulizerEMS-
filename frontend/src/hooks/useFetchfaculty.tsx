@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -8,9 +7,8 @@ export type FacultyType = {
   organizationEmail: string;
   personalEmail: string;
   phone: string;
- designation: string;
+  designation: string;
 };
-
 
 export default function useFetchFaculty(departmentId: string | undefined) {
   const [faculty, setFaculty] = useState<FacultyType[]>([]);
@@ -24,9 +22,20 @@ export default function useFetchFaculty(departmentId: string | undefined) {
       return;
     }
 
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('No authentication token found');
+      return;
+    }
+
     setLoading(true);
     axios
-      .get(`http://localhost:3000/api/v1/faculty/${departmentId}`)
+      .get(`http://localhost:3000/api/v1/faculty/${departmentId}`, {
+        headers: {
+          'Authorization': `${token.replace(/['"]+/g, '')}`,
+          'Content-Type': 'application/json'
+        }
+      })
       .then((res) => {
         setFaculty(res.data);
       })
@@ -37,7 +46,7 @@ export default function useFetchFaculty(departmentId: string | undefined) {
       .finally(() => {
         setLoading(false);
       });
-  }, [departmentId]); // ✅ This is the correct syntax
+  }, [departmentId]);
 
   return { faculty, Loading, error };
 }

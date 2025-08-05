@@ -2,12 +2,12 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import xlsx from 'xlsx';
 import { PrismaClient } from '@prisma/client';
-
+import { verifyToken } from '../middleware/auth.middleware';
 const prisma = new PrismaClient();
 const facultyRouter = Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-facultyRouter.post('/upload-faculty', upload.single('file'), async (req: Request, res: Response) => {
+facultyRouter.post('/upload-faculty', verifyToken,upload.single('file'), async (req: Request, res: Response) => {
   try {
     const { departmentId } = req.body;
 
