@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HiLogin, HiMail, HiKey, HiAcademicCap, HiOfficeBuilding, HiUserGroup } from 'react-icons/hi';
+import {  HiMail, HiKey, HiAcademicCap, HiOfficeBuilding, HiUserGroup } from 'react-icons/hi';
 import { useUniversities } from '../../hooks/fetchUniversities';
 import { SearchDropdown } from '../SearchDropdown';
 import { InputField } from '../InputField';

@@ -38,6 +38,7 @@ model Department {
   school    School    @relation(fields: [schoolId], references: [id])
   schemes   Scheme[]
   faculties faculty[]
+  sections  Section[]
 }
 
 model Scheme {
@@ -98,4 +99,31 @@ model Assignment {
   course      Course   @relation(fields: [courseId], references: [id])
   faculty     faculty  @relation(fields: [facultyId], references: [id])
   semester    Semester @relation(fields: [semesterId], references: [id])
+}
+
+model Section {
+  id              String   @id @default(uuid())
+  name            String
+  departmentId    String
+  departmentCode  String
+  batchYearRange  String
+  fullName        String
+  preferredRoom   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  department      Department @relation(fields: [departmentId], references: [id])
+  batches         Batch[]
+}
+
+model Batch {
+  id              String   @id @default(uuid())
+  name            String
+  sectionId       String
+  count           Int      @default(20)
+  preferredRoom   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  section         Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 }

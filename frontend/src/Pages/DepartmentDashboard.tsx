@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { HiUsers, HiAcademicCap, HiBookOpen } from 'react-icons/hi';
-
+import { HiUsers, HiAcademicCap, HiBookOpen, HiOfficeBuilding } from 'react-icons/hi';
+import toast from 'react-hot-toast';
 import useFetchSemester from '../hooks/useSemester';
 import useFetchScheme from '../hooks/usefetchScheme';
 import useFetchCourses, { type CourseType } from '../hooks/useFetchCourses';
 import useFetchFaculty from '../hooks/useFetchfaculty';
+import { useSections } from '../hooks/useSections';
 
 import Table from '../Components/Table';
 import Button from '../Components/Button';
 import {  CalendarDays,  Users } from 'lucide-react';
+import SectionsManagement from '../Components/SectionsManagement';
 
 export default function DepartmentDashboard() {
   const { departmentId } = useParams();
@@ -24,12 +26,13 @@ export default function DepartmentDashboard() {
   const [selectedSchemeId, setSelectedSchemeId] = useState('');
   const [selectedSemesterId, setSelectedSemesterId] = useState('');
   const [courses, setCourses] = useState<CourseType[]>([]);
-  const [selectedTab, setSelectedTab] = useState<'courses' | 'faculty'>('courses');
+  const [selectedTab, setSelectedTab] = useState<'courses' | 'faculty' | 'sections'>('courses');
 
   const { schemes } = useFetchScheme(departmentId);
   const { semesters } = useFetchSemester(selectedSchemeId);
   const { courses: fetchedCourses } = useFetchCourses(selectedSemesterId);
   const { faculty } = useFetchFaculty(departmentId);
+  const { stats: sectionStats } = useSections(departmentId);
 
   useEffect(() => {
     setCourses(fetchedCourses?.length ? fetchedCourses : []);
@@ -37,13 +40,13 @@ export default function DepartmentDashboard() {
 
   const handleUpload = async () => {
     if (!file || !schemeName || !departmentId) {
-      alert('Please provide scheme name and upload a file.');
+      toast.error('Please provide scheme name and upload a file.');
       return;
     }
 
     const token = localStorage.getItem('token');
     if (!token) {
-      alert('Authentication token not found. Please login again.');
+      toast.error('Authentication token not found. Please login again.');
       return;
     }
 
@@ -64,10 +67,10 @@ export default function DepartmentDashboard() {
           } 
         }
       );
-      alert(response.data.message || 'Upload successful!');
+      toast.success(response.data.message || 'Upload successful!');
     } catch (error: any) {
       console.error('Upload failed:', error);
-      alert(error?.response?.data?.message || 'Upload failed.');
+      toast.error(error?.response?.data?.message || 'Upload failed.');
     } finally {
       setLoading(false);
     }
@@ -75,13 +78,13 @@ export default function DepartmentDashboard() {
 
   const facultyUpload = async () => {
     if (!facultyFile || !departmentId) {
-      alert('Please upload a file.');
+      toast.error('Please upload a file.');
       return;
     }
 
     const token = localStorage.getItem('token');
     if (!token) {
-      alert('Authentication token not found. Please login again.');
+      toast.error('Authentication token not found. Please login again.');
       return;
     }
 
@@ -101,10 +104,10 @@ export default function DepartmentDashboard() {
           } 
         }
       );
-      alert(response.data.message || 'Upload successful!');
+      toast.success(response.data.message || 'Upload successful!');
     } catch (error: any) {
       console.error('Upload failed:', error);
-      alert(error?.response?.data?.message || 'Upload failed.');
+      toast.error(error?.response?.data?.message || 'Upload failed.');
     } finally {
       setFacultyExcelLoading(false);
     }
@@ -143,10 +146,31 @@ export default function DepartmentDashboard() {
           
 
           {/* Stats */}
-          <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <StatCard title="Students" value="0" icon={<HiUsers className="w-8 h-8" />} description="Total enrolled students" />
-            <StatCard title="Courses" value={courses.length.toString()} icon={<HiBookOpen className="w-8 h-8" />} description="Active courses" />
-            <StatCard title="Faculty" value={faculty.length.toString()} icon={<HiAcademicCap className="w-8 h-8" />} description="Teaching staff members" />
+          <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <StatCard 
+              title="Students" 
+              value={sectionStats?.totalStudents?.toString() || "0"} 
+              icon={<HiUsers className="w-8 h-8" />} 
+              description="Total enrolled students" 
+            />
+            <StatCard 
+              title="Courses" 
+              value={courses.length.toString()} 
+              icon={<HiBookOpen className="w-8 h-8" />} 
+              description="Active courses" 
+            />
+            <StatCard 
+              title="Faculty" 
+              value={faculty.length.toString()} 
+              icon={<HiAcademicCap className="w-8 h-8" />} 
+              description="Teaching staff members" 
+            />
+            <StatCard 
+              title="Sections" 
+              value={sectionStats?.totalSections?.toString() || "0"} 
+              icon={<HiOfficeBuilding className="w-8 h-8" />} 
+              description="Active sections" 
+            />
           </div>
 
           {/* Upload Scheme Excel (Improved) */}
@@ -232,6 +256,12 @@ export default function DepartmentDashboard() {
               >
                 Faculty
               </button>
+              <button
+                onClick={() => setSelectedTab('sections')}
+                className={`px-4 py-2 rounded-md font-medium ${selectedTab === 'sections' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+              >
+                Sections & Batches
+              </button>
             </div>
           </div>
 
@@ -302,6 +332,11 @@ export default function DepartmentDashboard() {
               )}
             </div>
           )}
+
+          {/* Sections & Batches Management */}
+          {selectedTab === 'sections' && (
+            <SectionsManagement departmentId={departmentId} />
+          )}
         </div>
       </div>
     </div>
@@ -333,3 +368,5 @@ const StatCard = ({
     </div>
   </div>
 );
+
+

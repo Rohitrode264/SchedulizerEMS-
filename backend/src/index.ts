@@ -6,6 +6,7 @@ import excelRouter from "./routes/excelRouter";
 import schemeRouter from './routes/schemeRouter';
 import facultyRouter from './routes/facultyRouter';
 import assignmentRouter from './routes/assignmentRouter';
+import sectionsRouter from './routes/sectionsRouter';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use('/api/excel',excelRouter);
 app.use('/api/v1/scheme',schemeRouter)
 app.use('/api/v1/faculty',facultyRouter)
 app.use('/api/v1/assignments', assignmentRouter)
+app.use('/api/v1/sections', sectionsRouter)
 
 export default app;
 
