@@ -41,10 +41,10 @@ sectionsRouter.post('/create', verifyToken, async (req, res) => {
             return;
         }
 
-        // Create sections and batches (no need to check for existing since we only send new ones)
+        
         const departmentCode = departmentName.toLowerCase().replace(/\s+/g, '');
 
-        // Create sections and batches
+        
         const createdSections = [];
         for (const sectionData of sectionsData) {
             const section = await prisma.section.create({
