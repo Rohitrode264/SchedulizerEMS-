@@ -11,37 +11,66 @@ export default function SectionsManagement({ departmentId }: SectionsManagementP
   const [batchYearStart, setBatchYearStart] = useState('');
   const [batchYearEnd, setBatchYearEnd] = useState('');
   const [showConfigForm, setShowConfigForm] = useState(false);
+  // no-op state removed; editing inferred by showConfigForm
 
-  const { sections: fetchedSections, loading: sectionsLoading, createSections } = useSections(departmentId);
+  const { sections: fetchedSections, loading: sectionsLoading, createSections, deleteSection: persistDeleteSection, updateBatchName: persistBatchName, deleteBatch: persistDeleteBatch } = useSections(departmentId);
 
   useEffect(() => {
-    if (fetchedSections.length === 0) {
+    const mapFetchedToLocal = () => fetchedSections.map(section => ({
+      id: section.id,
+      name: section.name,
+      batches: section.batches.map(batch => ({
+        id: batch.id,
+        name: batch.name,
+        sectionId: batch.sectionId,
+        count: batch.count,
+        preferredRoom: batch.preferredRoom || ''
+      })),
+      preferredRoom: section.preferredRoom || ''
+    }));
+
+    // Helper to get last existing section letter index (A=0)
+    const getLastSectionIndex = (list: Section[]) => {
+      if (list.length === 0) return -1;
+      const names = list.map(s => s.name).filter(Boolean);
+      const sorted = names.slice().sort();
+      const last = sorted.length > 0 ? sorted[sorted.length - 1] : undefined;
+      if (!last) return -1;
+      const code = last.toUpperCase().charCodeAt(0);
+      return isNaN(code) ? -1 : code - 65;
+    };
+
+    const generateSequentialSections = (startIndex: number, count: number) => {
       const newSections: Section[] = [];
-      for (let i = 0; i < numberOfSections; i++) {
-        const sectionName = String.fromCharCode(65 + i);
+      for (let i = 0; i < count; i++) {
+        const sectionName = String.fromCharCode(65 + startIndex + i);
         newSections.push({
-          id: `section-${i}`,
+          id: `temp-section-${startIndex + i}`,
           name: sectionName,
           batches: [],
           preferredRoom: ''
         });
       }
-      setSections(newSections);
+      return newSections;
+    };
+
+    if (showConfigForm) {
+      // When configuring, always base off existing fetched sections, then append as needed
+      const existing = mapFetchedToLocal();
+      const lastIdx = getLastSectionIndex(existing);
+      const appendCount = Math.max(0, numberOfSections);
+      const toAppend = appendCount > 0 ? generateSequentialSections(lastIdx + 1, appendCount) : [];
+      setSections([...existing, ...toAppend]);
     } else {
-      setSections(fetchedSections.map(section => ({
-        id: section.id,
-        name: section.name,
-        batches: section.batches.map(batch => ({
-          id: batch.id,
-          name: batch.name,
-          sectionId: batch.sectionId,
-          count: batch.count,
-          preferredRoom: batch.preferredRoom || ''
-        })),
-        preferredRoom: section.preferredRoom || ''
-      })));
+      // Default view
+      if (fetchedSections.length === 0) {
+        const initial = generateSequentialSections(0, numberOfSections);
+        setSections(initial);
+      } else {
+        setSections(mapFetchedToLocal());
+      }
     }
-  }, [numberOfSections, fetchedSections]);
+  }, [numberOfSections, fetchedSections, showConfigForm]);
 
   const generateBatchNames = (sectionName: string, numberOfBatches: number) => {
     const batchNames = [];
@@ -69,6 +98,39 @@ export default function SectionsManagement({ departmentId }: SectionsManagementP
     );
   };
 
+  const updateSectionName = (sectionId: string, newName: string) => {
+    if (!newName) return;
+    setSections(prev => prev.map(s => s.id === sectionId ? { ...s, name: newName.toUpperCase() } : s));
+  };
+
+  const removeSection = (sectionId: string) => {
+    setSections(prev => prev.filter(s => s.id !== sectionId));
+    // persist delete if it's an existing section (not temp)
+    if (!sectionId.startsWith('temp-')) {
+      persistDeleteSection(sectionId);
+    }
+  };
+
+  const updateBatchName = (batchId: string, newName: string) => {
+    setSections(prev => prev.map(s => ({
+      ...s,
+      batches: s.batches.map(b => b.id === batchId ? { ...b, name: newName } : b)
+    })));
+    if (!batchId.startsWith('temp-')) {
+      persistBatchName(batchId, newName);
+    }
+  };
+
+  const removeBatch = (batchId: string) => {
+    setSections(prev => prev.map(s => ({
+      ...s,
+      batches: s.batches.filter(b => b.id !== batchId)
+    })));
+    if (!batchId.startsWith('temp-')) {
+      persistDeleteBatch(batchId);
+    }
+  };
+
   const updateSectionPreferredRoom = (sectionId: string, room: string) => {
     setSections(prevSections =>
       prevSections.map(section =>
@@ -94,11 +156,19 @@ export default function SectionsManagement({ departmentId }: SectionsManagementP
       return;
     }
 
+    // Only send NEW sections (temp ones), not existing ones
+    const newSections = sections.filter(section => section.id.startsWith('temp-'));
+    
+    if (newSections.length === 0) {
+      toast.error('No new sections to add. Please configure at least one new section.');
+      return;
+    }
+
     const configuration = {
       departmentName,
       batchYearRange: `${batchYearStart}-${batchYearEnd}`,
       departmentId,
-      sections: sections.map(section => ({
+      sections: newSections.map(section => ({
         name: section.name,
         preferredRoom: section.preferredRoom,
         batches: section.batches.map(batch => ({
@@ -109,6 +179,9 @@ export default function SectionsManagement({ departmentId }: SectionsManagementP
       }))
     };
 
+    // Log the configuration being sent for debugging
+    console.log('Sending configuration:', JSON.stringify(configuration, null, 2));
+
     try {
       await createSections(configuration);
       toast.success('Sections configuration saved successfully!');
@@ -118,22 +191,59 @@ export default function SectionsManagement({ departmentId }: SectionsManagementP
       setBatchYearEnd('');
       setNumberOfSections(1);
       setShowConfigForm(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving configuration:', error);
-      toast.error('Failed to save configuration. Please try again.');
+      
+      // Log more detailed error information
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
+        console.error('Response headers:', error.response.headers);
+        
+        // Show more specific error message based on response
+        if (error.response.data && error.response.data.message) {
+          toast.error(`Server error: ${error.response.data.message}`);
+        } else if (error.response.status === 400) {
+          toast.error('Invalid request data. Please check your input and try again.');
+        } else {
+          toast.error(`Server error (${error.response.status}): ${error.response.statusText}`);
+        }
+      } else if (error.request) {
+        console.error('Request error:', error.request);
+        toast.error('Network error: Unable to connect to server. Please check your connection.');
+      } else {
+        console.error('Error message:', error.message);
+        toast.error('Failed to save configuration. Please try again.');
+      }
     }
   };
 
   const handleAddNewSection = () => {
     setShowConfigForm(true);
-    setDepartmentName('');
-    setBatchYearStart('');
-    setBatchYearEnd('');
+    // Prefill department fields from existing config if available
+    if (fetchedSections.length > 0) {
+      const sample = fetchedSections[0];
+      const range = sample.batchYearRange || '';
+      const [start, end] = range.split('-');
+      setDepartmentName(sample.departmentCode || '');
+      setBatchYearStart(start || '');
+      setBatchYearEnd(end || '');
+    } else {
+      setDepartmentName('');
+      setBatchYearStart('');
+      setBatchYearEnd('');
+    }
+    // By default, propose adding 1 more section
     setNumberOfSections(1);
   };
 
   const handleCloseConfigForm = () => {
     setShowConfigForm(false);
+    // Reset form state when closing
+    setDepartmentName('');
+    setBatchYearStart('');
+    setBatchYearEnd('');
+    setNumberOfSections(1);
   };
 
   return (
@@ -169,8 +279,16 @@ export default function SectionsManagement({ departmentId }: SectionsManagementP
                 <div key={section.id} className="bg-white rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-lg font-semibold text-gray-800">Section {section.name}</h4>
-                    <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                      <span className="text-indigo-600 font-semibold">{section.name}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <span className="text-indigo-600 font-semibold">{section.name}</span>
+                      </div>
+                      <button
+                        onClick={() => removeSection(section.id)}
+                        className="text-xs px-3 py-1 rounded-md bg-red-600 text-white hover:bg-red-700"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                   <p className="text-sm text-gray-600 mb-2">
@@ -185,8 +303,16 @@ export default function SectionsManagement({ departmentId }: SectionsManagementP
                     <p className="text-sm font-medium text-gray-700">Batches:</p>
                     {section.batches.map((batch) => (
                       <div key={batch.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <span className="text-sm font-medium">{batch.name}</span>
-                        <span className="text-sm text-gray-600">Count: {batch.count}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{batch.name}</span>
+                          <span className="text-sm text-gray-600">Count: {batch.count}</span>
+                        </div>
+                        <button
+                          onClick={() => removeBatch(batch.id)}
+                          className="text-xs px-2 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200"
+                        >
+                          Remove
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -298,6 +424,11 @@ export default function SectionsManagement({ departmentId }: SectionsManagementP
                   onUpdateBatches={updateSectionBatches}
                   onUpdatePreferredRoom={updateSectionPreferredRoom}
                   onUpdateBatchCount={updateBatchCount}
+                  onUpdateSectionName={updateSectionName}
+                  onRemoveSection={removeSection}
+                  onUpdateBatchName={updateBatchName}
+                  onRemoveBatch={removeBatch}
+                  isNewSection={section.id.startsWith('temp-')}
                 />
               ))}
             </div>
@@ -323,12 +454,22 @@ const SectionCard = ({
   section,
   onUpdateBatches,
   onUpdatePreferredRoom,
-  onUpdateBatchCount
+  onUpdateBatchCount,
+  onUpdateSectionName,
+  onRemoveSection,
+  onUpdateBatchName,
+  onRemoveBatch,
+  isNewSection
 }: {
   section: Section;
   onUpdateBatches: (sectionId: string, numberOfBatches: number) => void;
   onUpdatePreferredRoom: (sectionId: string, room: string) => void;
   onUpdateBatchCount: (batchId: string, count: number) => void;
+  onUpdateSectionName: (sectionId: string, newName: string) => void;
+  onRemoveSection: (sectionId: string) => void;
+  onUpdateBatchName: (batchId: string, newName: string) => void;
+  onRemoveBatch: (batchId: string) => void;
+  isNewSection: boolean;
 }) => {
   const [numberOfBatches, setNumberOfBatches] = useState(section.batches.length || 1);
 
@@ -340,9 +481,30 @@ const SectionCard = ({
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-300 group">
       <div className="flex items-center justify-between mb-6">
-        <h4 className="text-lg font-semibold text-gray-800">Section {section.name}</h4>
-        <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full flex items-center justify-center shadow-md">
-          <span className="text-white font-bold text-lg">{section.name}</span>
+        {isNewSection ? (
+          <div className="flex items-center gap-3">
+            <input
+              value={section.name}
+              onChange={(e) => onUpdateSectionName(section.id, e.target.value)}
+              className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <span className="text-sm text-gray-500">Section Name</span>
+          </div>
+        ) : (
+          <h4 className="text-lg font-semibold text-gray-800">Section {section.name}</h4>
+        )}
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full flex items-center justify-center shadow-md">
+            <span className="text-white font-bold text-lg">{section.name}</span>
+          </div>
+          {isNewSection && (
+            <button
+              onClick={() => onRemoveSection(section.id)}
+              className="ml-2 text-xs px-3 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+            >
+              Delete
+            </button>
+          )}
         </div>
       </div>
 
@@ -385,8 +547,16 @@ const SectionCard = ({
           <div className="space-y-3">
             {section.batches.map((batch) => (
               <div key={batch.id} className="flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg border border-gray-200">
-                <div className="flex-1">
-                  <span className="text-sm font-semibold text-gray-700">{batch.name}</span>
+                <div className="flex-1 flex items-center gap-3">
+                  {isNewSection ? (
+                    <input
+                      value={batch.name}
+                      onChange={(e) => onUpdateBatchName(batch.id, e.target.value)}
+                      className="w-28 border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  ) : (
+                    <span className="text-sm font-semibold text-gray-700">{batch.name}</span>
+                  )}
                   <p className="text-xs text-gray-500">Lab batch</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -399,6 +569,14 @@ const SectionCard = ({
                     onChange={(e) => onUpdateBatchCount(batch.id, parseInt(e.target.value) || 1)}
                     className="w-16 border border-gray-300 rounded px-2 py-1 text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                   />
+                  {isNewSection && (
+                    <button
+                      onClick={() => onRemoveBatch(batch.id)}
+                      className="text-xs px-2 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200"
+                    >
+                      Remove
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

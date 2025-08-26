@@ -167,6 +167,58 @@ export const useSections = (departmentId: string | undefined) => {
     }
   };
 
+  const updateSectionName = async (sectionId: string, name: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication token not found');
+        return;
+      }
+
+      await axios.put(
+        `http://localhost:3000/api/v1/sections/section/${sectionId}/name`,
+        { name },
+        {
+          headers: {
+            'Authorization': ` ${token.replace(/['"]+/g, '')}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      await fetchSections();
+      await fetchSectionStats();
+    } catch (err: any) {
+      console.error('Error updating section name:', err);
+      setError(err?.response?.data?.error || 'Failed to update section name');
+    }
+  };
+
+  const deleteSection = async (sectionId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication token not found');
+        return;
+      }
+
+      await axios.delete(
+        `http://localhost:3000/api/v1/sections/section/${sectionId}`,
+        {
+          headers: {
+            'Authorization': ` ${token.replace(/['"]+/g, '')}`
+          }
+        }
+      );
+
+      await fetchSections();
+      await fetchSectionStats();
+    } catch (err: any) {
+      console.error('Error deleting section:', err);
+      setError(err?.response?.data?.error || 'Failed to delete section');
+    }
+  };
+
   const updateBatchCount = async (batchId: string, count: number) => {
     try {
       const token = localStorage.getItem('token');
@@ -222,6 +274,58 @@ export const useSections = (departmentId: string | undefined) => {
     }
   };
 
+  const updateBatchName = async (batchId: string, name: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication token not found');
+        return;
+      }
+
+      await axios.put(
+        `http://localhost:3000/api/v1/sections/batch/${batchId}/name`,
+        { name },
+        {
+          headers: {
+            'Authorization': ` ${token.replace(/['"]+/g, '')}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      await fetchSections();
+      await fetchSectionStats();
+    } catch (err: any) {
+      console.error('Error updating batch name:', err);
+      setError(err?.response?.data?.error || 'Failed to update batch name');
+    }
+  };
+
+  const deleteBatch = async (batchId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication token not found');
+        return;
+      }
+
+      await axios.delete(
+        `http://localhost:3000/api/v1/sections/batch/${batchId}`,
+        {
+          headers: {
+            'Authorization': ` ${token.replace(/['"]+/g, '')}`
+          }
+        }
+      );
+
+      await fetchSections();
+      await fetchSectionStats();
+    } catch (err: any) {
+      console.error('Error deleting batch:', err);
+      setError(err?.response?.data?.error || 'Failed to delete batch');
+    }
+  };
+
   useEffect(() => {
     if (departmentId) {
       fetchSections();
@@ -239,6 +343,10 @@ export const useSections = (departmentId: string | undefined) => {
     createSections,
     updateSectionRoom,
     updateBatchCount,
-    updateBatchRoom
+    updateBatchRoom,
+    updateSectionName,
+    deleteSection,
+    updateBatchName,
+    deleteBatch
   };
 };

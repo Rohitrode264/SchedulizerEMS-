@@ -41,13 +41,7 @@ sectionsRouter.post('/create', verifyToken, async (req, res) => {
             return;
         }
 
-        // Delete existing sections for this department (if any)
-        await prisma.section.deleteMany({
-            where: {
-                departmentId: departmentId
-            }
-        });
-
+        // Create sections and batches (no need to check for existing since we only send new ones)
         const departmentCode = departmentName.toLowerCase().replace(/\s+/g, '');
 
         // Create sections and batches
@@ -108,6 +102,51 @@ sectionsRouter.put('/section/:sectionId/room', verifyToken, async (req, res) => 
     }
 });
 
+// Update section name
+sectionsRouter.put('/section/:sectionId/name', verifyToken, async (req, res) => {
+    try {
+        const { name } = req.body;
+        const sectionId = req.params.sectionId;
+
+        if (!name) {
+            res.status(400).json({ error: 'Missing name' });
+            return;
+        }
+
+        const existing = await prisma.section.findUnique({ where: { id: sectionId } });
+        if (!existing) {
+            res.status(404).json({ error: 'Section not found' });
+            return;
+        }
+
+        const updatedSection = await prisma.section.update({
+            where: { id: sectionId },
+            data: {
+                name: name,
+                fullName: `${existing.departmentCode}_${existing.batchYearRange}_section_${name}`
+            }
+        });
+
+        res.status(200).json(updatedSection);
+    } catch (error) {
+        console.error('Error updating section name:', error);
+        res.status(500).json({ error: 'Error updating section name' });
+    }
+});
+
+// Delete one section (and its batches)
+sectionsRouter.delete('/section/:sectionId', verifyToken, async (req, res) => {
+    try {
+        const sectionId = req.params.sectionId;
+        await prisma.batch.deleteMany({ where: { sectionId } });
+        await prisma.section.delete({ where: { id: sectionId } });
+        res.status(200).json({ message: 'Section deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting section:', error);
+        res.status(500).json({ error: 'Error deleting section' });
+    }
+});
+
 // Update batch count
 sectionsRouter.put('/batch/:batchId/count', verifyToken, async (req, res) => {
     try {
@@ -149,6 +188,38 @@ sectionsRouter.put('/batch/:batchId/room', verifyToken, async (req, res) => {
     } catch (error) {
         console.error('Error updating batch room:', error);
         res.status(500).json({ error: 'Error updating batch room' });
+    }
+});
+
+// Update batch name
+sectionsRouter.put('/batch/:batchId/name', verifyToken, async (req, res) => {
+    try {
+        const { name } = req.body;
+        const batchId = req.params.batchId;
+        if (!name) {
+            res.status(400).json({ error: 'Missing name' });
+            return;
+        }
+        const updatedBatch = await prisma.batch.update({
+            where: { id: batchId },
+            data: { name }
+        });
+        res.status(200).json(updatedBatch);
+    } catch (error) {
+        console.error('Error updating batch name:', error);
+        res.status(500).json({ error: 'Error updating batch name' });
+    }
+});
+
+// Delete one batch
+sectionsRouter.delete('/batch/:batchId', verifyToken, async (req, res) => {
+    try {
+        const batchId = req.params.batchId;
+        await prisma.batch.delete({ where: { id: batchId } });
+        res.status(200).json({ message: 'Batch deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting batch:', error);
+        res.status(500).json({ error: 'Error deleting batch' });
     }
 });
 
