@@ -48,11 +48,13 @@ excelRouter.post('/upload-with-scheme',verifyToken, upload.single('file'), async
       console.log('Row:', row);
 
       const semesterRaw = row[0]?.toString().trim().toUpperCase();
+      console.log('Semester raw:', semesterRaw);
  
      
       if (semesterRaw && (semesterRaw.startsWith('SEMESTER') || semesterRaw.startsWith('SEMESTSER'))) {
         // Extract semester number
         const semesterNumber = extractSemesterNumber(semesterRaw);
+        console.log('Extracted semester number:', semesterNumber);
         if (!semesterNumber) {
           console.log(`Could not extract semester number from "${semesterRaw}"`);
           i++;
@@ -127,17 +129,31 @@ excelRouter.post('/upload-with-scheme',verifyToken, upload.single('file'), async
 
 
 function extractSemesterNumber(input: string): number | null {
+  console.log('Extracting semester number from:', input);
 
-  const romanMatch = input.match(/SEMEST(ER|SER)[-–]?(\w+)/i);
-  if (!romanMatch) return null;
+  
+  const arabicMatch = input.match(/SEMEST(ER|SER)[-–]?\s*(\d+)/i);
+  if (arabicMatch) {
+    console.log('Arabic match found:', arabicMatch[2]);
+    return parseInt(arabicMatch[2], 10);
+  }
 
-  const roman = romanMatch[2].toUpperCase();
-  const romanToInt: Record<string, number> = {
-    I: 1, II: 2, III: 3, IV: 4, V: 5,
-    VI: 6, VII: 7, VIII: 8, IX: 9, X: 10,
-  };
+  
+  const romanMatch = input.match(/SEMEST(ER|SER)[-–]?\s*([IVX]+)/i);
+  if (romanMatch) {
+    const roman = romanMatch[2].toUpperCase();
+    console.log('Roman match found:', roman);
+    const romanToInt: Record<string, number> = {
+      I: 1, II: 2, III: 3, IV: 4, V: 5,
+      VI: 6, VII: 7, VIII: 8, IX: 9, X: 10,
+    };
+    const result = romanToInt[roman] ?? null;
+    console.log('Roman to number:', result);
+    return result;
+  }
 
-  return romanToInt[roman] ?? null;
+  console.log('No match found for:', input);
+  return null;
 }
 
 export default excelRouter;

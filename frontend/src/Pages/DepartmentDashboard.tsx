@@ -18,10 +18,7 @@ export default function DepartmentDashboard() {
   const { departmentId } = useParams();
 
   const navigate=useNavigate();
-  const [file, setFile] = useState<File | null>(null);
   const [facultyFile, setFacultyFile] = useState<File | null>(null);
-  const [schemeName, setSchemeName] = useState('');
-  const [loading, setLoading] = useState(false);
   const [facultyExcelLoading, setFacultyExcelLoading] = useState(false);
   const [selectedSchemeId, setSelectedSchemeId] = useState('');
   const [selectedSemesterId, setSelectedSemesterId] = useState('');
@@ -38,43 +35,21 @@ export default function DepartmentDashboard() {
     setCourses(fetchedCourses?.length ? fetchedCourses : []);
   }, [fetchedCourses]);
 
-  const handleUpload = async () => {
-    if (!file || !schemeName || !departmentId) {
-      toast.error('Please provide scheme name and upload a file.');
-      return;
+  // Auto-select first scheme when available
+  useEffect(() => {
+    if (!selectedSchemeId && schemes && schemes.length > 0) {
+      setSelectedSchemeId(schemes[0].id);
     }
+  }, [schemes, selectedSchemeId]);
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      toast.error('Authentication token not found. Please login again.');
-      return;
+  // Auto-select first semester when scheme selected and semesters loaded
+  useEffect(() => {
+    if (selectedSchemeId && !selectedSemesterId && semesters && semesters.length > 0) {
+      setSelectedSemesterId(semesters[0].id);
     }
+  }, [selectedSchemeId, semesters, selectedSemesterId]);
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('schemeName', schemeName);
-    formData.append('departmentId', departmentId);
 
-    try {
-      setLoading(true);
-      const response = await axios.post(
-        `http://localhost:3000/api/excel/upload-with-scheme`,
-        formData,
-        { 
-          headers: { 
-            'Content-Type': 'multipart/form-data',
-            'Authorization': ` ${token.replace(/['"]+/g, '')}`
-          } 
-        }
-      );
-      toast.success(response.data.message || 'Upload successful!');
-    } catch (error: any) {
-      console.error('Upload failed:', error);
-      toast.error(error?.response?.data?.message || 'Upload failed.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const facultyUpload = async () => {
     if (!facultyFile || !departmentId) {
@@ -100,7 +75,7 @@ export default function DepartmentDashboard() {
         { 
           headers: { 
             'Content-Type': 'multipart/form-data',
-            'Authorization': ` ${token.replace(/['"]+/g, '')}`
+            'Authorization': token.replace(/['"]+/g, '')
           } 
         }
       );
@@ -173,46 +148,7 @@ export default function DepartmentDashboard() {
             />
           </div>
 
-          {/* Upload Scheme Excel (Improved) */}
-          <div className="px-8 py-6 border-t mt-8 ">
-            <h2 className="text-xl font-semibold mb-4 ">Upload Scheme Excel</h2>
-            <div className="bg-gray-50 p-6 rounded-lg border border-slate-300 space-y-4 max-w-xl">
-              <div className="space-y-2">
-                <label htmlFor="schemeName" className="block text-sm font-medium text-gray-700">
-                  Scheme Name
-                </label>
-                <input
-                  id="schemeName"
-                  type="text"
-                  placeholder="e.g., 2023 CSE Scheme"
-                  value={schemeName}
-                  onChange={(e) => setSchemeName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
 
-              <div className="space-y-2">
-                <label htmlFor="schemeFile" className="block text-sm font-medium text-gray-700">
-                  Upload Scheme File (.xlsx, .xls)
-                </label>
-                <input
-                  id="schemeFile"
-                  type="file"
-                  accept=".xlsx, .xls"
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
-                />
-              </div>
-
-              <button
-                onClick={handleUpload}
-                disabled={loading || !file || !schemeName}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md disabled:opacity-50"
-              >
-                {loading ? 'Uploading...' : 'Upload Scheme'}
-              </button>
-            </div>
-          </div>
 
           {/* Upload Faculty Excel (Improved) */}
           <div className="px-8 py-6 border-t mt-8">

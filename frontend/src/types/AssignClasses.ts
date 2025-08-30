@@ -17,7 +17,7 @@ export interface Assignment{
     courseId:string;
     facultyId:string;
     laboratory:string;
-    room:string;
+    room?:string;
     credits:number;
     hasLab:boolean;
 }

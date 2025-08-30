@@ -25,6 +25,7 @@ schemeRouter.get('/:departmentId', verifyToken, async(req,res)=>{
 
 schemeRouter.get('/semester/:schemeId', verifyToken, async(req,res)=>{
     try{
+        console.log('Fetching semesters for schemeId:', req.params.schemeId);
         const semester=await prisma.semester.findMany({
             where:{
                 schemaId:req.params.schemeId
@@ -35,29 +36,48 @@ schemeRouter.get('/semester/:schemeId', verifyToken, async(req,res)=>{
                 number:true
             },
         });
+        console.log('Found semesters:', semester);
         res.status(200).json(semester);
     }
     catch(error){
+        console.error('Error fetching semesters:', error);
         res.status(500).json({error:'error fetching semesters'});
     }
 })
 
 schemeRouter.get('/course/:semesterId', verifyToken, async(req,res)=>{
     try{
+        
+       
+        const semester = await prisma.semester.findUnique({
+            where: { id: req.params.semesterId }
+        });
+        
+        if (!semester) {
+            console.log('Semester not found:', req.params.semesterId);
+            res.status(404).json({error:'Semester not found'});
+            return;
+        }
+        
+       
+        
         const course=await prisma.course.findMany({
             where:{
-                SemesterId:req.params.semesterId
+                semesterId: req.params.semesterId
             },
             select:{
                 id:true,
                 code:true,
                 name:true,
-                credits:true
+                credits:true,
+                courseType:true
             },
         });
+       
         res.status(200).json(course);
     }
     catch(error){
+        console.error('Error fetching courses:', error);
         res.status(500).json({error:'error fetching courses'});
     }
 })
@@ -106,7 +126,7 @@ schemeRouter.get('/allCourses/:departmentId', async (req, res) => {
         departmentId: req.params.departmentId
       },
       include: {
-        semester: true  
+        semesters: true  
       }
     });
 
@@ -144,7 +164,7 @@ schemeRouter.delete('/deleteSemester/:semesterId', async (req, res) => {
   try {
     await prisma.course.deleteMany({
       where: {
-        SemesterId: semesterId
+        semesterId: semesterId
       }
     });
 

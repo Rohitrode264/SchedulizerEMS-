@@ -20,23 +20,32 @@ assignmentRouter.get('/:semesterId', verifyToken, async (req: Request, res: Resp
                         id: true,
                         name: true,
                         code: true,
-                        credits: true
+                        credits: true,
+                        courseType: true
                     }
                 },
-                faculty: {
+                faculties: {
                     select: {
                         id: true,
                         name: true,
                         designation: true
                     }
-                }
+                },
+                room: true
             },
             orderBy: {
                 createdAt: 'desc'
             }
         });
 
-        res.status(200).json(assignments);
+        const mapped = assignments.map((a: any) => ({
+            ...a,
+            faculty: a.faculties && a.faculties.length > 0 ? a.faculties[0] : null,
+            facultyId: a.faculties && a.faculties.length > 0 ? a.faculties[0].id : null,
+            room: a.room ? a.room.name ?? '' : ''
+        }));
+
+        res.status(200).json(mapped);
     } catch (error) {
         console.error('Error fetching assignments:', error);
         res.status(500).json({ error: 'Failed to fetch assignments' });
@@ -50,7 +59,7 @@ assignmentRouter.post('/:semesterId', verifyToken, async (req: Request, res: Res
         const { courseId, facultyId, laboratory, room, credits, hasLab } = req.body;
 
 
-        if (!courseId || !facultyId || !laboratory || !room) {
+        if (!courseId || !facultyId) {
             res.status(400).json({ error: 'Missing required fields' });
             return;
         }
@@ -59,7 +68,7 @@ assignmentRouter.post('/:semesterId', verifyToken, async (req: Request, res: Res
         const course = await prisma.course.findFirst({
             where: {
                 id: courseId,
-                SemesterId: semesterId
+                semesterId: semesterId
             }
         });
 
@@ -101,15 +110,14 @@ assignmentRouter.post('/:semesterId', verifyToken, async (req: Request, res: Res
             return;
         }
 
-        const assignment = await prisma.assignment.create({
+        const created = await prisma.assignment.create({
             data: {
                 courseId,
-                facultyId,
-                laboratory,
-                room,
-                credits: credits || 0,
-                hasLab: hasLab || false,
-                semesterId
+                semesterId,
+                roomId: null, 
+                faculties: {
+                    connect: facultyId ? [{ id: facultyId }] : []
+                }
             },
             include: {
                 course: {
@@ -120,17 +128,28 @@ assignmentRouter.post('/:semesterId', verifyToken, async (req: Request, res: Res
                         credits: true
                     }
                 },
-                faculty: {
+                faculties: {
                     select: {
                         id: true,
                         name: true,
                         designation: true
                     }
-                }
+                },
+                room: true
             }
         });
 
-        res.status(201).json(assignment);
+        const responseBody: any = {
+            ...created,
+            faculty: created.faculties && created.faculties.length > 0 ? created.faculties[0] : null,
+            facultyId: created.faculties && created.faculties.length > 0 ? created.faculties[0].id : null,
+            laboratory: laboratory || '',
+            room: room || '',
+            credits: credits || 0,
+            hasLab: !!hasLab
+        };
+
+        res.status(201).json(responseBody);
     } catch (error) {
         console.error('Error creating assignment:', error);
         res.status(500).json({ error: 'Failed to create assignment' });
@@ -144,7 +163,7 @@ assignmentRouter.put('/:assignmentId', verifyToken, async (req: Request, res: Re
         const { courseId, facultyId, laboratory, room, credits, hasLab } = req.body;
 
         
-        if (!courseId || !facultyId || !laboratory || !room) {
+        if (!courseId || !facultyId) {
             res.status(400).json({ error: 'Missing required fields' });
             return;
         }
@@ -179,15 +198,14 @@ assignmentRouter.put('/:assignmentId', verifyToken, async (req: Request, res: Re
             return;
         }
 
-        const assignment = await prisma.assignment.update({
+        const updated = await prisma.assignment.update({
             where: { id: assignmentId },
             data: {
                 courseId,
-                facultyId,
-                laboratory,
-                room,
-                credits: credits || 0,
-                hasLab: hasLab || false
+                roomId: null, 
+                faculties: {
+                    set: facultyId ? [{ id: facultyId }] : []
+                }
             },
             include: {
                 course: {
@@ -195,20 +213,32 @@ assignmentRouter.put('/:assignmentId', verifyToken, async (req: Request, res: Re
                         id: true,
                         name: true,
                         code: true,
-                        credits: true
+                        credits: true,
+                        courseType: true
                     }
                 },
-                faculty: {
+                faculties: {
                     select: {
                         id: true,
                         name: true,
                         designation: true
                     }
-                }
+                },
+                room: true
             }
         });
 
-        res.status(200).json(assignment);
+        const responseBody: any = {
+            ...updated,
+            faculty: updated.faculties && updated.faculties.length > 0 ? updated.faculties[0] : null,
+            facultyId: updated.faculties && updated.faculties.length > 0 ? updated.faculties[0].id : null,
+            laboratory: laboratory || '',
+            room: room || '',
+            credits: credits || 0,
+            hasLab: !!hasLab
+        };
+
+        res.status(200).json(responseBody);
     } catch (error) {
         console.error('Error updating assignment:', error);
         res.status(500).json({ error: 'Failed to update assignment' });
@@ -268,7 +298,7 @@ assignmentRouter.post('/:semesterId/bulk', verifyToken, async (req: Request, res
             const { courseId, facultyId, laboratory, room, credits, hasLab } = assignmentData;
 
             
-            if (!courseId || !facultyId || !laboratory || !room) {
+            if (!courseId || !facultyId) {
                         continue; 
             }
 
@@ -276,7 +306,7 @@ assignmentRouter.post('/:semesterId/bulk', verifyToken, async (req: Request, res
             const course = await prisma.course.findFirst({
                 where: {
                     id: courseId,
-                    SemesterId: semesterId
+                    semesterId: semesterId
                 }
             });
 
@@ -306,15 +336,14 @@ assignmentRouter.post('/:semesterId/bulk', verifyToken, async (req: Request, res
             }
 
             
-            const assignment = await prisma.assignment.create({
+            const created = await prisma.assignment.create({
                 data: {
                     courseId,
-                    facultyId,
-                    laboratory,
-                    room,
-                    credits: credits || 0,
-                    hasLab: hasLab || false,
-                    semesterId
+                    semesterId,
+                    roomId: null, 
+                    faculties: {
+                        connect: facultyId ? [{ id: facultyId }] : []
+                    }
                 },
                 include: {
                     course: {
@@ -322,10 +351,11 @@ assignmentRouter.post('/:semesterId/bulk', verifyToken, async (req: Request, res
                             id: true,
                             name: true,
                             code: true,
-                            credits: true
+                            credits: true,
+                            courseType: true
                         }
                     },
-                    faculty: {
+                    faculties: {
                         select: {
                             id: true,
                             name: true,
@@ -335,7 +365,17 @@ assignmentRouter.post('/:semesterId/bulk', verifyToken, async (req: Request, res
                 }
             });
 
-            createdAssignments.push(assignment);
+            const responseBody: any = {
+                ...created,
+                faculty: created.faculties && created.faculties.length > 0 ? created.faculties[0] : null,
+                facultyId: created.faculties && created.faculties.length > 0 ? created.faculties[0].id : null,
+                laboratory: laboratory || '',
+                room: room || '',
+                credits: credits || 0,
+                hasLab: !!hasLab
+            };
+
+            createdAssignments.push(responseBody);
         }
 
         res.status(201).json({

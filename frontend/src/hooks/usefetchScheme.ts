@@ -24,6 +24,7 @@ export default function useFetchScheme(departmentId: string|undefined) {
     }
 
     setLoading(true);
+    console.log('Fetching schemes for departmentId:', departmentId);
     axios
       .get(`http://localhost:3000/api/v1/scheme/${departmentId}`, {
         headers: {
@@ -32,6 +33,7 @@ export default function useFetchScheme(departmentId: string|undefined) {
         }
       })
       .then((res) => {
+        console.log('Schemes response:', res.data);
         setSchemes(res.data);
         setError(null);
       })

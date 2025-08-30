@@ -32,7 +32,7 @@ export default function useFetchFaculty(departmentId: string | undefined) {
     axios
       .get(`http://localhost:3000/api/v1/faculty/${departmentId}`, {
         headers: {
-          'Authorization': `${token.replace(/['"]+/g, '')}`,
+          'Authorization': token.replace(/['"]+/g, ''),
           'Content-Type': 'application/json'
         }
       })

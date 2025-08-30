@@ -14,7 +14,7 @@ export type ClassType = {
   id: string;
   name: string;
   departmentId: string;
-  semester: SemesterType[];
+  semesters: SemesterType[];
 };
 
 export default function useFetchClasses(departmentId: string, refresh?: boolean) {

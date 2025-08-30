@@ -42,7 +42,7 @@ export const Classes = () => {
           <div className="p-8 space-y-6">
             {loading ? (
               <p className="text-gray-600 text-lg">Loading classes...</p>
-            ) : classes.length === 0 ? (
+            ) : !classes || classes.length === 0 ? (
               <p className="text-gray-600 text-lg">No classes found.</p>
             ) : (
               classes.map((cls) => (
@@ -57,13 +57,13 @@ export const Classes = () => {
 
                   <h2 className="text-2xl font-semibold text-gray-800 mb-4">{cls.name}</h2>
 
-                  {cls.semester.length === 0 ? (
+                  {!cls.semesters || cls.semesters.length === 0 ? (
                     <p className="text-sm text-gray-500">
                       No semesters available for this class.
                     </p>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                      {cls.semester.map((sem) => (
+                      {cls.semesters.map((sem) => (
                         <div
                           key={sem.id}
                           className="relative bg-white border border-slate-200 p-4 rounded-lg flex flex-col justify-between shadow-sm"

@@ -54,7 +54,7 @@ export const useSections = (departmentId: string | undefined) => {
         `http://localhost:3000/api/v1/sections/${departmentId}`,
         {
           headers: {
-            'Authorization': ` ${token.replace(/['"]+/g, '')}`
+            'Authorization': token.replace(/['"]+/g, '')
           }
         }
       );
@@ -85,7 +85,7 @@ export const useSections = (departmentId: string | undefined) => {
         `http://localhost:3000/api/v1/sections/${departmentId}/stats`,
         {
           headers: {
-            'Authorization': ` ${token.replace(/['"]+/g, '')}`
+            'Authorization': token.replace(/['"]+/g, '')
           }
         }
       );
@@ -120,7 +120,7 @@ export const useSections = (departmentId: string | undefined) => {
         configuration,
         {
           headers: {
-            'Authorization': ` ${token.replace(/['"]+/g, '')}`,
+            'Authorization': token.replace(/['"]+/g, ''),
             'Content-Type': 'application/json'
           }
         }

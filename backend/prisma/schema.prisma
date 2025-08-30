@@ -2,16 +2,15 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model University {
-  id          String    @id @default(uuid())
-  name        String    @unique
-  adminEmail  String    @unique
+  id          String         @id @default(uuid())
+  name        String         @unique
+  adminEmail  String         @unique
   password    String
   country     String
   city        String
@@ -22,23 +21,29 @@ model University {
 }
 
 model School {
-  id           String       @id @default(uuid())
-  name         String
-  password     String
-  universityId String
-  departments  Department[]
-  university   University   @relation(fields: [universityId], references: [id])
+  id             String          @id @default(uuid())
+  name           String
+  password       String
+  universityId   String
+  departments    Department[]
+  academicBlocks AcademicBlock[]
+
+  university University @relation(fields: [universityId], references: [id])
 }
 
 model Department {
-  id        String    @id @default(uuid())
-  name      String
-  password  String
-  schoolId  String
-  school    School    @relation(fields: [schoolId], references: [id])
-  schemes   Scheme[]
-  faculties faculty[]
-  sections  Section[]
+  id         String     @id @default(uuid())
+  name       String
+  password   String
+  schoolId   String
+  schemes    Scheme[]
+  faculties  faculty[]
+  sections   Section[]
+  schedules  Schedule[]
+  
+  rooms      Room[]
+
+  school     School     @relation(fields: [schoolId], references: [id])
 }
 
 model Scheme {
@@ -46,84 +51,179 @@ model Scheme {
   name         String
   departmentId String
   department   Department @relation(fields: [departmentId], references: [id])
-  semester     Semester[]
+  semesters    Semester[]
 }
 
 model Semester {
-  id        String   @id @default(uuid())
-  number    Int
-  startDate DateTime
-  endDate   DateTime
-  schemaId  String
-  courses   Course[]
-  schema    Scheme   @relation(fields: [schemaId], references: [id])
-  assignments Assignment[]
+  id               String                @id @default(uuid())
+  number           Int
+  startDate        DateTime
+  endDate          DateTime
+  schemaId         String
+  courses          Course[]
+  assignments      Assignment[]
+  sectionAvailabilities sectionAvailability[]
+  schedules        Schedule[]
+
+  schema           Scheme                @relation(fields: [schemaId], references: [id])
 }
 
 model Course {
-  id          String   @id @default(uuid())
-  name        String
-  code        String
-  description String?
-  credits     Float?
-  courseType  String
-  SemesterId  String
-  semester    Semester @relation(fields: [SemesterId], references: [id])
-  assignments Assignment[]
+  id           String       @id @default(uuid())
+  name         String
+  code         String
+  credits      Float?
+  courseType   String
+  semesterId   String?   
+
+  semester     Semester?  @relation(fields: [semesterId], references: [id])
+  assignments  Assignment[]
 }
 
 model faculty {
-  id                String     @id @default(uuid())
+  id                String                 @id @default(uuid())
   name              String
-  organizationEmail String     @unique
-  personalEmail     String     @unique
+  organizationEmail String                 @unique
+  personalEmail     String                 @unique
   phone             String?
   departmentId      String
   designation       String
-  department        Department @relation(fields: [departmentId], references: [id])
+  
+  department        Department             @relation(fields: [departmentId], references: [id])
   assignments       Assignment[]
+  availabilities    FacultyAvailability[]
 }
 
 model Assignment {
-  id          String   @id @default(uuid())
-  courseId    String
-  facultyId   String
-  laboratory  String
-  room        String
-  credits     Float
-  hasLab      Boolean  @default(false)
-  semesterId  String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String      @id @default(uuid())
+  courseId     String
+  semesterId   String?   
+  sectionId    String?   
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
   
-  course      Course   @relation(fields: [courseId], references: [id])
-  faculty     faculty  @relation(fields: [facultyId], references: [id])
-  semester    Semester @relation(fields: [semesterId], references: [id])
+  faculties faculty[]
+
+  course       Course      @relation(fields: [courseId], references: [id])
+  semester     Semester?   @relation(fields: [semesterId], references: [id])
+  section      Section?    @relation(fields: [sectionId], references: [id])
+  
+  roomId       String?     
+  room         Room?       @relation(fields: [roomId], references: [id])
+  
+  scheduleId   String?
+  schedule     Schedule?   @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
 }
 
 model Section {
-  id              String   @id @default(uuid())
-  name            String
-  departmentId    String
-  departmentCode  String
-  batchYearRange  String
-  fullName        String
-  preferredRoom   String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String              @id @default(uuid())
+  name           String
+  departmentId   String
+  departmentCode String
+  batchYearRange String
+  fullName       String
+  preferredRoom  String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
   
-  department      Department @relation(fields: [departmentId], references: [id])
-  batches         Batch[]
+  department     Department          @relation(fields: [departmentId], references: [id])
+  batches        Batch[]
+  assignments    Assignment[]
+  availabilities sectionAvailability[]
 }
 
 model Batch {
-  id              String   @id @default(uuid())
-  name            String
-  sectionId       String
-  count           Int      @default(20)
-  preferredRoom   String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id            String   @id @default(uuid())
+  name          String
+  sectionId     String
+  count         Int      @default(20)
+  preferredRoom String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   
-  section         Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  section       Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+}
+
+model AcademicBlock {
+  id        String @id @default(uuid())
+  name      String?
+  blockCode String @unique
+  schoolId  String
+  
+  rooms     Room[]
+  school    School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+}
+
+model Room {
+  id              String             @id @default(uuid())
+  floor           String
+  name            String?
+  code            String
+  capacity        Int                @default(0)
+  isLab           Boolean
+  academicBlockId String
+  
+  academicBlock   AcademicBlock      @relation(fields: [academicBlockId], references: [id], onDelete: Cascade)
+  assignments     Assignment[]
+  roomAvailability RoomAvailability[]
+  
+  department      Department?        @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  departmentId    String?
+}
+
+model FacultyAvailability {
+  id         String   @id @default(uuid())
+  facultyId  String
+  scheduleId String
+  availability Int[]
+
+  faculty    faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  
+  @@unique([scheduleId, facultyId])
+}
+
+model sectionAvailability {
+  id         String   @id @default(uuid())
+  sectionId  String
+  semesterId String
+  availability Int[]
+
+  semester   Semester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  section    Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  
+  scheduleId String
+  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  
+  @@unique([scheduleId, sectionId, semesterId])
+}
+
+model Schedule {
+  id               String              @id @default(uuid())
+  name             String
+  days             Int                 @default(1)
+  slots            Int                 @default(1)
+  departmentId     String
+  department       Department          @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  
+  assignments      Assignment[]
+  
+  facultyAvailabilities FacultyAvailability[]
+  sectionAvailabilities sectionAvailability[]
+  roomAvailabilities RoomAvailability[]
+  
+  semesterId       String?
+  semester         Semester?           @relation(fields: [semesterId], references: [id], onDelete: SetNull)
+}
+
+model RoomAvailability {
+  id         String   @id @default(uuid())
+  roomId     String
+  scheduleId String
+  availability Int[]
+
+  room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  
+  @@unique([scheduleId, roomId])
 }

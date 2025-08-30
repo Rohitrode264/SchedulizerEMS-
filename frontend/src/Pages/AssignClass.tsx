@@ -60,7 +60,6 @@ export const AssignClass = () => {
             courseId: '',
             facultyId: '',
             laboratory: '',
-            room: '',
             credits: 0,
             hasLab: false,
         };
@@ -73,6 +72,24 @@ export const AssignClass = () => {
             ...updatedAssignments[index],
             [field]: value,
         };
+        
+       
+        if (field === 'courseId' && value) {
+            const selectedCourse = courses.find(course => course.id === value);
+            if (selectedCourse) {
+                // Determine if course is lab or theory based on course code
+                const isLabCourse = selectedCourse.code.includes('PR');
+                const isTheoryCourse = selectedCourse.code.includes('TH');
+                
+                updatedAssignments[index] = {
+                    ...updatedAssignments[index],
+                    laboratory: isLabCourse ? 'Laboratory' : 'Theory',
+                    credits: selectedCourse.credits,
+                    hasLab: isLabCourse
+                };
+            }
+        }
+        
         setAssignments(updatedAssignments);
     };
 
@@ -88,7 +105,7 @@ export const AssignClass = () => {
         }
 
         const invalidAssignments = assignments.filter(
-            (assignment) => !assignment.courseId || !assignment.facultyId || !assignment.laboratory || !assignment.room
+            (assignment) => !assignment.courseId || !assignment.facultyId
         );
 
         if (invalidAssignments.length > 0) {
@@ -154,13 +171,7 @@ export const AssignClass = () => {
                                 <p className="text-purple-100">Current Assignments</p>
                             </div>
 
-                            <div className="bg-gradient-to-r from-amber-400 to-amber-500 p-6 rounded-xl text-white">
-                                <CreditCard className="w-8 h-8 mb-2" />
-                                <h3 className="text-2xl font-bold">
-                                    {assignments.reduce((sum, assignment) => sum + assignment.credits, 0)}
-                                </h3>
-                                <p className="text-amber-100">Total Credits</p>
-                            </div>
+                            
                         </div>
 
                         <div className="flex justify-between items-center">
@@ -189,11 +200,13 @@ export const AssignClass = () => {
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {assignments.map((assignment, index) => (
-                                    <div
-                                        key={index}
-                                        className="bg-gray-50 border border-gray-200 rounded-xl p-6"
-                                    >
+                                {assignments.map((assignment, index) => {
+                                    const selectedCourse = courses.find(course => course.id === assignment.courseId);
+                                    return (
+                                        <div
+                                            key={index}
+                                            className="bg-gray-50 border border-gray-200 rounded-xl p-6"
+                                        >
                                         <div className="flex items-center justify-between mb-6">
                                             <div>
                                                 <h3 className="text-xl font-semibold text-gray-800">
@@ -212,7 +225,7 @@ export const AssignClass = () => {
                                             </Button>
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <AssignmentSearchDropdown
                                                 options={courses.map(course => ({
                                                     id: course.id,
@@ -238,30 +251,18 @@ export const AssignClass = () => {
                                                 label="Faculty"
                                                 required
                                             />
+                                        </div>
 
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Laboratory *
+                                                    Laboratory Type
                                                 </label>
                                                 <input
                                                     type="text"
                                                     value={assignment.laboratory}
-                                                    onChange={(e) => updateLocalAssignment(index, 'laboratory', e.target.value)}
-                                                    placeholder="e.g., Computer Lab, Physics Lab"
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Room *
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={assignment.room}
-                                                    onChange={(e) => updateLocalAssignment(index, 'room', e.target.value)}
-                                                    placeholder="e.g., Room 101, Lab A"
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                                                    readOnly
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600 cursor-not-allowed"
                                                 />
                                             </div>
 
@@ -272,10 +273,8 @@ export const AssignClass = () => {
                                                 <input
                                                     type="number"
                                                     value={assignment.credits}
-                                                    onChange={(e) => updateLocalAssignment(index, 'credits', Number(e.target.value))}
-                                                    min="0"
-                                                    step="0.5"
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                                                    readOnly
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600 cursor-not-allowed"
                                                 />
                                             </div>
 
@@ -284,17 +283,38 @@ export const AssignClass = () => {
                                                     type="checkbox"
                                                     id={`hasLab-${index}`}
                                                     checked={assignment.hasLab}
-                                                    onChange={(e) => updateLocalAssignment(index, 'hasLab', e.target.checked)}
-                                                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                                    readOnly
+                                                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded cursor-not-allowed"
                                                 />
                                                 <FlaskConical className="w-4 h-4 text-indigo-600" />
                                                 <label htmlFor={`hasLab-${index}`} className="text-sm font-medium text-gray-700">
-                                                    Laboratory Component
+                                                    Lab Component
                                                 </label>
                                             </div>
                                         </div>
+
+                                        {selectedCourse && (
+                                            <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                                <h4 className="text-sm font-semibold text-blue-800 mb-2">Course Details</h4>
+                                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                                    <div>
+                                                        <span className="text-blue-600 font-medium">Code:</span> {selectedCourse.code}
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-blue-600 font-medium">Credits:</span> {selectedCourse.credits}
+                                                    </div>
+                                                    <div className="col-span-2">
+                                                        <span className="text-blue-600 font-medium">Name:</span> {selectedCourse.name}
+                                                    </div>
+                                                    <div className="col-span-2">
+                                                        <span className="text-blue-600 font-medium">Type:</span> {selectedCourse.code.includes('PR') ? 'Laboratory' : 'Theory'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                ))}
+                                );
+                            })}
                             </div>
                         )}
 

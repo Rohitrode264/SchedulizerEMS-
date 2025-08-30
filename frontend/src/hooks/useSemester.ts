@@ -24,6 +24,7 @@ export default function useFetchSemester(schemeId: string) {
     }
 
     setLoading(true);
+    console.log('Fetching semesters for schemeId:', schemeId);
     axios.get(`http://localhost:3000/api/v1/scheme/semester/${schemeId}`, {
       headers: {
         'Authorization': `${token.replace(/['"]+/g, '')}`,
@@ -31,6 +32,7 @@ export default function useFetchSemester(schemeId: string) {
       }
     })
       .then((res) => {
+        console.log('Semesters response:', res.data);
         setSemesters(res.data);
         setError(null);
       })
