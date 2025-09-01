@@ -61,7 +61,7 @@ model Semester {
   schemaId    String
   courses     Course[]
   assignments Assignment[]
-  schedules   Schedule[]
+  scheduleSemesters ScheduleSemester[]
   availability Int[]
 
   schema      Scheme      @relation(fields: [schemaId], references: [id])
@@ -177,9 +177,17 @@ model Schedule {
   department       Department   @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   
   assignments      Assignment[]
-  semesterId       String?
-  semester         Semester?    @relation(fields: [semesterId], references: [id], onDelete: SetNull)
+  scheduleSemesters ScheduleSemester[]
 }
 
-
-
+model ScheduleSemester {
+  id           String    @id @default(uuid())
+  scheduleId   String
+  semesterId   String
+  createdAt    DateTime  @default(now())
+  
+  schedule     Schedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  semester     Semester  @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  
+  @@unique([scheduleId, semesterId])
+}

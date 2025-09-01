@@ -16,7 +16,11 @@ scheduleRouter.get('/department/:departmentId', verifyToken, async (req, res) =>
       },
       include: {
         department: true,
-        semester: true,
+        scheduleSemesters: {
+          include: {
+            semester: true
+          }
+        },
         assignments: {
           include: {
             course: true,
@@ -46,21 +50,32 @@ scheduleRouter.post('/', verifyToken, async (req, res) => {
       return;
     }
 
-    // Create schedule, then attach assignments (if semesterId provided)
+    // Convert single semesterId to array if provided
+    const semesterIds = semesterId ? [semesterId] : [];
+
+    // Create schedule first
     const created = await prisma.schedule.create({
       data: {
         name,
         days: parseInt(days),
         slots: parseInt(slots),
         departmentId,
-        semesterId: semesterId || null,
       }
     });
 
-    if (semesterId) {
+    // Create ScheduleSemester relationships if semesterIds provided
+    if (semesterIds.length > 0) {
+      await prisma.scheduleSemester.createMany({
+        data: semesterIds.map(semesterId => ({
+          scheduleId: created.id,
+          semesterId: semesterId
+        }))
+      });
+
+      // Link assignments to the schedule
       await prisma.assignment.updateMany({
         where: {
-          semesterId: semesterId
+          semesterId: { in: semesterIds }
         },
         data: {
           scheduleId: created.id
@@ -72,7 +87,11 @@ scheduleRouter.post('/', verifyToken, async (req, res) => {
       where: { id: created.id },
       include: {
         department: true,
-        semester: true,
+        scheduleSemesters: {
+          include: {
+            semester: true
+          }
+        },
         assignments: {
           include: {
             course: true,
@@ -103,7 +122,11 @@ scheduleRouter.get('/:id', verifyToken, async (req, res) => {
       },
       include: {
         department: true,
-        semester: true,
+        scheduleSemesters: {
+          include: {
+            semester: true
+          }
+        },
         assignments: {
           include: {
             course: true,
@@ -142,6 +165,9 @@ scheduleRouter.put('/:id', verifyToken, async (req, res) => {
       return;
     }
 
+    // Convert single semesterId to array if provided
+    const semesterIds = semesterId ? [semesterId] : [];
+
     // Update schedule basics
     await prisma.schedule.update({
       where: { id },
@@ -149,19 +175,33 @@ scheduleRouter.put('/:id', verifyToken, async (req, res) => {
         name,
         days: days ? parseInt(days) : undefined,
         slots: slots ? parseInt(slots) : undefined,
-        semesterId: semesterId !== undefined ? (semesterId || null) : undefined,
       },
     });
 
-    // Re-attach assignments if semesterId provided; first clear prior links
+    // Clear existing semester relationships
+    await prisma.scheduleSemester.deleteMany({
+      where: { scheduleId: id }
+    });
+
+    // Create new semester relationships if provided
+    if (semesterIds.length > 0) {
+      await prisma.scheduleSemester.createMany({
+        data: semesterIds.map(semesterId => ({
+          scheduleId: id,
+          semesterId: semesterId
+        }))
+      });
+    }
+
+    // Re-attach assignments if semesterIds provided; first clear prior links
     await prisma.assignment.updateMany({
       where: { scheduleId: id },
       data: { scheduleId: null }
     });
 
-    if (semesterId) {
+    if (semesterIds.length > 0) {
       await prisma.assignment.updateMany({
-        where: { semesterId: semesterId },
+        where: { semesterId: { in: semesterIds } },
         data: { scheduleId: id }
       });
     }
@@ -170,7 +210,11 @@ scheduleRouter.put('/:id', verifyToken, async (req, res) => {
       where: { id },
       include: {
         department: true,
-        semester: true,
+        scheduleSemesters: {
+          include: {
+            semester: true
+          }
+        },
         assignments: {
           include: {
             course: true,

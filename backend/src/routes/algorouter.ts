@@ -22,9 +22,15 @@ algoRouter.get('/debug/assignments/:semesterId', async (req, res) => {
       }
     });
     
-   
+    // Find schedule that contains this semester
     const schedule = await prisma.schedule.findFirst({
-      where: { semesterId: semesterId }
+      where: { 
+        scheduleSemesters: {
+          some: {
+            semesterId: semesterId
+          }
+        }
+      }
     });
     
     res.status(200).json({
@@ -59,10 +65,14 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
             }
           }
         },
-        semester: {
+        scheduleSemesters: {
           include: {
-            schema: true,
-            courses: true
+            semester: {
+              include: {
+                schema: true,
+                courses: true
+              }
+            }
           }
         },
         assignments: {
@@ -94,11 +104,14 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
       return;
     }
 
+    // Get all semester IDs from this schedule
+    const semesterIds = schedule.scheduleSemesters.map(ss => ss.semester.id);
+
     // Get additional data that might not be directly linked
     const additionalData = await prisma.$transaction([
-      // Get all courses for this semester (even if not assigned)
+      // Get all courses for all semesters in this schedule (even if not assigned)
       prisma.course.findMany({
-        where: { semesterId: schedule.semesterId },
+        where: { semesterId: { in: semesterIds } },
         include: {
           assignments: {
             where: { scheduleId: scheduleId },
@@ -140,10 +153,10 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
         days: schedule.days,
         slots: schedule.slots,
         departmentId: schedule.departmentId,
-        semesterId: schedule.semesterId
+        semesterIds: semesterIds
       },
       department: schedule.department,
-      semester: schedule.semester,
+      semesters: schedule.scheduleSemesters.map(ss => ss.semester),
       assignments: schedule.assignments,
       courses: courses,
       sections: sections,
@@ -167,14 +180,17 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
   }
 });
 
-// Link assignments to schedule 
+// Link assignments to schedule (one-time fix)
 algoRouter.post('/schedule/:scheduleId/link-assignments', verifyToken, async (req, res) => {
   try {
     const { scheduleId } = req.params;
     
-    // Get the schedule to find its semesterId
+    // Get the schedule to find its semester IDs
     const schedule = await prisma.schedule.findUnique({
-      where: { id: scheduleId }
+      where: { id: scheduleId },
+      include: {
+        scheduleSemesters: true
+      }
     });
     
     if (!schedule) {
@@ -182,15 +198,17 @@ algoRouter.post('/schedule/:scheduleId/link-assignments', verifyToken, async (re
       return;
     }
     
-    if (!schedule.semesterId) {
-      res.status(400).json({ error: 'Schedule has no semester assigned' });
+    if (!schedule.scheduleSemesters || schedule.scheduleSemesters.length === 0) {
+      res.status(400).json({ error: 'Schedule has no semesters assigned' });
       return;
     }
     
-    // Link all assignments of this semester to this schedule
+    const semesterIds = schedule.scheduleSemesters.map(ss => ss.semesterId);
+    
+    // Link all assignments of these semesters to this schedule
     const result = await prisma.assignment.updateMany({
       where: { 
-        semesterId: schedule.semesterId,
+        semesterId: { in: semesterIds },
         scheduleId: null // Only update unlinked assignments
       },
       data: { scheduleId: scheduleId }

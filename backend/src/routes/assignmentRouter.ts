@@ -140,7 +140,11 @@ assignmentRouter.post('/:semesterId', verifyToken, async (req: Request, res: Res
         });
 
         // If a schedule exists for this semester, link the new assignment to it
-        const schedule = await prisma.schedule.findFirst({ where: { semesterId } });
+        const schedule = await prisma.schedule.findFirst({ 
+          where: { 
+            semesterId: { not: null }
+          }
+        });
         if (schedule) {
             await prisma.assignment.update({
                 where: { id: created.id },
@@ -376,6 +380,15 @@ assignmentRouter.post('/:semesterId/bulk', verifyToken, async (req: Request, res
             });
 
             // Link to existing schedule for this semester if available
+            const schedule = await prisma.schedule.findFirst({ 
+              where: { 
+                scheduleSemesters: {
+                  some: {
+                    semesterId: semesterId
+                  }
+                }
+              }
+            });
             if (schedule) {
                 await prisma.assignment.update({
                     where: { id: created.id },

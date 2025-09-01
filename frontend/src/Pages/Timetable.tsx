@@ -158,10 +158,14 @@ const Timetable = () => {
             </div>
             <div className="flex space-x-3">
               <Button
-                onClick={() => schedule.semester
-                  ? navigate(`/department/${departmentId}/assign-class/${schedule.semester.id}`)
-                  : navigate(`/department/${departmentId}/classes`)
-                }
+                onClick={() => {
+                  // Navigate to assign-class with the first semester if available
+                  if (schedule.semesterIds && schedule.semesterIds.length > 0) {
+                    navigate(`/department/${departmentId}/assign-class/${schedule.semesterIds[0]}`);
+                  } else {
+                    navigate(`/department/${departmentId}/classes`);
+                  }
+                }}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
               >
                 <CalendarDays className="w-4 h-4" />
@@ -267,5 +271,3 @@ const Timetable = () => {
 };
 
 export default Timetable;
-
-

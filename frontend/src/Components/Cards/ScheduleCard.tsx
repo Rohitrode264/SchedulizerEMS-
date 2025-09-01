@@ -58,13 +58,20 @@ export function ScheduleCard({ schedule, onView, onDelete, onGenerateTimetable }
         </div>
       </div>
 
-      {schedule.semester && (
-        <div className="flex items-center space-x-2 mb-4">
-          <HiAcademicCap className="h-4 w-4 text-gray-400" />
-          <span className="text-sm text-gray-600">
-            Semester {schedule.semester.number} 
-            ({formatDate(schedule.semester.startDate)} - {formatDate(schedule.semester.endDate)})
-          </span>
+      {schedule.scheduleSemesters && schedule.scheduleSemesters.length > 0 && (
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center space-x-2">
+            <HiAcademicCap className="h-4 w-4 text-gray-400" />
+            <span className="text-sm text-gray-600 font-medium">Semesters:</span>
+          </div>
+          <div className="ml-6 space-y-1">
+            {schedule.scheduleSemesters.map((ss) => (
+              <div key={ss.id} className="text-sm text-gray-600">
+                • Semester {ss.semester.number} 
+                ({formatDate(ss.semester.startDate)} - {formatDate(ss.semester.endDate)})
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

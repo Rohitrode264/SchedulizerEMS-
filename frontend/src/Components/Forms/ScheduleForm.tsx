@@ -18,7 +18,7 @@ export function ScheduleForm({ departmentId, onSubmit, loading = false, initialD
     days: 5,
     slots: 8,
     departmentId,
-    semesterId: ''
+    semesterId: []
   });
 
   const { schemes } = useFetchScheme(departmentId);
@@ -36,6 +36,17 @@ export function ScheduleForm({ departmentId, onSubmit, loading = false, initialD
       setSelectedSchemeId(schemes[0].id);
     }
   }, [schemes, selectedSchemeId]);
+
+  const handleSemesterChange = (semesterId: string, checked: boolean) => {
+    setFormData(prev => {
+      const currentSemesters = prev.semesterId || [];
+      if (checked) {
+        return { ...prev, semesterId: [...currentSemesters, semesterId] };
+      } else {
+        return { ...prev, semesterId: currentSemesters.filter(id => id !== semesterId) };
+      }
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +81,6 @@ export function ScheduleForm({ departmentId, onSubmit, loading = false, initialD
             onChange={(e) => setFormData({...formData, days: parseInt(e.target.value)})}
             icon={<HiCalendar className="w-5 h-5 text-gray-400" />}
             required
-           
             placeholder="5"
           />
 
@@ -82,8 +92,6 @@ export function ScheduleForm({ departmentId, onSubmit, loading = false, initialD
             onChange={(e) => setFormData({...formData, slots: parseInt(e.target.value)})}
             icon={<HiClock className="w-5 h-5 text-gray-400" />}
             required
-           
-            
             placeholder="8"
           />
         </div>
@@ -114,21 +122,25 @@ export function ScheduleForm({ departmentId, onSubmit, loading = false, initialD
           <label className="block text-sm font-medium text-gray-700">
             <div className="flex items-center space-x-2">
               <HiOfficeBuilding className="w-5 h-5 text-gray-400" />
-              <span>Semester (Optional)</span>
+              <span>Select Semesters (Optional)</span>
             </div>
           </label>
-          <select
-            value={formData.semesterId}
-            onChange={(e) => setFormData({...formData, semesterId: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-          >
-            <option value="">All semesters</option>
+          <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-300 rounded-xl p-3">
             {semesters?.map((semester) => (
-              <option key={semester.id} value={semester.id}>
-                Semester {semester.number}
-              </option>
+              <label key={semester.id} className="flex items-center space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.semesterId?.includes(semester.id) || false}
+                  onChange={(e) => handleSemesterChange(semester.id, e.target.checked)}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <span className="text-sm text-gray-700">Semester {semester.number}</span>
+              </label>
             ))}
-          </select>
+            {(!semesters || semesters.length === 0) && (
+              <p className="text-sm text-gray-500 italic">No semesters available for selected scheme</p>
+            )}
+          </div>
         </div>
 
         <div className="pt-6 border-t border-gray-100">

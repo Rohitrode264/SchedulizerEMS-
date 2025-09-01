@@ -16,8 +16,14 @@ const app = express();
 
 app.use(express.json()); 
 
+// Configure CORS properly
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
-app.use(cors());
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
@@ -31,13 +37,13 @@ app.use('/api/v1/sections', sectionsRouter)
 app.use('/api/v1/schedule', scheduleRouter)
 app.use('/api/v1/algo', algoRouter)
 
-export default app;
+const PORT = process.env.PORT || 3000;
 
-
-
-const PORT = process.env.PORT;
+// Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+export default app;
 
 

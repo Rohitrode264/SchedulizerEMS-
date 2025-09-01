@@ -1,13 +1,21 @@
 export interface Schedule {
+  semester: any;
   id: string;
   name: string;
   days: number;
   slots: number;
   departmentId: string;
-  semesterId?: string;
   department: Department;
-  semester?: Semester;
+  scheduleSemesters: ScheduleSemester[];
   assignments: Assignment[];
+}
+
+export interface ScheduleSemester {
+  id: string;
+  scheduleId: string;
+  semesterId: string;
+  createdAt: string;
+  semester: Semester;
 }
 
 export interface Department {
@@ -73,5 +81,5 @@ export interface CreateScheduleData {
   days: number;
   slots: number;
   departmentId: string;
-  semesterId?: string;
+  semesterId?: string[];
 }
