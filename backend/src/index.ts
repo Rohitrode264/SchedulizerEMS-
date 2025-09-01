@@ -7,6 +7,8 @@ import schemeRouter from './routes/schemeRouter';
 import facultyRouter from './routes/facultyRouter';
 import assignmentRouter from './routes/assignmentRouter';
 import sectionsRouter from './routes/sectionsRouter';
+import scheduleRouter from './routes/scheduleRouter';
+import algoRouter from './routes/algorouter';
 
 dotenv.config();
 
@@ -26,6 +28,8 @@ app.use('/api/v1/scheme',schemeRouter)
 app.use('/api/v1/faculty',facultyRouter)
 app.use('/api/v1/assignments', assignmentRouter)
 app.use('/api/v1/sections', sectionsRouter)
+app.use('/api/v1/schedule', scheduleRouter)
+app.use('/api/v1/algo', algoRouter)
 
 export default app;
 

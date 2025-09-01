@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
 import Button from '../Components/Button';
-import { Plus, Trash2, Save, BookOpen, Users, Building, CreditCard, FlaskConical } from "lucide-react";
+import { Plus, Trash2, Save, BookOpen, Users, Building, FlaskConical } from "lucide-react";
 
 import { AssignmentSearchDropdown } from '../Components/AssignmentsSearchDropDown'
 import type {  Assignment } from '../types/AssignClasses';
@@ -79,7 +79,6 @@ export const AssignClass = () => {
             if (selectedCourse) {
                 // Determine if course is lab or theory based on course code
                 const isLabCourse = selectedCourse.code.includes('PR');
-                const isTheoryCourse = selectedCourse.code.includes('TH');
                 
                 updatedAssignments[index] = {
                     ...updatedAssignments[index],

@@ -75,7 +75,7 @@ export default function DepartmentDashboard() {
         { 
           headers: { 
             'Content-Type': 'multipart/form-data',
-            'Authorization': token.replace(/['"]+/g, '')
+            'Authorization': ` ${token.replace(/['"]+/g, '')}`
           } 
         }
       );
@@ -109,10 +109,10 @@ export default function DepartmentDashboard() {
           </Button>
           <Button
             variant="outline"
-            onClick={() => navigate(`/department/${departmentId}/assign-courses`)}
+            onClick={() => navigate(`/department/${departmentId}/schedules`)}
           >
             <CalendarDays className="w-4 h-4 mr-2" />
-            Generate TimeTable
+            Schedule Management
           </Button>
           
         </div>
