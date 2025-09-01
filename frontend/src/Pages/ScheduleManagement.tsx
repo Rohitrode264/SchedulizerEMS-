@@ -25,9 +25,12 @@ export default function ScheduleManagement() {
 
   const handleDeleteSchedule = async (scheduleId: string) => {
     if (window.confirm('Are you sure you want to delete this schedule?')) {
-      const success = await deleteSchedule(scheduleId);
-      if (success) {
+      try {
+        await deleteSchedule(scheduleId);
         toast.success('Schedule deleted successfully!');
+      }
+      catch (error) {
+        toast.error('Failed to delete schedule');
       }
     }
   };
