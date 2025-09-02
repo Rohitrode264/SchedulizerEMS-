@@ -9,6 +9,7 @@ import { Classes } from './Pages/Classes';
 import { AssignClass } from './Pages/AssignClass'; 
 import ScheduleManagement from './Pages/ScheduleManagement';
 import Timetable from './Pages/Timetable';
+import { RoomManagement } from './Pages/RoomManagement';
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           <Route path='/department/:departmentId/assign-class/:semesterId' element={<AssignClass/>}/> {/* Added route */}
           <Route path='/department/:departmentId/schedules' element={<ScheduleManagement/>}/>
           <Route path='/department/:departmentId/timetable/:scheduleId' element={<Timetable/>}/>
+          <Route path='/university/:universityId/rooms' element={<RoomManagement/>}/>
         </Routes>
       </BrowserRouter>
       <Toaster />

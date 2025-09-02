@@ -143,30 +143,44 @@ model Batch {
 }
 
 model AcademicBlock {
-  id        String @id @default(uuid())
-  name      String?
-  blockCode String @unique
-  schoolId  String
+  id          String   @id @default(uuid())
+  name        String   
+  blockCode   String   @unique // e.g., "ACAD", "GBLK", "DIGI", "ITBL", "MBA"
+  description String?
+  location    String? 
+  schoolId    String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   
-  rooms     Room[]
-  school    School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  rooms       Room[]
+  school      School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  
+  @@map("academic_blocks")
 }
 
 model Room {
   id              String        @id @default(uuid())
-  floor           String
-  name            String?
-  code            String
+  name            String        
+  code            String        @unique 
+  floor           Int           
   capacity        Int           @default(0)
-  isLab           Boolean
+  isLab           Boolean       @default(false)
+  isActive        Boolean       @default(true)
   academicBlockId String
   departmentId    String?
-  availability    Int[]
+  availability    Int[]        
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
   
   academicBlock   AcademicBlock @relation(fields: [academicBlockId], references: [id], onDelete: Cascade)
   assignments     Assignment[]
   department      Department?   @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  
+  @@map("rooms")
 }
+
+
 
 model Schedule {
   id               String       @id @default(uuid())

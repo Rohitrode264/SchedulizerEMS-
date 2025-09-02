@@ -9,6 +9,7 @@ import assignmentRouter from './routes/assignmentRouter';
 import sectionsRouter from './routes/sectionsRouter';
 import scheduleRouter from './routes/scheduleRouter';
 import algoRouter from './routes/algorouter';
+import roomRouter from './routes/roomRouter';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use('/api/v1/assignments', assignmentRouter)
 app.use('/api/v1/sections', sectionsRouter)
 app.use('/api/v1/schedule', scheduleRouter)
 app.use('/api/v1/algo', algoRouter)
+app.use('/api/v1/rooms', roomRouter)
 
 const PORT = process.env.PORT || 3000;
 
