@@ -17,13 +17,7 @@ const app = express();
 
 app.use(express.json()); 
 
-// Configure CORS properly
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
