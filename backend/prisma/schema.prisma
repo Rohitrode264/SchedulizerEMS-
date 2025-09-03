@@ -18,6 +18,7 @@ model University {
   website     String?
   established DateTime?
   schools     School[]
+  academicBlocks AcademicBlock[]
 }
 
 model School {
@@ -26,10 +27,10 @@ model School {
   password       String
   universityId   String
   departments    Department[]
-  academicBlocks AcademicBlock[]
+  
 
   university University @relation(fields: [universityId], references: [id])
-}
+}   
 
 model Department {
   id         String     @id @default(uuid())
@@ -51,6 +52,7 @@ model Scheme {
   departmentId String
   department   Department @relation(fields: [departmentId], references: [id])
   semesters    Semester[]
+  sections     Section[]
 }
 
 model Semester {
@@ -118,6 +120,7 @@ model Section {
   id             String     @id @default(uuid())
   name           String
   departmentId   String
+  schemaId       String?
   departmentCode String
   batchYearRange String
   fullName       String
@@ -126,6 +129,7 @@ model Section {
   updatedAt      DateTime   @updatedAt
 
   department     Department @relation(fields: [departmentId], references: [id])
+  schema         Scheme?    @relation(fields: [schemaId], references: [id])
   batches        Batch[]
   assignments    Assignment[]
 }
@@ -146,30 +150,26 @@ model AcademicBlock {
   id          String   @id @default(uuid())
   name        String   
   blockCode   String   @unique // e.g., "ACAD", "GBLK", "DIGI", "ITBL", "MBA"
-  description String?
-  location    String? 
-  schoolId    String
+  universityId    String
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
   rooms       Room[]
-  school      School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  university University @relation(fields: [universityId], references: [id],onDelete:Cascade)
   
   @@map("academic_blocks")
 }
 
 model Room {
   id              String        @id @default(uuid())
-  name            String        
-  code            String        @unique 
-  floor           Int           
+  code            String        @unique          
   capacity        Int           @default(0)
   isLab           Boolean       @default(false)
   isActive        Boolean       @default(true)
   academicBlockId String
   departmentId    String?
-  availability    Int[]        
+  availability    Int[]        // 6 days × 12 hours (8 AM to 8 PM, flattened array)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   

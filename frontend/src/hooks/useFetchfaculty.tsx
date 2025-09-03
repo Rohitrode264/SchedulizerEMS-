@@ -1,14 +1,8 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import type { Faculty } from '../types/AssignClasses';
 
-export type FacultyType = {
-  id: string;
-  name: string;
-  organizationEmail: string;
-  personalEmail: string;
-  phone: string;
-  designation: string;
-};
+export type FacultyType = Faculty;
 
 export default function useFetchFaculty(departmentId: string | undefined) {
   const [faculty, setFaculty] = useState<FacultyType[]>([]);

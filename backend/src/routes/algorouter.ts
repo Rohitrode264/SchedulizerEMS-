@@ -124,26 +124,67 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
         }
       }),
       
-      // Get all sections for this department
+      // Get all sections for this department with batches
       prisma.section.findMany({
-        where: { departmentId: schedule.departmentId }
-      }),
-      
-      // Get all rooms for this department
-      prisma.room.findMany({
         where: { departmentId: schedule.departmentId },
-        include: {
-          academicBlock: true
+        include: { 
+          batches: true,
+          department: true,
+          schema: true
         }
       }),
       
-      // Get all faculty for this department
+      // Get all rooms for this department with availability
+      prisma.room.findMany({
+        where: { departmentId: schedule.departmentId },
+        include: {
+          academicBlock: true,
+          department: true,
+          assignments: {
+            include: {
+              course: true,
+              semester: true,
+              faculties: true
+            }
+          }
+        }
+      }),
+      
+      // Get all faculty for this department with availability
       prisma.faculty.findMany({
-        where: { departmentId: schedule.departmentId }
+        where: { departmentId: schedule.departmentId },
+        include: {
+          department: true,
+          assignments: {
+            include: {
+              course: true,
+              semester: true,
+              room: true
+            }
+          }
+        }
+      }),
+
+      // Get academic blocks for this department
+      prisma.academicBlock.findMany({
+        include: {
+          rooms: {
+            where: { departmentId: schedule.departmentId }
+          }
+        }
+      }),
+
+      // Get all schemes for this department
+      prisma.scheme.findMany({
+        where: { departmentId: schedule.departmentId },
+        include: {
+          semesters: true,
+          sections: true
+        }
       })
     ]);
 
-    const [courses, sections, rooms, faculty] = additionalData;
+    const [courses, sections, rooms, faculty, academicBlocks, schemes] = additionalData;
 
     // Create comprehensive response
     const comprehensiveData = {
@@ -162,6 +203,8 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
       sections: sections,
       rooms: rooms,
       faculty: faculty,
+      academicBlocks: academicBlocks,
+      schemes: schemes,
       // Summary statistics
       summary: {
         totalAssignments: schedule.assignments.length,
@@ -169,6 +212,8 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
         totalSections: sections.length,
         totalRooms: rooms.length,
         totalFaculty: faculty.length,
+        totalAcademicBlocks: academicBlocks.length,
+        totalSchemes: schemes.length,
         timetableSlots: schedule.days * schedule.slots
       }
     };
@@ -220,6 +265,48 @@ algoRouter.post('/schedule/:scheduleId/link-assignments', verifyToken, async (re
     });
   } catch (error) {
     console.error('Error linking assignments:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Get room availability for scheduling algorithm
+algoRouter.get('/rooms/availability/:departmentId', async (req, res) => {
+  try {
+    const { departmentId } = req.params;
+    
+    const rooms = await prisma.room.findMany({
+      where: { departmentId: departmentId },
+      include: {
+        academicBlock: true,
+        assignments: {
+          include: {
+            course: true,
+            semester: true,
+            faculties: true
+          }
+        }
+      }
+    });
+
+    // Calculate availability matrix for each room
+    const roomsWithAvailability = rooms.map(room => ({
+      id: room.id,
+      code: room.code,
+      capacity: room.capacity,
+      isLab: room.isLab,
+      academicBlock: room.academicBlock,
+      availability: room.availability, // 6 days × 12 hours (8 AM to 8 PM)
+      currentAssignments: room.assignments.length,
+      assignments: room.assignments
+    }));
+
+    res.status(200).json({
+      departmentId,
+      totalRooms: roomsWithAvailability.length,
+      rooms: roomsWithAvailability
+    });
+  } catch (error) {
+    console.error('Error fetching room availability:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

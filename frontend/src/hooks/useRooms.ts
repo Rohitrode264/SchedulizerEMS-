@@ -23,12 +23,40 @@ export const useRooms = () => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_BASE}/blocks`);
-      if (response.data.success) {
+      if (response.data?.success) {
         setBlocks(response.data.data);
+      } else if (Array.isArray(response.data)) {
+        setBlocks(response.data);
+      } else {
+        throw new Error('Unexpected response format for blocks');
       }
     } catch (err) {
-      console.error('Error fetching blocks:', err);
+      console.error('Error fetching blocks:', (err as any)?.response?.data || err);
       setError('Failed to fetch academic blocks');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Create academic block (minimal fields)
+  const createBlock = async (data: { name: string; blockCode: string; universityId: string; }): Promise<boolean> => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const headers = token
+        ? { Authorization: token.replace(/['"]+/g, ''), 'Content-Type': 'application/json' }
+        : { 'Content-Type': 'application/json' } as any;
+      const response = await axios.post(`${API_BASE}/blocks`, data, { headers });
+      if (response.data?.success) {
+        await fetchBlocks();
+        return true;
+      }
+      setError(response.data?.error || 'Failed to create academic block');
+      return false;
+    } catch (err) {
+      console.error('Error creating block:', (err as any)?.response?.data || err);
+      setError((err as any)?.response?.data?.error || 'Failed to create academic block');
+      return false;
     } finally {
       setLoading(false);
     }
@@ -76,7 +104,11 @@ export const useRooms = () => {
   const createRoom = async (roomData: CreateRoomData): Promise<Room | null> => {
     try {
       setLoading(true);
-      const response = await axios.post(API_BASE, roomData);
+      const token = localStorage.getItem('token');
+      const headers = token
+        ? { Authorization: token.replace(/['"]/g, ''), 'Content-Type': 'application/json' }
+        : { 'Content-Type': 'application/json' } as any;
+      const response = await axios.post(API_BASE, roomData, { headers });
       if (response.data.success) {
         await fetchRooms(); // Refresh the list
         return response.data.data;
@@ -95,7 +127,11 @@ export const useRooms = () => {
   const updateRoom = async (id: string, roomData: UpdateRoomData): Promise<Room | null> => {
     try {
       setLoading(true);
-      const response = await axios.put(`${API_BASE}/${id}`, roomData);
+      const token = localStorage.getItem('token');
+      const headers = token
+        ? { Authorization: token.replace(/['"]/g, ''), 'Content-Type': 'application/json' }
+        : { 'Content-Type': 'application/json' } as any;
+      const response = await axios.put(`${API_BASE}/${id}`, roomData, { headers });
       if (response.data.success) {
         await fetchRooms(); // Refresh the list
         return response.data.data;
@@ -114,7 +150,11 @@ export const useRooms = () => {
   const deleteRoom = async (id: string): Promise<boolean> => {
     try {
       setLoading(true);
-      const response = await axios.delete(`${API_BASE}/${id}`);
+      const token = localStorage.getItem('token');
+      const headers = token
+        ? { Authorization: token.replace(/['"]/g, ''), 'Content-Type': 'application/json' }
+        : { 'Content-Type': 'application/json' } as any;
+      const response = await axios.delete(`${API_BASE}/${id}`, { headers });
       if (response.data.success) {
         await fetchRooms(); // Refresh the list
         return true;
@@ -178,6 +218,7 @@ export const useRooms = () => {
     updateRoom,
     deleteRoom,
     getRoomsByBlock,
+    createBlock,
     clearError
   };
 };

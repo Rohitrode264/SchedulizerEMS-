@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Room, AcademicBlock, CreateRoomData, UpdateRoomData } from '../../types/room';
 import { InputField } from '../InputField';
 import Button from '../Button';
-import { Building2, Hash, MapPin, Users, FlaskConical, Calendar } from 'lucide-react';
+import { Building2, Hash, Users, FlaskConical, Calendar } from 'lucide-react';
 
 interface RoomFormProps {
   room?: Room;
@@ -20,14 +20,13 @@ export const RoomForm: React.FC<RoomFormProps> = ({
   loading = false
 }) => {
   const [formData, setFormData] = useState<CreateRoomData>({
-    name: '',
     code: '',
-    floor: 1,
     capacity: 0,
     isLab: false,
     academicBlockId: '',
     departmentId: '',
-    availability: []
+    availability: [],
+    name: ''
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -35,14 +34,13 @@ export const RoomForm: React.FC<RoomFormProps> = ({
   useEffect(() => {
     if (room) {
       setFormData({
-        name: room.name,
         code: room.code,
-        floor: room.floor,
         capacity: room.capacity,
         isLab: room.isLab,
         academicBlockId: room.academicBlockId,
         departmentId: room.departmentId || '',
-        availability: room.availability
+        availability: room.availability,
+        name: ''
       });
     }
   }, [room]);
@@ -155,23 +153,7 @@ export const RoomForm: React.FC<RoomFormProps> = ({
            )}
          </div>
 
-                 {/* Floor (Optional) */}
-         <div>
-           <div className="flex items-center space-x-2 mb-2">
-             <MapPin className="w-4 h-4 text-gray-500" />
-             <label className="block text-sm font-medium text-gray-700">
-               Floor (Optional)
-             </label>
-           </div>
-           <InputField
-             label=""
-             type="number"
-             value={formData.floor.toString()}
-             onChange={(e) => handleInputChange('floor', parseInt(e.target.value) || 1)}
-             placeholder="Floor number"
-             name="floor"
-           />
-         </div>
+
 
                  {/* Capacity */}
          <div>
@@ -251,26 +233,39 @@ export const RoomForm: React.FC<RoomFormProps> = ({
          <div className="flex items-center space-x-2 mb-3">
            <Calendar className="w-4 h-4 text-gray-500" />
            <label className="block text-sm font-medium text-gray-700">
-             Available Time Slots (0-23 hours)
+             Available Time Slots (6 Days × 12 Hours: 8 AM to 8 PM)
            </label>
          </div>
-         <div className="grid grid-cols-6 gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-           {Array.from({ length: 24 }, (_, i) => (
-             <label key={i} className="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded transition-colors duration-200">
-               <input
-                 type="checkbox"
-                 checked={formData.availability.includes(i)}
-                 onChange={(e) => {
-                   if (e.target.checked) {
-                     handleInputChange('availability', [...formData.availability, i]);
-                   } else {
-                     handleInputChange('availability', formData.availability.filter(slot => slot !== i));
-                   }
-                 }}
-                 className="mr-2 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-               />
-               <span className="text-sm text-gray-700 font-medium">{i}:00</span>
-             </label>
+         <div className="grid grid-cols-6 gap-4">
+           {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day, dayIndex) => (
+             <div key={day} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+               <h4 className="font-medium text-gray-700 mb-2 text-center text-sm">{day}</h4>
+               <div className="grid grid-cols-2 gap-1">
+                 {Array.from({ length: 12 }, (_, slotIndex) => {
+                   const hour = slotIndex + 8; // 8 AM to 8 PM
+                   const availabilityIndex = dayIndex * 12 + slotIndex;
+                   const timeText = hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`;
+                   
+                   return (
+                     <label key={slotIndex} className="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded transition-colors duration-200">
+                       <input
+                         type="checkbox"
+                         checked={formData.availability.includes(availabilityIndex)}
+                         onChange={(e) => {
+                           if (e.target.checked) {
+                             handleInputChange('availability', [...formData.availability, availabilityIndex]);
+                           } else {
+                             handleInputChange('availability', formData.availability.filter(slot => slot !== availabilityIndex));
+                           }
+                         }}
+                         className="mr-1 w-3 h-3 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                       />
+                       <span className="text-xs text-gray-700 font-medium">{timeText}</span>
+                     </label>
+                   );
+                 })}
+               </div>
+             </div>
            ))}
          </div>
        </div>

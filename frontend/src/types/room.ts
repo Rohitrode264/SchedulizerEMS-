@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export interface AcademicBlock {
   id: string;
   name: string;
@@ -14,10 +16,9 @@ export interface AcademicBlock {
 }
 
 export interface Room {
+  name: ReactNode;
   id: string;
-  name: string;
   code: string;
-  floor: number;
   capacity: number;
   isLab: boolean;
   isActive: boolean;
@@ -62,7 +63,6 @@ export interface RoomStats {
 export interface CreateRoomData {
   name: string;
   code: string;
-  floor: number;
   capacity: number;
   isLab: boolean;
   academicBlockId: string;

@@ -5,7 +5,9 @@ import { RoomCard } from '../Components/Cards/RoomCard';
 import { RoomForm } from '../Components/Forms/RoomForm';
 import { RoomFilters } from '../Components/RoomFilters';
 import Button from '../Components/Button';
-import { Building2, FlaskConical, BookOpen, Building, AlertTriangle, X } from 'lucide-react';
+import { Building2, FlaskConical, BookOpen, Building, AlertTriangle, X, PlusSquare } from 'lucide-react';
+import { AcademicBlockForm } from '../Components/Forms/AcademicBlockForm';
+import { useUniversities } from '../hooks/fetchUniversities';
 
 export const RoomManagement: React.FC = () => {
   const {
@@ -16,9 +18,11 @@ export const RoomManagement: React.FC = () => {
     error,
     pagination,
     fetchRooms,
+    fetchBlocks,
     createRoom,
     updateRoom,
     deleteRoom,
+    createBlock,
     clearError
   } = useRooms();
 
@@ -30,6 +34,8 @@ export const RoomManagement: React.FC = () => {
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<Room | null>(null);
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
+  const [showBlockForm, setShowBlockForm] = useState(false);
+  const { universities } = useUniversities();
 
   useEffect(() => {
     fetchRooms(filters);
@@ -117,15 +123,26 @@ export const RoomManagement: React.FC = () => {
                 Organize and manage your academic spaces efficiently
               </p>
             </div>
-            <Button
-              variant="secondary"
-              onClick={() => setShowForm(true)}
-              disabled={loading}
-              className="text-lg px-6 py-3 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-            >
-              <span className="mr-2">+</span>
-              Add New Room
-            </Button>
+            <div className="flex items-center">
+              <Button
+                variant="secondary"
+                onClick={() => setShowForm(true)}
+                disabled={loading}
+                className="text-lg px-6 py-3 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              >
+                <span className="mr-2">+</span>
+                Add New Room
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => setShowBlockForm(true)}
+                disabled={loading}
+                className="ml-3 text-lg px-6 py-3 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              >
+                <PlusSquare className="w-5 h-5 mr-2" />
+                Add Academic Block
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -227,8 +244,12 @@ export const RoomManagement: React.FC = () => {
 
         {/* Room Form Modal */}
         {showForm && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 backdrop-blur-sm">
-            <div className="relative top-10 mx-auto p-0 w-11/12 md:w-4/5 lg:w-3/5 xl:w-2/5 shadow-2xl rounded-2xl bg-white overflow-hidden">
+          <div className="fixed inset-0 overflow-y-auto h-full w-full z-50">
+            {/* Semi-transparent overlay that keeps page visible with reduced opacity */}
+            <div className="absolute inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm"></div>
+            
+            {/* Modal content */}
+            <div className="relative top-10 mx-auto p-0 w-11/12 md:w-5/6 lg:w-4/5 xl:w-3/4 shadow-2xl rounded-2xl bg-white overflow-hidden">
               {/* Modal Header */}
               <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6 text-white">
                 <div className="flex items-center justify-between">
@@ -262,6 +283,50 @@ export const RoomManagement: React.FC = () => {
                   onSubmit={handleSubmit}
                   onCancel={closeForm}
                   loading={isFormSubmitting}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Create Academic Block Modal */}
+        {showBlockForm && (
+          <div className="fixed inset-0 overflow-y-auto h-full w-full z-50">
+            {/* Semi-transparent overlay that keeps page visible with reduced opacity */}
+            <div className="absolute inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm"></div>
+            
+            {/* Modal content */}
+            <div className="relative top-10 mx-auto p-0 w-11/12 md:w-3/4 lg:w-3/5 xl:w-1/2 shadow-2xl rounded-2xl bg-white overflow-hidden">
+              <div className="bg-gradient-to-r from-green-600 to-emerald-700 px-8 py-6 text-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                      <Building className="text-xl text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold">Add Academic Block</h3>
+                      <p className="text-emerald-100 text-sm mt-1">Create a new block for rooms</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowBlockForm(false)}
+                    className="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center hover:bg-white hover:bg-opacity-30 transition-all duration-200 text-white hover:text-gray-800"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              <div className="p-8">
+                <AcademicBlockForm
+                  universities={(universities as any[]) || []}
+                  onSubmit={async (data) => {
+                    const ok = await createBlock({ name: data.name as string, blockCode: data.blockCode as string, universityId: data.universityId as string });
+                    if (ok) {
+                      await fetchBlocks();
+                      setShowBlockForm(false);
+                    }
+                  }}
+                  onCancel={() => setShowBlockForm(false)}
                 />
               </div>
             </div>

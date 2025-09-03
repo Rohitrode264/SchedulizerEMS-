@@ -5,7 +5,8 @@ import SectionManager from './SectionManager';
 
 export default function SectionsManagement({ departmentId }: SectionsManagementProps) {
   const [, setCurrentDepartmentCode] = useState('');
-  const [departmentData, setDepartmentData] = useState<{ departmentName: string; batchYearRange: string } | null>(null);
+  const [departmentData, setDepartmentData] = useState<{ departmentName: string; batchYearRange: string; schemaId?: string } | null>(null);
+  const [createdSchemeId, setCreatedSchemeId] = useState<string>('');
 
   const handleDepartmentCodeGenerated = (code: string) => {
     setCurrentDepartmentCode(code);
@@ -13,6 +14,12 @@ export default function SectionsManagement({ departmentId }: SectionsManagementP
 
   const handleDepartmentDataChange = (data: { departmentName: string; batchYearRange: string }) => {
     setDepartmentData(data);
+  };
+
+  const handleSchemeCreated = (schemeId: string) => {
+    setCreatedSchemeId(schemeId);
+    // Update departmentData to include the schemaId
+    setDepartmentData(prev => prev ? { ...prev, schemaId: schemeId } : null);
   };
 
   if (!departmentId) {
@@ -26,12 +33,14 @@ export default function SectionsManagement({ departmentId }: SectionsManagementP
         departmentId={departmentId}
         onDepartmentCodeGenerated={handleDepartmentCodeGenerated}
         onDepartmentDataChange={handleDepartmentDataChange}
+        onSchemeCreated={handleSchemeCreated}
       />
 
       {/* Section Manager */}
       <SectionManager 
         departmentId={departmentId} 
         departmentData={departmentData}
+        createdSchemeId={createdSchemeId}
       />
     </div>
   );

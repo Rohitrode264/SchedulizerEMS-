@@ -104,6 +104,7 @@ export const useSections = (departmentId: string | undefined) => {
     batchYearRange: string;
     sections: any[];
     departmentId: string;
+    schemaId?: string;
   }) => {
     setLoading(true);
     setError(null);

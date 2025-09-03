@@ -33,12 +33,23 @@ sectionsRouter.get('/:departmentId', verifyToken, async (req, res) => {
 // Create sections and batches configuration
 sectionsRouter.post('/create', verifyToken, async (req, res) => {
     try {
-        const { departmentName, batchYearRange, sections: sectionsData } = req.body;
+        const { departmentName, batchYearRange, sections: sectionsData, schemaId } = req.body;
         const { departmentId } = req.body;
 
         if (!departmentId || !departmentName || !batchYearRange || !sectionsData) {
-            res.status(400).json({ error: 'Missing required fields' });
+            res.status(400).json({ error: 'Missing required fields (departmentId, departmentName, batchYearRange, sections)' });
             return;
+        }
+
+        // If schemaId is provided, ensure it exists
+        if (schemaId) {
+            const schema = await prisma.scheme.findUnique({ where: { id: schemaId } });
+            if (!schema) {
+                res.status(400).json({ error: 'Invalid schemaId. Upload/create scheme first.' });
+                return;
+            }
+        } else {
+            console.warn('Creating sections without schemaId - sections will not be linked to a specific scheme');
         }
 
         
@@ -47,21 +58,38 @@ sectionsRouter.post('/create', verifyToken, async (req, res) => {
         
         const createdSections = [];
         for (const sectionData of sectionsData) {
+            // Expect sectionData: { name, numBatches, totalCount, preferredRoom? }
+            if (!sectionData.name || !sectionData.numBatches || !sectionData.totalCount) {
+                res.status(400).json({ error: 'Each section requires name, numBatches, totalCount' });
+                return;
+            }
+
+            const numBatches = Number(sectionData.numBatches);
+            const totalCount = Number(sectionData.totalCount);
+            if (numBatches <= 0 || totalCount <= 0) {
+                res.status(400).json({ error: 'numBatches and totalCount must be positive' });
+                return;
+            }
+
+            const base = Math.floor(totalCount / numBatches);
+            const remainder = totalCount % numBatches;
+
+            const batchesCreate = Array.from({ length: numBatches }, (_, i) => ({
+                name: `B${i + 1}`,
+                count: base + (i < remainder ? 1 : 0),
+                preferredRoom: sectionData.preferredRoom || null
+            }));
+
             const section = await prisma.section.create({
                 data: {
                     name: sectionData.name,
                     departmentId: departmentId,
+                    ...(schemaId && { schemaId: schemaId }),
                     departmentCode: departmentCode,
                     batchYearRange: batchYearRange,
                     fullName: `${departmentCode}_${batchYearRange}_section_${sectionData.name}`,
                     preferredRoom: sectionData.preferredRoom || null,
-                    batches: {
-                        create: sectionData.batches.map((batch: any) => ({
-                            name: batch.name,
-                            count: batch.count || 20,
-                            preferredRoom: batch.preferredRoom || null
-                        }))
-                    }
+                    batches: { create: batchesCreate }
                 },
                 include: {
                     batches: true

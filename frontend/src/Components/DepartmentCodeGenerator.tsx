@@ -7,12 +7,14 @@ interface DepartmentCodeGeneratorProps {
   departmentId: string;
   onDepartmentCodeGenerated: (code: string) => void;
   onDepartmentDataChange?: (data: { departmentName: string; batchYearRange: string }) => void;
+  onSchemeCreated?: (schemeId: string) => void;
 }
 
 export default function DepartmentCodeGenerator({ 
   departmentId, 
   onDepartmentCodeGenerated,
-  onDepartmentDataChange
+  onDepartmentDataChange,
+  onSchemeCreated
 }: DepartmentCodeGeneratorProps) {
   const [departmentName, setDepartmentName] = useState('');
   const [batchYearStart, setBatchYearStart] = useState('');
@@ -98,6 +100,9 @@ export default function DepartmentCodeGenerator({
         setDepartmentName('');
         setBatchYearStart('');
         setBatchYearEnd('');
+        if (onSchemeCreated) {
+          onSchemeCreated(response.data.schemeId);
+        }
       }
     } catch (error: any) {
       console.error('Error uploading scheme:', error);

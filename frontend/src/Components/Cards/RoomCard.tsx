@@ -25,24 +25,46 @@ export const RoomCard: React.FC<RoomCardProps> = ({
 
   const formatAvailability = (availability: number[]) => {
     if (availability.length === 0) return 'No availability set';
-    if (availability.length === 24) return 'Available 24/7';
+    if (availability.length === 72) return 'Available 8 AM - 8 PM (6 days)';
     
-    const sorted = availability.sort((a, b) => a - b);
-    const ranges: string[] = [];
-    let start = sorted[0];
-    let end = sorted[0];
+    // Group by days
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayAvailability = days.map((day, dayIndex) => {
+      const daySlots = availability.filter(slot => {
+        const slotDay = Math.floor(slot / 12);
+        return slotDay === dayIndex;
+      });
+      
+      if (daySlots.length === 0) return null;
+      if (daySlots.length === 12) return `${day}: 8 AM-8 PM`;
+      
+      // Find time ranges for this day
+      const sorted = daySlots.sort((a, b) => a - b);
+      const ranges: string[] = [];
+      let start = (sorted[0] % 12) + 8; // Convert to 8 AM - 8 PM
+      let end = (sorted[0] % 12) + 8;
 
-    for (let i = 1; i < sorted.length; i++) {
-      if (sorted[i] === end + 1) {
-        end = sorted[i];
-      } else {
-        ranges.push(start === end ? `${start}:00` : `${start}:00-${end}:00`);
-        start = end = sorted[i];
+      for (let i = 1; i < sorted.length; i++) {
+        const currentSlot = sorted[i] % 12;
+        const currentHour = currentSlot + 8;
+        if (currentHour === end + 1) {
+          end = currentHour;
+        } else {
+          const startTime = start === 12 ? '12 PM' : start > 12 ? `${start - 12} PM` : `${start} AM`;
+          const endTime = end === 12 ? '12 PM' : end > 12 ? `${end - 12} PM` : `${end} AM`;
+          ranges.push(start === end ? startTime : `${startTime}-${endTime}`);
+          start = end = currentHour;
+        }
       }
-    }
-    ranges.push(start === end ? `${start}:00` : `${start}:00-${end}:00`);
-
-    return ranges.join(', ');
+      
+      const startTime = start === 12 ? '12 PM' : start > 12 ? `${start - 12} PM` : `${start} AM`;
+      const endTime = end === 12 ? '12 PM' : end > 12 ? `${end - 12} PM` : `${end} AM`;
+      ranges.push(start === end ? startTime : `${startTime}-${endTime}`);
+      
+      return `${day}: ${ranges.join(', ')}`;
+    }).filter(Boolean);
+    
+    return dayAvailability.join(' | ');
   };
 
   return (
@@ -52,7 +74,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-gray-900 mb-1">
-              {room.name}
+              Room
             </h3>
             <p className="text-sm text-gray-600 font-mono">
               {room.code}
@@ -71,13 +93,13 @@ export const RoomCard: React.FC<RoomCardProps> = ({
 
       {/* Content */}
       <div className="p-4 space-y-3">
-        {/* Block and Floor */}
+        {/* Block */}
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-600">
             <span className="font-medium">Block:</span> {room.academicBlock.name}
           </span>
           <span className="text-gray-600">
-            <span className="font-medium">Floor:</span> {room.floor}
+            <span className="font-medium">Code:</span> {room.academicBlock.blockCode}
           </span>
         </div>
 

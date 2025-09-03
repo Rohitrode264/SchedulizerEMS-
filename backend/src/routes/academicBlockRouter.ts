@@ -11,11 +11,7 @@ academicBlockRouter.get('/', async (req, res) => {
     const blocks = await prisma.academicBlock.findMany({
       where: { isActive: true },
       include: {
-        school: {
-          include: {
-            university: true
-          }
-        },
+        university: true,
         _count: {
           select: {
             rooms: true
@@ -40,17 +36,12 @@ academicBlockRouter.get('/:id', async (req, res) => {
     const block = await prisma.academicBlock.findUnique({
       where: { id },
       include: {
-        school: {
-          include: {
-            university: true
-          }
-        },
+        university: true,
         rooms: {
           include: {
-            department: true,
-            features: true
+            department: true
           },
-          orderBy: { floor: 'asc', name: 'asc' }
+          orderBy: { code: 'asc' }
         }
       }
     });
@@ -70,10 +61,10 @@ academicBlockRouter.get('/:id', async (req, res) => {
 // Create new academic block
 academicBlockRouter.post('/', verifyToken, async (req, res) => {
   try {
-    const { name, blockCode, description, location, schoolId } = req.body;
+    const { name, blockCode, description, location, universityId } = req.body;
 
-    if (!name || !blockCode || !schoolId) {
-      res.status(400).json({ error: 'Name, block code, and school ID are required' });
+    if (!name || !blockCode || !universityId) {
+      res.status(400).json({ error: 'Name, block code, and university ID are required' });
       return;
     }
 
@@ -91,16 +82,11 @@ academicBlockRouter.post('/', verifyToken, async (req, res) => {
       data: {
         name,
         blockCode,
-        description,
-        location,
-        schoolId
+        
+        universityId
       },
       include: {
-        school: {
-          include: {
-            university: true
-          }
-        }
+        university: true
       }
     });
 
@@ -122,16 +108,12 @@ academicBlockRouter.put('/:id', verifyToken, async (req, res) => {
       data: {
         name,
         blockCode,
-        description,
-        location,
+       
+        
         isActive
       },
       include: {
-        school: {
-          include: {
-            university: true
-          }
-        }
+        university: true
       }
     });
 

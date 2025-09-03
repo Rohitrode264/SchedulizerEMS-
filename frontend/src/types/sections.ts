@@ -3,6 +3,8 @@ export interface Section {
     name: string;
     batches: Batch[];
     preferredRoom: string;
+    numBatches?: number;
+    totalCount?: number;
   }
   
 export interface Batch {
@@ -15,5 +17,11 @@ export interface Batch {
   
   export interface SectionsManagementProps {
     departmentId: string | undefined;
+  }
+  
+  export interface SectionManagerProps {
+    departmentId: string;
+    departmentData: { departmentName: string; batchYearRange: string; schemaId?: string } | null;
+    createdSchemeId?: string;
   }
   
