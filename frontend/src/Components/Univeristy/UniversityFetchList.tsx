@@ -9,6 +9,7 @@ import { DepartmentLoginForm } from '../Auth/DepartmentLoginForm';
 import axios from 'axios';
 import { API_URL } from '../../config/config';
 import type { University, School, Department } from '../../types/auth';
+import { theme } from '../../Theme/theme';
 
 export default function UniversityList() {
   const { universities, loading, error } = useUniversities();
@@ -141,7 +142,7 @@ export default function UniversityList() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+        <div className={`animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 ${theme.primary.border}`}></div>
       </div>
     );
   }
@@ -155,14 +156,14 @@ export default function UniversityList() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Step 1: University Selection */}
       <div className="space-y-4">
-        <div className="flex items-center space-x-2 mb-4">
-          <div className="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+        <div className="flex items-center space-x-3 mb-4">
+          <div className={`w-10 h-10 ${theme.primary.main} text-white ${theme.rounded.full} flex items-center justify-center text-sm font-semibold ${theme.shadow.md}`}>
             1
           </div>
-          <h3 className="text-lg font-semibold text-gray-900">Select University</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Select University</h3>
         </div>
         
         <SearchDropdown<University>
@@ -192,14 +193,14 @@ export default function UniversityList() {
       </div>
 
       {selectedUniversityRef.current && (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Step 2: School Selection */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className={`w-10 h-10 ${theme.primary.main} text-white ${theme.rounded.full} flex items-center justify-center text-sm font-semibold ${theme.shadow.md}`}>
                 2
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">Select School (Optional)</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Select School (Optional)</h3>
             </div>
             
             <SearchDropdown<School>
@@ -223,11 +224,11 @@ export default function UniversityList() {
           {/* Step 3: Department Selection */}
           {selectedSchool && (
             <div className="space-y-4">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className={`w-10 h-10 ${theme.primary.main} text-white ${theme.rounded.full} flex items-center justify-center text-sm font-semibold ${theme.shadow.md}`}>
                   3
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Select Department (Optional)</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Select Department (Optional)</h3>
               </div>
               
               <SearchDropdown<Department>
@@ -250,23 +251,23 @@ export default function UniversityList() {
 
           {/* Login Options */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className={`w-10 h-10 ${theme.primary.main} text-white ${theme.rounded.full} flex items-center justify-center text-sm font-semibold ${theme.shadow.md}`}>
                 4
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">Choose Login Type</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Choose Login Type</h3>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* University Admin Login */}
               <button
                 onClick={() => setShowLoginForm(!showLoginForm)}
-                className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg 
-                           transform transition-all duration-300 hover:-translate-y-1 h-24
-                           bg-gradient-to-r from-indigo-500 to-indigo-600"
+                className={`group relative overflow-hidden ${theme.rounded.lg} ${theme.shadow.md} hover:${theme.shadow.lg} 
+                           ${theme.transition.transform} hover:-translate-y-1 h-28
+                           bg-gradient-to-br from-gray-800 to-gray-700`}
               >
-                <div className="relative px-4 py-3 flex flex-col items-center justify-center h-full text-white">
-                  <HiAcademicCap className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
+                <div className="relative px-4 py-4 flex flex-col items-center justify-center h-full text-white">
+                  <HiAcademicCap className="w-7 h-7 mb-3 group-hover:scale-110 transition-transform" />
                   <span className="font-medium text-sm text-center">
                     {showLoginForm ? 'Hide Admin Login' : 'University Admin'}
                   </span>
@@ -277,12 +278,12 @@ export default function UniversityList() {
               {selectedSchool && (
                 <button
                   onClick={() => setShowSchoolLogin(!showSchoolLogin)}
-                  className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg 
-                             transform transition-all duration-300 hover:-translate-y-1 h-24
-                             bg-gradient-to-r from-green-500 to-green-600"
+                  className={`group relative overflow-hidden ${theme.rounded.lg} ${theme.shadow.md} hover:${theme.shadow.lg} 
+                             ${theme.transition.transform} hover:-translate-y-1 h-28
+                             bg-gradient-to-br from-green-500 to-green-600`}
                 >
-                  <div className="relative px-4 py-3 flex flex-col items-center justify-center h-full text-white">
-                    <HiOfficeBuilding className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
+                  <div className="relative px-4 py-4 flex flex-col items-center justify-center h-full text-white">
+                    <HiOfficeBuilding className="w-7 h-7 mb-3 group-hover:scale-110 transition-transform" />
                     <span className="font-medium text-sm text-center">
                       {showSchoolLogin ? 'Hide School Login' : 'School Admin'}
                     </span>
@@ -294,12 +295,12 @@ export default function UniversityList() {
               {selectedDepartment && (
                 <button
                   onClick={() => setShowDepartmentLogin(!showDepartmentLogin)}
-                  className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg 
-                             transform transition-all duration-300 hover:-translate-y-1 h-24
-                             bg-gradient-to-r from-purple-500 to-purple-600"
+                  className={`group relative overflow-hidden ${theme.rounded.lg} ${theme.shadow.md} hover:${theme.shadow.lg} 
+                             ${theme.transition.transform} hover:-translate-y-1 h-28
+                             bg-gradient-to-br from-purple-500 to-purple-600`}
                 >
-                  <div className="relative px-4 py-3 flex flex-col items-center justify-center h-full text-white">
-                    <HiUserGroup className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
+                  <div className="relative px-4 py-4 flex flex-col items-center justify-center h-full text-white">
+                    <HiUserGroup className="w-7 h-7 mb-3 group-hover:scale-110 transition-transform" />
                     <span className="font-medium text-sm text-center">
                       {showDepartmentLogin ? 'Hide Department Login' : 'Department Admin'}
                     </span>
@@ -311,7 +312,7 @@ export default function UniversityList() {
 
           {/* Login Forms */}
           {showSchoolLogin && selectedSchool && (
-            <div className="mt-6">
+            <div className="mt-8">
               <SchoolLoginForm
                 universityId={selectedUniversityRef.current}
                 schoolId={selectedSchool}
@@ -320,7 +321,7 @@ export default function UniversityList() {
           )}
 
           {showDepartmentLogin && selectedDepartment && (
-            <div className="mt-6">
+            <div className="mt-8">
               <DepartmentLoginForm
                 universityId={selectedUniversityRef.current}
                 schoolId={selectedSchool}
@@ -333,14 +334,16 @@ export default function UniversityList() {
 
       {/* University Admin Login Form */}
       {showLoginForm && (
-        <div className="mt-6 bg-gray-50 rounded-xl p-6 border border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6 
-                         flex items-center space-x-2">
-            <HiAcademicCap className="w-6 h-6 text-indigo-500" />
+        <div className={`mt-8 ${theme.surface.secondary} ${theme.rounded.lg} ${theme.spacing.md} ${theme.border.light}`}>
+          <h3 className="text-2xl font-semibold text-gray-900 mb-6 
+                         flex items-center space-x-3">
+            <div className={`w-8 h-8 ${theme.primary.main} text-white ${theme.rounded.full} flex items-center justify-center`}>
+              <HiAcademicCap className="w-5 h-5" />
+            </div>
             <span>University Admin Login</span>
           </h3>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-6">
             <InputField
               label="Admin Email"
               type="email"
@@ -364,12 +367,7 @@ export default function UniversityList() {
             )}
             <button
               type="submit"
-              className="w-full py-3.5 bg-gradient-to-r from-indigo-500 
-                       to-indigo-600 rounded-xl shadow-md hover:shadow-lg 
-                       transform transition-all duration-200 text-white 
-                       font-medium hover:-translate-y-0.5 
-                       focus:outline-none focus:ring-2 focus:ring-indigo-500 
-                       focus:ring-offset-2"
+              className={`w-full py-4 ${theme.button.primary} ${theme.rounded.lg}`}
             >
               Login to Dashboard
             </button>

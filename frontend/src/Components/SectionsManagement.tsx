@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { SectionsManagementProps } from '../types/sections';
 import DepartmentCodeGenerator from './DepartmentCodeGenerator';
 import SectionManager from './SectionManager';
+import { theme } from '../Theme/theme';
 
 export default function SectionsManagement({ departmentId }: SectionsManagementProps) {
   const [, setCurrentDepartmentCode] = useState('');
@@ -23,11 +24,11 @@ export default function SectionsManagement({ departmentId }: SectionsManagementP
   };
 
   if (!departmentId) {
-    return <div>Department ID is required</div>;
+    return <div className={`${theme.text.primary} ${theme.spacing.md}`}>Department ID is required</div>;
   }
 
   return (
-    <div className="space-y-8">
+    <div className={`${theme.spacing.xl} space-y-8`}>
       {/* Department Code Generator and Scheme Upload */}
       <DepartmentCodeGenerator 
         departmentId={departmentId}

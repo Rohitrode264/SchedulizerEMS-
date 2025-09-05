@@ -45,13 +45,37 @@ scheduleRouter.post('/', verifyToken, async (req, res) => {
   try {
     const { name, days, slots, departmentId, semesterId } = req.body;
 
+    console.log('Creating schedule with data:', { name, days, slots, departmentId, semesterId });
+
     if (!name || !days || !slots || !departmentId) {
       res.status(400).json({ error: 'Missing required fields' });
       return;
     }
 
+    // Validate department exists
+    const department = await prisma.department.findUnique({
+      where: { id: departmentId }
+    });
+
+    if (!department) {
+      res.status(400).json({ error: 'Department not found' });
+      return;
+    }
+
     // Convert single semesterId to array if provided
-    const semesterIds = semesterId ? [semesterId] : [];
+    const semesterIds = semesterId ? (Array.isArray(semesterId) ? semesterId : [semesterId]) : [];
+
+    // Validate semesters exist if provided
+    if (semesterIds.length > 0) {
+      const existingSemesters = await prisma.semester.findMany({
+        where: { id: { in: semesterIds } }
+      });
+
+      if (existingSemesters.length !== semesterIds.length) {
+        res.status(400).json({ error: 'One or more semesters not found' });
+        return;
+      }
+    }
 
     // Create schedule first
     const created = await prisma.schedule.create({
@@ -63,6 +87,8 @@ scheduleRouter.post('/', verifyToken, async (req, res) => {
       }
     });
 
+    console.log('Schedule created with ID:', created.id);
+
     // Create ScheduleSemester relationships if semesterIds provided
     if (semesterIds.length > 0) {
       await prisma.scheduleSemester.createMany({
@@ -72,8 +98,10 @@ scheduleRouter.post('/', verifyToken, async (req, res) => {
         }))
       });
 
+      console.log('ScheduleSemester relationships created');
+
       // Link assignments to the schedule
-      await prisma.assignment.updateMany({
+      const assignmentUpdate = await prisma.assignment.updateMany({
         where: {
           semesterId: { in: semesterIds }
         },
@@ -81,6 +109,8 @@ scheduleRouter.post('/', verifyToken, async (req, res) => {
           scheduleId: created.id
         }
       });
+
+      console.log('Linked assignments:', assignmentUpdate.count);
     }
 
     const schedule = await prisma.schedule.findUnique({
@@ -107,7 +137,10 @@ scheduleRouter.post('/', verifyToken, async (req, res) => {
     res.status(201).json({ schedule });
   } catch (error) {
     console.error('Error creating schedule:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ 
+      error: 'Internal Server Error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 

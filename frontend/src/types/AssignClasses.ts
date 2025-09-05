@@ -25,7 +25,7 @@ export interface Assignment{
     courseId:string;
     facultyIds:string[]; // Changed from facultyId to facultyIds array
     laboratory:string;
-    roomId?:string; // Changed from room to roomId for proper database relation
+    roomIds?:string[]; // Changed from roomId to roomIds array for multiple room selection
     credits:number;
     hasLab:boolean;
 }

@@ -82,15 +82,38 @@ roomRouter.get('/', async (req: Request, res: Response): Promise<void> => {
     const where: any = {};
 
     if (blockId) where.academicBlockId = String(blockId);
-    if (departmentId) where.departmentId = String(departmentId);
     if (capacity) where.capacity = { gte: Number(capacity) };
     if (isLab !== undefined) where.isLab = isLab === 'true';
+    // Only filter by isActive if explicitly provided, otherwise show all rooms (including inactive ones for now)
     if (isActive !== undefined) where.isActive = isActive === 'true';
-    if (search) {
+    
+    // Handle department filtering - include rooms that belong to the department OR have no department assigned (general purpose)
+    if (departmentId) {
       where.OR = [
-        { name: { contains: String(search), mode: 'insensitive' } },
-        { code: { contains: String(search), mode: 'insensitive' } }
+        { departmentId: String(departmentId) },
+        { departmentId: null }
       ];
+    }
+    
+    // Handle search functionality
+    if (search) {
+      const searchCondition = {
+        OR: [
+          { name: { contains: String(search), mode: 'insensitive' } },
+          { code: { contains: String(search), mode: 'insensitive' } }
+        ]
+      };
+      
+      // If we already have an OR condition for department, we need to combine them with AND
+      if (where.OR) {
+        where.AND = [
+          { OR: where.OR },
+          searchCondition
+        ];
+        delete where.OR;
+      } else {
+        where.OR = searchCondition.OR;
+      }
     }
 
     // Get rooms with pagination

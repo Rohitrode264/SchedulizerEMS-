@@ -42,6 +42,7 @@ assignmentRouter.get('/:semesterId', verifyToken, async (req: Request, res: Resp
             ...a,
             faculty: a.faculties, // Return all faculties
             facultyIds: a.faculties.map((f: any) => f.id), // Return faculty IDs array
+            roomIds: a.roomIds || [], // Return room IDs array
             room: a.room ? a.room.name ?? '' : ''
         }));
 
@@ -56,7 +57,7 @@ assignmentRouter.get('/:semesterId', verifyToken, async (req: Request, res: Resp
 assignmentRouter.post('/:semesterId', verifyToken, async (req: Request, res: Response) => {
     try {
         const { semesterId } = req.params;
-        const { courseId, facultyIds, laboratory, roomId, credits, hasLab } = req.body;
+        const { courseId, facultyIds, laboratory, roomIds, roomId, credits, hasLab } = req.body;
 
 
         if (!courseId || !facultyIds || !Array.isArray(facultyIds) || facultyIds.length === 0) {
@@ -115,7 +116,8 @@ assignmentRouter.post('/:semesterId', verifyToken, async (req: Request, res: Res
             data: {
                 courseId,
                 semesterId,
-                roomId: roomId || null, 
+                roomIds: roomIds || [], // Store multiple room IDs
+                roomId: roomId || null, // Keep for backward compatibility
                 faculties: {
                     connect: facultyIds.map(id => ({ id }))
                 }
@@ -162,7 +164,8 @@ assignmentRouter.post('/:semesterId', verifyToken, async (req: Request, res: Res
             faculty: created.faculties, // Return all faculties
             facultyIds: created.faculties.map(f => f.id), // Return faculty IDs array
             laboratory: laboratory || '',
-            roomId: roomId || null,
+            roomIds: roomIds || [], // Return room IDs array
+            roomId: roomId || null, // Keep for backward compatibility
             credits: credits || 0,
             hasLab: !!hasLab
         };
@@ -178,7 +181,7 @@ assignmentRouter.post('/:semesterId', verifyToken, async (req: Request, res: Res
 assignmentRouter.put('/:assignmentId', verifyToken, async (req: Request, res: Response) => {
     try {
         const { assignmentId } = req.params;
-        const { courseId, facultyIds, laboratory, roomId, credits, hasLab } = req.body;
+        const { courseId, facultyIds, laboratory, roomIds, roomId, credits, hasLab } = req.body;
 
         
         if (!courseId || !facultyIds || !Array.isArray(facultyIds) || facultyIds.length === 0) {
@@ -221,7 +224,8 @@ assignmentRouter.put('/:assignmentId', verifyToken, async (req: Request, res: Re
             where: { id: assignmentId },
             data: {
                 courseId,
-                roomId: roomId || null, 
+                roomIds: roomIds || [], // Store multiple room IDs
+                roomId: roomId || null, // Keep for backward compatibility
                 faculties: {
                     set: facultyIds.map(id => ({ id }))
                 }
@@ -252,7 +256,8 @@ assignmentRouter.put('/:assignmentId', verifyToken, async (req: Request, res: Re
             faculty: updated.faculties, // Return all faculties
             facultyIds: updated.faculties.map(f => f.id), // Return faculty IDs array
             laboratory: laboratory || '',
-            roomId: roomId || null,
+            roomIds: roomIds || [], // Return room IDs array
+            roomId: roomId || null, // Keep for backward compatibility
             credits: credits || 0,
             hasLab: !!hasLab
         };

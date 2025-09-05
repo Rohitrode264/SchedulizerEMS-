@@ -7,6 +7,7 @@ import { Plus, Trash2, Save, BookOpen, Users, Building, FlaskConical, X } from "
 
 import { AssignmentSearchDropdown } from '../Components/AssignmentsSearchDropDown'
 import { MultiFacultySelector } from '../Components/MultiFacultySelector';
+import { MultiRoomSelector } from '../Components/MultiRoomSelector';
 import type { Assignment } from '../types/AssignClasses';
 import useFetchCourses from '../hooks/useFetchCourses';
 import useFetchFaculty from '../hooks/useFetchfaculty';
@@ -56,20 +57,8 @@ export const AssignClass = () => {
 
     // Fetch rooms when component mounts
     useEffect(() => {
-        if (departmentId) {
-            console.log('Fetching rooms for departmentId:', departmentId);
-            fetchRooms({ departmentId });
-        }
-    }, [departmentId, fetchRooms]);
-
-    // Debug logging for rooms data
-    useEffect(() => {
-        console.log('Rooms data loaded:', rooms);
-        console.log('Rooms data length:', rooms?.length);
-        if (rooms && rooms.length > 0) {
-            console.log('First room:', rooms[0]);
-        }
-    }, [rooms]);
+        fetchRooms({});
+    }, [fetchRooms]);
     
     useEffect(() => {
         if (existingAssignments && existingAssignments.length > 0) {
@@ -78,7 +67,7 @@ export const AssignClass = () => {
                 courseId: assignment.courseId,
                 facultyIds: assignment.facultyId ? [assignment.facultyId] : [], // Convert single facultyId to array
                 laboratory: assignment.laboratory,
-                roomId: assignment.room || undefined, // Convert room string to roomId
+                roomIds: assignment.room ? [assignment.room] : [], // Convert room string to roomIds array
                 credits: assignment.credits,
                 hasLab: assignment.hasLab,
             }));
@@ -94,6 +83,7 @@ export const AssignClass = () => {
     const [newAssignmentForm, setNewAssignmentForm] = useState<Assignment>({
         courseId: '',
         facultyIds: [],
+        roomIds: [],
         laboratory: '',
         credits: 0,
         hasLab: false,
@@ -114,6 +104,7 @@ export const AssignClass = () => {
         setNewAssignmentForm({
             courseId: '',
             facultyIds: [],
+            roomIds: [],
             laboratory: '',
             credits: 0,
             hasLab: false,
@@ -352,16 +343,12 @@ export const AssignClass = () => {
                                             </div>
 
                                             <div className="mb-4">
-                                                <AssignmentSearchDropdown
-                                                    options={rooms.map(room => ({
-                                                        id: room.id,
-                                                        label: `${room.code} (${room.capacity} seats${room.isLab ? ', Lab' : ''})`,
-                                                        value: room.id
-                                                    }))}
-                                                    value={assignment.roomId || ''}
-                                                    onChange={(value: string) => updateLocalAssignment(index, 'roomId', value)}
-                                                    placeholder="Select room (optional)"
-                                                    label="Room"
+                                                <MultiRoomSelector
+                                                    rooms={rooms}
+                                                    selectedRoomIds={assignment.roomIds || []}
+                                                    onRoomChange={(roomIds) => updateLocalAssignment(index, 'roomIds', roomIds)}
+                                                    placeholder="Select rooms (optional)"
+                                                    label="Rooms"
                                                 />
                                             </div>
 
@@ -467,7 +454,7 @@ export const AssignClass = () => {
                     <div className="absolute inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm"></div>
                     
                     {/* Modal content */}
-                    <div className="relative top-10 mx-auto p-0 w-11/12 md:w-3/4 lg:w-3/5 xl:w-1/2 shadow-2xl rounded-2xl bg-white overflow-hidden">
+                    <div className="relative top-10 mx-auto p-0 w-11/12 md:w-4/5 lg:w-3/4 xl:w-2/3 max-w-6xl shadow-2xl rounded-2xl bg-white overflow-hidden">
                         <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 px-8 py-6 text-white">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
@@ -514,16 +501,12 @@ export const AssignClass = () => {
                                 </div>
 
                                 <div className="mb-4">
-                                    <AssignmentSearchDropdown
-                                        options={rooms.map(room => ({
-                                            id: room.id,
-                                            label: `${room.code} (${room.capacity} seats${room.isLab ? ', Lab' : ''})`,
-                                            value: room.id
-                                        }))}
-                                        value={newAssignmentForm.roomId || ''}
-                                        onChange={(value: string) => updateNewAssignmentForm('roomId', value)}
-                                        placeholder="Select room (optional)"
-                                        label="Room"
+                                    <MultiRoomSelector
+                                        rooms={rooms}
+                                        selectedRoomIds={newAssignmentForm.roomIds || []}
+                                        onRoomChange={(roomIds) => updateNewAssignmentForm('roomIds', roomIds)}
+                                        placeholder="Select rooms (optional)"
+                                        label="Rooms"
                                     />
                                 </div>
 

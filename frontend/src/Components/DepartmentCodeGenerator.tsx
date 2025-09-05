@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Building2, Upload, BookOpen, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { theme } from '../Theme/theme';
 
 interface DepartmentCodeGeneratorProps {
   departmentId: string;
@@ -30,8 +31,10 @@ export default function DepartmentCodeGenerator({
 
   // Generate department code when form is filled
   useEffect(() => {
+    console.log('Code Generator - Values:', { departmentName, batchYearStart, batchYearEnd });
     if (departmentName && batchYearStart && batchYearEnd) {
       const code = `${departmentName.toLowerCase().replace(/\s+/g, '')}_${batchYearStart}_${batchYearEnd}`;
+      console.log('Code Generator - Generated code:', code);
       setGeneratedCode(code);
       onDepartmentCodeGenerated(code);
       
@@ -137,20 +140,20 @@ export default function DepartmentCodeGenerator({
   return (
     <div className="space-y-6">
       {/* Department Code Generation Section */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
+      <div className={`${theme.surface.card} ${theme.shadow.lg} ${theme.spacing.md}`}>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <Building2 className="w-6 h-6 text-blue-600" />
+            <div className={`${theme.secondary.light} p-2 ${theme.rounded.sm}`}>
+              <Building2 className={`w-6 h-6 ${theme.secondary.text}`} />
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-gray-800">Department Code Generation</h3>
-              <p className="text-gray-600 text-sm">Generate department code for scheme upload</p>
+              <h3 className={`text-xl font-semibold ${theme.text.primary}`}>Department Code Generation</h3>
+              <p className={`${theme.text.secondary} text-sm`}>Generate department code for scheme upload</p>
             </div>
           </div>
           <button
             onClick={() => setShowCodeGenerator(!showCodeGenerator)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+            className={`${theme.secondary.main} hover:${theme.secondary.hover} text-white px-4 py-2 ${theme.rounded.sm} flex items-center space-x-2 ${theme.transition.all}`}
           >
             {showCodeGenerator ? <X className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
             <span>{showCodeGenerator ? 'Close' : 'Generate Code'}</span>
@@ -161,7 +164,7 @@ export default function DepartmentCodeGenerator({
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${theme.text.primary} mb-2`}>
                   Department Name *
                 </label>
                 <input
@@ -169,44 +172,58 @@ export default function DepartmentCodeGenerator({
                   value={departmentName}
                   onChange={(e) => setDepartmentName(e.target.value)}
                   placeholder="e.g., Computer Science"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={`w-full px-3 py-2 border ${theme.border.light} ${theme.rounded.sm} focus:outline-none focus:ring-2 focus:ring-${theme.secondary.ring} focus:border-${theme.secondary.border}`}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${theme.text.primary} mb-2`}>
                   Batch Start Year *
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   value={batchYearStart}
-                  onChange={(e) => setBatchYearStart(e.target.value)}
+                  onChange={(e) => {
+                    console.log('Batch Year Start changed:', e.target.value);
+                    // Only allow numbers and ensure it's a valid year
+                    const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                    if (value.length <= 4) { // Limit to 4 digits
+                      setBatchYearStart(value);
+                    }
+                  }}
                   placeholder="e.g., 2024"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={`w-full px-3 py-2 border ${theme.border.light} ${theme.rounded.sm} focus:outline-none focus:ring-2 focus:ring-${theme.secondary.ring} focus:border-${theme.secondary.border}`}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${theme.text.primary} mb-2`}>
                   Batch End Year *
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   value={batchYearEnd}
-                  onChange={(e) => setBatchYearEnd(e.target.value)}
+                  onChange={(e) => {
+                    console.log('Batch Year End changed:', e.target.value);
+                    // Only allow numbers and ensure it's a valid year
+                    const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                    if (value.length <= 4) { // Limit to 4 digits
+                      setBatchYearEnd(value);
+                    }
+                  }}
                   placeholder="e.g., 2028"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={`w-full px-3 py-2 border ${theme.border.light} ${theme.rounded.sm} focus:outline-none focus:ring-2 focus:ring-${theme.secondary.ring} focus:border-${theme.secondary.border}`}
                 />
               </div>
             </div>
 
             {generatedCode && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className={`${theme.success.light} border ${theme.success.border} ${theme.rounded.sm} p-4`}>
                 <div className="flex items-center space-x-2">
-                  <div className="bg-green-100 p-1 rounded">
-                    <Building2 className="w-4 h-4 text-green-600" />
+                  <div className={`${theme.success.main} p-1 ${theme.rounded.sm}`}>
+                    <Building2 className={`w-4 h-4 ${theme.success.text}`} />
                   </div>
-                  <span className="text-sm font-medium text-green-800">Generated Department Code:</span>
+                  <span className={`text-sm font-medium ${theme.success.text}`}>Generated Department Code:</span>
                 </div>
-                <p className="text-lg font-mono text-green-900 mt-2">{generatedCode}</p>
+                <p className={`text-lg font-mono ${theme.success.text} mt-2`}>{generatedCode}</p>
               </div>
             )}
 
@@ -214,7 +231,7 @@ export default function DepartmentCodeGenerator({
               <button
                 onClick={handleGenerateCode}
                 disabled={!departmentName || !batchYearStart || !batchYearEnd}
-                className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg transition-colors"
+                className={`${theme.success.main} hover:${theme.success.hover} disabled:${theme.surface.secondary} text-white px-6 py-2 ${theme.rounded.sm} ${theme.transition.all}`}
               >
                 Generate Code & Continue
               </button>
@@ -225,20 +242,20 @@ export default function DepartmentCodeGenerator({
 
       {/* Scheme Upload Section */}
       {generatedCode && (
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className={`${theme.surface.card} ${theme.shadow.lg} ${theme.spacing.md}`}>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
-              <div className="bg-purple-100 p-2 rounded-lg">
-                <Upload className="w-6 h-6 text-purple-600" />
+              <div className={`${theme.primary.light} p-2 ${theme.rounded.sm}`}>
+                <Upload className={`w-6 h-6 ${theme.primary.text}`} />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-gray-800">Scheme Upload</h3>
-                <p className="text-gray-600 text-sm">Upload Excel file with course scheme</p>
+                <h3 className={`text-xl font-semibold ${theme.text.primary}`}>Scheme Upload</h3>
+                <p className={`${theme.text.secondary} text-sm`}>Upload Excel file with course scheme</p>
               </div>
             </div>
             <button
               onClick={() => setShowSchemeUpload(!showSchemeUpload)}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+              className={`${theme.primary.main} hover:${theme.primary.hover} text-white px-4 py-2 ${theme.rounded.sm} flex items-center space-x-2 ${theme.transition.all}`}
             >
               {showSchemeUpload ? <X className="w-4 h-4" /> : <Upload className="w-4 h-4" />}
               <span>{showSchemeUpload ? 'Close' : 'Upload Scheme'}</span>
@@ -248,7 +265,7 @@ export default function DepartmentCodeGenerator({
           {showSchemeUpload && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${theme.text.primary} mb-2`}>
                   Scheme Name *
                 </label>
                 <input
@@ -256,32 +273,32 @@ export default function DepartmentCodeGenerator({
                   value={schemeName}
                   onChange={(e) => setSchemeName(e.target.value)}
                   placeholder="Scheme name will be auto-filled"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  className={`w-full px-3 py-2 border ${theme.border.light} ${theme.rounded.sm} focus:outline-none focus:ring-2 focus:ring-${theme.primary.ring} focus:border-${theme.primary.border}`}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${theme.text.primary} mb-2`}>
                   Excel File *
                 </label>
                 <input
                   type="file"
                   onChange={handleFileChange}
                   accept=".xlsx,.xls,.csv"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  className={`w-full px-3 py-2 border ${theme.border.light} ${theme.rounded.sm} focus:outline-none focus:ring-2 focus:ring-${theme.primary.ring} focus:border-${theme.primary.border}`}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className={`text-xs ${theme.text.tertiary} mt-1`}>
                   Supported formats: .xlsx, .xls, .csv
                 </p>
               </div>
 
               {schemeFile && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className={`${theme.secondary.light} border ${theme.secondary.border} ${theme.rounded.sm} p-4`}>
                   <div className="flex items-center space-x-2">
-                    <Upload className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-800">Selected File:</span>
+                    <Upload className={`w-4 h-4 ${theme.secondary.text}`} />
+                    <span className={`text-sm font-medium ${theme.secondary.text}`}>Selected File:</span>
                   </div>
-                  <p className="text-sm text-blue-900 mt-1">{schemeFile.name}</p>
+                  <p className={`text-sm ${theme.secondary.text} mt-1`}>{schemeFile.name}</p>
                 </div>
               )}
 
@@ -289,7 +306,7 @@ export default function DepartmentCodeGenerator({
                 <button
                   onClick={handleSchemeUpload}
                   disabled={!schemeFile || !schemeName || schemeUploadLoading}
-                  className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg transition-colors flex items-center space-x-2"
+                  className={`${theme.primary.main} hover:${theme.primary.hover} disabled:${theme.surface.secondary} text-white px-6 py-2 ${theme.rounded.sm} ${theme.transition.all} flex items-center space-x-2`}
                 >
                   {schemeUploadLoading ? (
                     <>

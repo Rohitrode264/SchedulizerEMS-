@@ -1,0 +1,1654 @@
+{
+    "schedule": {
+        "id": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+        "name": "ecs_schedule",
+        "days": 5,
+        "slots": 8,
+        "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+        "semesterIds": [
+            "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+        ]
+    },
+    "department": {
+        "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+        "name": "Computer Science Department",
+        "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+        "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882",
+        "school": {
+            "id": "90428305-bafd-4c02-bd23-cefc137b6882",
+            "name": "School of Engineering",
+            "password": "$2b$10$D96UlvOBlv.KqYcR4ADh..ayXiLBJ8J59aerTeCi18n1BwRYieE.G",
+            "universityId": "4b930f3a-22d5-4008-b394-5b7d61ad3dab",
+            "university": {
+                "id": "4b930f3a-22d5-4008-b394-5b7d61ad3dab",
+                "name": "Test University",
+                "adminEmail": "admin@test.edu",
+                "password": "$2b$10$Yq6Fo9ZUC23MRo81fwyGXO6u6ZbLPkabh85kGwFgS8/8Uyv8BH1iW",
+                "country": "USA",
+                "city": "Test City",
+                "state": "Test State",
+                "website": "https://test.edu",
+                "established": "2024-05-16T00:00:00.000Z"
+            }
+        }
+    },
+    "semesters": [
+        {
+            "id": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "number": 2,
+            "startDate": "2025-08-30T19:50:17.123Z",
+            "endDate": "2025-08-30T19:50:17.123Z",
+            "schemaId": "b008f458-8054-4cee-a1e4-2cd566110d73",
+            "availability": [],
+            "schema": {
+                "id": "b008f458-8054-4cee-a1e4-2cd566110d73",
+                "name": "ecs_2027_2029 Scheme",
+                "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742"
+            },
+            "courses": [
+                {
+                    "id": "d00e7980-06fb-4a2d-9d60-538982e3896a",
+                    "name": "CMOS Digital Circuit Design",
+                    "code": "24EE01TH0201",
+                    "credits": 3,
+                    "courseType": "Core",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                },
+                {
+                    "id": "da59416c-7064-48f1-b538-be01f31f874a",
+                    "name": "CMOS Digital Circuit Design",
+                    "code": "24EE01PR0201",
+                    "credits": 1,
+                    "courseType": "Core",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                },
+                {
+                    "id": "b660d974-19c1-4d4e-9cd0-f829001d1fc9",
+                    "name": "Probability and Statistics",
+                    "code": "24HS03TH0213",
+                    "credits": 3,
+                    "courseType": "Core",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                },
+                {
+                    "id": "41bacc71-9447-42a3-8845-8c07a1ce6a66",
+                    "name": "Digital System Design",
+                    "code": "24EE01TH0202",
+                    "credits": 3,
+                    "courseType": "Core",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                },
+                {
+                    "id": "355e6130-25ba-464a-b310-7fad27f628ee",
+                    "name": "Digital System Design",
+                    "code": "24EE01PR0202",
+                    "credits": 1,
+                    "courseType": "Core",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                },
+                {
+                    "id": "3cb5b5f5-9221-47ec-a627-0ada7a17d58a",
+                    "name": "Elements of Internet of Things",
+                    "code": "24EE01TH0203",
+                    "credits": 3,
+                    "courseType": "Core",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                },
+                {
+                    "id": "70990065-10c3-4692-b411-5f4a9160f96c",
+                    "name": "Elements of Internet of Things",
+                    "code": "24EE01PR0203",
+                    "credits": 1,
+                    "courseType": "Core",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                },
+                {
+                    "id": "1791779f-f0b7-4a36-9d14-a5ef25f3ce02",
+                    "name": "Object Oriented Programming",
+                    "code": "24EE01TH0204",
+                    "credits": 3,
+                    "courseType": "Core",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                },
+                {
+                    "id": "3a223db4-bc71-4265-8e21-95219ae4f2ca",
+                    "name": "Object Oriented Programming",
+                    "code": "24EE01PR0204",
+                    "credits": 1,
+                    "courseType": "Core",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                },
+                {
+                    "id": "16835ae4-0ba2-4537-bb99-f5082536641b",
+                    "name": "Computer workshop -II",
+                    "code": "24EE01PR0205",
+                    "credits": 1,
+                    "courseType": "Core",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                },
+                {
+                    "id": "dd3378f6-852d-4439-859b-4d1570cdcc2d",
+                    "name": "English for Professional Communication",
+                    "code": "24HS02TH0201",
+                    "credits": 2,
+                    "courseType": "Core",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                },
+                {
+                    "id": "cb224b42-1c1d-4289-b9e4-c8bb556ca4e5",
+                    "name": "English for Professional Communication",
+                    "code": "24HS02PR0201",
+                    "credits": 1,
+                    "courseType": "Core",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                },
+                {
+                    "id": "6045f73c-e4e4-40f7-9b3c-905e3c94f05d",
+                    "name": "Foundational Literature of Indian Civilization",
+                    "code": "24HS02TH0205",
+                    "credits": 1,
+                    "courseType": "Core",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                }
+            ]
+        }
+    ],
+    "assignments": [
+        {
+            "id": "fc879b97-8e5e-4bd3-94bf-a6f48241f68b",
+            "courseId": "d00e7980-06fb-4a2d-9d60-538982e3896a",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "sectionId": null,
+            "createdAt": "2025-09-01T07:15:25.718Z",
+            "updatedAt": "2025-09-05T20:08:05.901Z",
+            "roomIds": [],
+            "roomId": null,
+            "scheduleId": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+            "course": {
+                "id": "d00e7980-06fb-4a2d-9d60-538982e3896a",
+                "name": "CMOS Digital Circuit Design",
+                "code": "24EE01TH0201",
+                "credits": 3,
+                "courseType": "Core",
+                "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+            },
+            "semester": {
+                "id": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                "number": 2,
+                "startDate": "2025-08-30T19:50:17.123Z",
+                "endDate": "2025-08-30T19:50:17.123Z",
+                "schemaId": "b008f458-8054-4cee-a1e4-2cd566110d73",
+                "availability": []
+            },
+            "section": null,
+            "room": null,
+            "faculties": [
+                {
+                    "id": "3faa1141-9af5-4211-8838-f6c70dd9b916",
+                    "name": "Mr. Raj Singh",
+                    "organizationEmail": "raj.singh@college.edu",
+                    "personalEmail": "rajsingh92@yahoo.com",
+                    "phone": "9123456789",
+                    "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                    "designation": "Assistant Professor",
+                    "availability": [],
+                    "department": {
+                        "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                        "name": "Computer Science Department",
+                        "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                        "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "97eefe41-9d59-4cc5-9fb4-284def7e6a8c",
+            "courseId": "41bacc71-9447-42a3-8845-8c07a1ce6a66",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "sectionId": null,
+            "createdAt": "2025-09-01T07:16:02.583Z",
+            "updatedAt": "2025-09-05T20:08:05.901Z",
+            "roomIds": [],
+            "roomId": null,
+            "scheduleId": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+            "course": {
+                "id": "41bacc71-9447-42a3-8845-8c07a1ce6a66",
+                "name": "Digital System Design",
+                "code": "24EE01TH0202",
+                "credits": 3,
+                "courseType": "Core",
+                "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+            },
+            "semester": {
+                "id": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                "number": 2,
+                "startDate": "2025-08-30T19:50:17.123Z",
+                "endDate": "2025-08-30T19:50:17.123Z",
+                "schemaId": "b008f458-8054-4cee-a1e4-2cd566110d73",
+                "availability": []
+            },
+            "section": null,
+            "room": null,
+            "faculties": [
+                {
+                    "id": "640b49dd-e41e-4e57-8312-aeeac8695f2c",
+                    "name": "Dr. Neha Sharma",
+                    "organizationEmail": "neha.sharma@college.edu",
+                    "personalEmail": "dr.neha.sharma@gmail.com",
+                    "phone": "9765432101",
+                    "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                    "designation": "Professor",
+                    "availability": [],
+                    "department": {
+                        "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                        "name": "Computer Science Department",
+                        "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                        "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "670aaf50-5b80-405b-8348-012f44e9d558",
+            "courseId": "da59416c-7064-48f1-b538-be01f31f874a",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "sectionId": null,
+            "createdAt": "2025-09-01T07:18:01.574Z",
+            "updatedAt": "2025-09-05T20:08:05.901Z",
+            "roomIds": [],
+            "roomId": null,
+            "scheduleId": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+            "course": {
+                "id": "da59416c-7064-48f1-b538-be01f31f874a",
+                "name": "CMOS Digital Circuit Design",
+                "code": "24EE01PR0201",
+                "credits": 1,
+                "courseType": "Core",
+                "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+            },
+            "semester": {
+                "id": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                "number": 2,
+                "startDate": "2025-08-30T19:50:17.123Z",
+                "endDate": "2025-08-30T19:50:17.123Z",
+                "schemaId": "b008f458-8054-4cee-a1e4-2cd566110d73",
+                "availability": []
+            },
+            "section": null,
+            "room": null,
+            "faculties": [
+                {
+                    "id": "11c5f762-74c9-4e33-911a-8033f949fa12",
+                    "name": "Mr. Amit Desai",
+                    "organizationEmail": "amit.desai@college.edu",
+                    "personalEmail": "amit.desai@hotmail.com",
+                    "phone": null,
+                    "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                    "designation": "Lecturer",
+                    "availability": [],
+                    "department": {
+                        "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                        "name": "Computer Science Department",
+                        "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                        "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "f8716b6a-4f96-41f8-a5e0-df0b5c63f558",
+            "courseId": "355e6130-25ba-464a-b310-7fad27f628ee",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "sectionId": null,
+            "createdAt": "2025-09-03T19:03:17.894Z",
+            "updatedAt": "2025-09-05T20:08:05.901Z",
+            "roomIds": [],
+            "roomId": null,
+            "scheduleId": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+            "course": {
+                "id": "355e6130-25ba-464a-b310-7fad27f628ee",
+                "name": "Digital System Design",
+                "code": "24EE01PR0202",
+                "credits": 1,
+                "courseType": "Core",
+                "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+            },
+            "semester": {
+                "id": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                "number": 2,
+                "startDate": "2025-08-30T19:50:17.123Z",
+                "endDate": "2025-08-30T19:50:17.123Z",
+                "schemaId": "b008f458-8054-4cee-a1e4-2cd566110d73",
+                "availability": []
+            },
+            "section": null,
+            "room": null,
+            "faculties": [
+                {
+                    "id": "a4c11069-c568-47a4-a9bb-1ffee00f8c6c",
+                    "name": "Dr. Anjali Mehta",
+                    "organizationEmail": "anjali.mehta@college.edu",
+                    "personalEmail": "anjalimehta@gmail.com",
+                    "phone": "9876543210",
+                    "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                    "designation": "Associate Professor",
+                    "availability": [],
+                    "department": {
+                        "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                        "name": "Computer Science Department",
+                        "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                        "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+                    }
+                },
+                {
+                    "id": "3faa1141-9af5-4211-8838-f6c70dd9b916",
+                    "name": "Mr. Raj Singh",
+                    "organizationEmail": "raj.singh@college.edu",
+                    "personalEmail": "rajsingh92@yahoo.com",
+                    "phone": "9123456789",
+                    "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                    "designation": "Assistant Professor",
+                    "availability": [],
+                    "department": {
+                        "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                        "name": "Computer Science Department",
+                        "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                        "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+                    }
+                }
+            ]
+        }
+    ],
+    "courses": [
+        {
+            "id": "d00e7980-06fb-4a2d-9d60-538982e3896a",
+            "name": "CMOS Digital Circuit Design",
+            "code": "24EE01TH0201",
+            "credits": 3,
+            "courseType": "Core",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "assignments": [
+                {
+                    "id": "fc879b97-8e5e-4bd3-94bf-a6f48241f68b",
+                    "courseId": "d00e7980-06fb-4a2d-9d60-538982e3896a",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                    "sectionId": null,
+                    "createdAt": "2025-09-01T07:15:25.718Z",
+                    "updatedAt": "2025-09-05T20:08:05.901Z",
+                    "roomIds": [],
+                    "roomId": null,
+                    "scheduleId": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+                    "section": null,
+                    "room": null,
+                    "faculties": [
+                        {
+                            "id": "3faa1141-9af5-4211-8838-f6c70dd9b916",
+                            "name": "Mr. Raj Singh",
+                            "organizationEmail": "raj.singh@college.edu",
+                            "personalEmail": "rajsingh92@yahoo.com",
+                            "phone": "9123456789",
+                            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                            "designation": "Assistant Professor",
+                            "availability": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "da59416c-7064-48f1-b538-be01f31f874a",
+            "name": "CMOS Digital Circuit Design",
+            "code": "24EE01PR0201",
+            "credits": 1,
+            "courseType": "Core",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "assignments": [
+                {
+                    "id": "670aaf50-5b80-405b-8348-012f44e9d558",
+                    "courseId": "da59416c-7064-48f1-b538-be01f31f874a",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                    "sectionId": null,
+                    "createdAt": "2025-09-01T07:18:01.574Z",
+                    "updatedAt": "2025-09-05T20:08:05.901Z",
+                    "roomIds": [],
+                    "roomId": null,
+                    "scheduleId": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+                    "section": null,
+                    "room": null,
+                    "faculties": [
+                        {
+                            "id": "11c5f762-74c9-4e33-911a-8033f949fa12",
+                            "name": "Mr. Amit Desai",
+                            "organizationEmail": "amit.desai@college.edu",
+                            "personalEmail": "amit.desai@hotmail.com",
+                            "phone": null,
+                            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                            "designation": "Lecturer",
+                            "availability": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "b660d974-19c1-4d4e-9cd0-f829001d1fc9",
+            "name": "Probability and Statistics",
+            "code": "24HS03TH0213",
+            "credits": 3,
+            "courseType": "Core",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "assignments": []
+        },
+        {
+            "id": "41bacc71-9447-42a3-8845-8c07a1ce6a66",
+            "name": "Digital System Design",
+            "code": "24EE01TH0202",
+            "credits": 3,
+            "courseType": "Core",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "assignments": [
+                {
+                    "id": "97eefe41-9d59-4cc5-9fb4-284def7e6a8c",
+                    "courseId": "41bacc71-9447-42a3-8845-8c07a1ce6a66",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                    "sectionId": null,
+                    "createdAt": "2025-09-01T07:16:02.583Z",
+                    "updatedAt": "2025-09-05T20:08:05.901Z",
+                    "roomIds": [],
+                    "roomId": null,
+                    "scheduleId": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+                    "section": null,
+                    "room": null,
+                    "faculties": [
+                        {
+                            "id": "640b49dd-e41e-4e57-8312-aeeac8695f2c",
+                            "name": "Dr. Neha Sharma",
+                            "organizationEmail": "neha.sharma@college.edu",
+                            "personalEmail": "dr.neha.sharma@gmail.com",
+                            "phone": "9765432101",
+                            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                            "designation": "Professor",
+                            "availability": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "355e6130-25ba-464a-b310-7fad27f628ee",
+            "name": "Digital System Design",
+            "code": "24EE01PR0202",
+            "credits": 1,
+            "courseType": "Core",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "assignments": [
+                {
+                    "id": "f8716b6a-4f96-41f8-a5e0-df0b5c63f558",
+                    "courseId": "355e6130-25ba-464a-b310-7fad27f628ee",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                    "sectionId": null,
+                    "createdAt": "2025-09-03T19:03:17.894Z",
+                    "updatedAt": "2025-09-05T20:08:05.901Z",
+                    "roomIds": [],
+                    "roomId": null,
+                    "scheduleId": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+                    "section": null,
+                    "room": null,
+                    "faculties": [
+                        {
+                            "id": "a4c11069-c568-47a4-a9bb-1ffee00f8c6c",
+                            "name": "Dr. Anjali Mehta",
+                            "organizationEmail": "anjali.mehta@college.edu",
+                            "personalEmail": "anjalimehta@gmail.com",
+                            "phone": "9876543210",
+                            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                            "designation": "Associate Professor",
+                            "availability": []
+                        },
+                        {
+                            "id": "3faa1141-9af5-4211-8838-f6c70dd9b916",
+                            "name": "Mr. Raj Singh",
+                            "organizationEmail": "raj.singh@college.edu",
+                            "personalEmail": "rajsingh92@yahoo.com",
+                            "phone": "9123456789",
+                            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                            "designation": "Assistant Professor",
+                            "availability": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "3cb5b5f5-9221-47ec-a627-0ada7a17d58a",
+            "name": "Elements of Internet of Things",
+            "code": "24EE01TH0203",
+            "credits": 3,
+            "courseType": "Core",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "assignments": []
+        },
+        {
+            "id": "70990065-10c3-4692-b411-5f4a9160f96c",
+            "name": "Elements of Internet of Things",
+            "code": "24EE01PR0203",
+            "credits": 1,
+            "courseType": "Core",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "assignments": []
+        },
+        {
+            "id": "1791779f-f0b7-4a36-9d14-a5ef25f3ce02",
+            "name": "Object Oriented Programming",
+            "code": "24EE01TH0204",
+            "credits": 3,
+            "courseType": "Core",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "assignments": []
+        },
+        {
+            "id": "3a223db4-bc71-4265-8e21-95219ae4f2ca",
+            "name": "Object Oriented Programming",
+            "code": "24EE01PR0204",
+            "credits": 1,
+            "courseType": "Core",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "assignments": []
+        },
+        {
+            "id": "16835ae4-0ba2-4537-bb99-f5082536641b",
+            "name": "Computer workshop -II",
+            "code": "24EE01PR0205",
+            "credits": 1,
+            "courseType": "Core",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "assignments": []
+        },
+        {
+            "id": "dd3378f6-852d-4439-859b-4d1570cdcc2d",
+            "name": "English for Professional Communication",
+            "code": "24HS02TH0201",
+            "credits": 2,
+            "courseType": "Core",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "assignments": []
+        },
+        {
+            "id": "cb224b42-1c1d-4289-b9e4-c8bb556ca4e5",
+            "name": "English for Professional Communication",
+            "code": "24HS02PR0201",
+            "credits": 1,
+            "courseType": "Core",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "assignments": []
+        },
+        {
+            "id": "6045f73c-e4e4-40f7-9b3c-905e3c94f05d",
+            "name": "Foundational Literature of Indian Civilization",
+            "code": "24HS02TH0205",
+            "credits": 1,
+            "courseType": "Core",
+            "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+            "assignments": []
+        }
+    ],
+    "sections": [
+        {
+            "id": "9b50ae84-aa0c-4412-b47c-8eb9e77b54fc",
+            "name": "C",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "schemaId": null,
+            "departmentCode": "ece",
+            "batchYearRange": "2021-2025",
+            "fullName": "ece_2021-2025_section_C",
+            "preferredRoom": "Room121",
+            "createdAt": "2025-08-26T14:21:32.358Z",
+            "updatedAt": "2025-08-26T14:21:32.358Z",
+            "batches": [
+                {
+                    "id": "7a9f6871-5f70-41fd-a03d-31d1b486f7ed",
+                    "name": "C1",
+                    "sectionId": "9b50ae84-aa0c-4412-b47c-8eb9e77b54fc",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-26T14:21:32.358Z",
+                    "updatedAt": "2025-08-26T14:21:32.358Z"
+                },
+                {
+                    "id": "4855aa3c-18bc-439f-afd1-757069b30b88",
+                    "name": "C2",
+                    "sectionId": "9b50ae84-aa0c-4412-b47c-8eb9e77b54fc",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-26T14:21:32.358Z",
+                    "updatedAt": "2025-08-26T14:21:32.358Z"
+                },
+                {
+                    "id": "d2b31298-550a-4372-9940-7fd1be2d21cd",
+                    "name": "C3",
+                    "sectionId": "9b50ae84-aa0c-4412-b47c-8eb9e77b54fc",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-26T14:21:32.358Z",
+                    "updatedAt": "2025-08-26T14:21:32.358Z"
+                },
+                {
+                    "id": "18d5a72b-6895-4dfb-a8a5-7d520be7c895",
+                    "name": "C4",
+                    "sectionId": "9b50ae84-aa0c-4412-b47c-8eb9e77b54fc",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-26T14:21:32.358Z",
+                    "updatedAt": "2025-08-26T14:21:32.358Z"
+                }
+            ],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "schema": null
+        },
+        {
+            "id": "e472189d-3768-4c0e-8022-7a48b915b910",
+            "name": "A",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "schemaId": null,
+            "departmentCode": "ece",
+            "batchYearRange": "2021-2025",
+            "fullName": "ece_2021-2025_section_A",
+            "preferredRoom": "b0/6",
+            "createdAt": "2025-08-26T14:21:33.201Z",
+            "updatedAt": "2025-08-26T14:21:33.201Z",
+            "batches": [
+                {
+                    "id": "f681f78f-41ab-4e26-a32e-5d1bef00490c",
+                    "name": "A1",
+                    "sectionId": "e472189d-3768-4c0e-8022-7a48b915b910",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-26T14:21:33.201Z",
+                    "updatedAt": "2025-08-26T14:21:33.201Z"
+                },
+                {
+                    "id": "a803a783-c1a8-4cb4-8bc4-5629b4efee1f",
+                    "name": "A2",
+                    "sectionId": "e472189d-3768-4c0e-8022-7a48b915b910",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-26T14:21:33.201Z",
+                    "updatedAt": "2025-08-26T14:21:33.201Z"
+                },
+                {
+                    "id": "8b011a0c-5e0c-455f-84c8-3cfdca945315",
+                    "name": "A3",
+                    "sectionId": "e472189d-3768-4c0e-8022-7a48b915b910",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-26T14:21:33.201Z",
+                    "updatedAt": "2025-08-26T14:21:33.201Z"
+                }
+            ],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "schema": null
+        },
+        {
+            "id": "1f280b71-5cb8-4fa8-8b18-86d02043d84d",
+            "name": "B",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "schemaId": null,
+            "departmentCode": "ece",
+            "batchYearRange": "2021-2025",
+            "fullName": "ece_2021-2025_section_B",
+            "preferredRoom": "b0/7",
+            "createdAt": "2025-08-26T14:21:35.417Z",
+            "updatedAt": "2025-08-26T14:21:35.417Z",
+            "batches": [
+                {
+                    "id": "256484b4-5f79-475f-aed2-67d5f5bee5c1",
+                    "name": "B1",
+                    "sectionId": "1f280b71-5cb8-4fa8-8b18-86d02043d84d",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-26T14:21:35.417Z",
+                    "updatedAt": "2025-08-26T14:21:35.417Z"
+                },
+                {
+                    "id": "185b354e-69a5-420d-a5d1-88a32a5a6951",
+                    "name": "B2",
+                    "sectionId": "1f280b71-5cb8-4fa8-8b18-86d02043d84d",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-26T14:21:35.417Z",
+                    "updatedAt": "2025-08-26T14:21:35.417Z"
+                },
+                {
+                    "id": "064311f5-a978-4878-8ee8-30716730623d",
+                    "name": "B3",
+                    "sectionId": "1f280b71-5cb8-4fa8-8b18-86d02043d84d",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-26T14:21:35.417Z",
+                    "updatedAt": "2025-08-26T14:21:35.417Z"
+                }
+            ],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "schema": null
+        },
+        {
+            "id": "d0a227fa-3124-4df1-87d2-d04c719a1f1e",
+            "name": "E",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "schemaId": null,
+            "departmentCode": "ece",
+            "batchYearRange": "2021-2025",
+            "fullName": "ece_2021-2025_section_E",
+            "preferredRoom": "room4",
+            "createdAt": "2025-08-26T17:38:18.508Z",
+            "updatedAt": "2025-08-26T17:38:18.508Z",
+            "batches": [
+                {
+                    "id": "49ae31ab-d50e-43a8-b342-e9c566343bdd",
+                    "name": "E2",
+                    "sectionId": "d0a227fa-3124-4df1-87d2-d04c719a1f1e",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-26T17:38:18.508Z",
+                    "updatedAt": "2025-08-26T17:38:18.508Z"
+                },
+                {
+                    "id": "47a33114-0e57-4d30-8dd4-c829ce405de6",
+                    "name": "E3",
+                    "sectionId": "d0a227fa-3124-4df1-87d2-d04c719a1f1e",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-26T17:38:18.508Z",
+                    "updatedAt": "2025-08-26T17:38:18.508Z"
+                }
+            ],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "schema": null
+        },
+        {
+            "id": "aa2cb92c-c420-4176-ba31-af98a519886c",
+            "name": "F",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "schemaId": null,
+            "departmentCode": "ecs",
+            "batchYearRange": "2027-2029",
+            "fullName": "ecs_2027-2029_section_F",
+            "preferredRoom": "202",
+            "createdAt": "2025-08-30T19:50:42.804Z",
+            "updatedAt": "2025-08-30T19:50:42.804Z",
+            "batches": [
+                {
+                    "id": "d1d751f8-556a-4d19-b97c-17ea07725ba4",
+                    "name": "F1",
+                    "sectionId": "aa2cb92c-c420-4176-ba31-af98a519886c",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-30T19:50:42.804Z",
+                    "updatedAt": "2025-08-30T19:50:42.804Z"
+                },
+                {
+                    "id": "cc62fec1-c1c9-4c36-aab9-bcc357b04820",
+                    "name": "F2",
+                    "sectionId": "aa2cb92c-c420-4176-ba31-af98a519886c",
+                    "count": 20,
+                    "preferredRoom": null,
+                    "createdAt": "2025-08-30T19:50:42.804Z",
+                    "updatedAt": "2025-08-30T19:50:42.804Z"
+                }
+            ],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "schema": null
+        },
+        {
+            "id": "6ecaf30c-03f9-416e-831a-839d80f4a621",
+            "name": "AL",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "schemaId": "4dabf9d6-d098-47e1-ac49-81f320234778",
+            "departmentCode": "department",
+            "batchYearRange": "2021-2025",
+            "fullName": "department_2021-2025_section_AL",
+            "preferredRoom": null,
+            "createdAt": "2025-09-05T18:36:22.980Z",
+            "updatedAt": "2025-09-05T18:36:22.980Z",
+            "batches": [
+                {
+                    "id": "1d8046c2-f801-4931-8218-a63d4e8380b8",
+                    "name": "B1",
+                    "sectionId": "6ecaf30c-03f9-416e-831a-839d80f4a621",
+                    "count": 120,
+                    "preferredRoom": null,
+                    "createdAt": "2025-09-05T18:36:22.980Z",
+                    "updatedAt": "2025-09-05T18:36:22.980Z"
+                }
+            ],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "schema": {
+                "id": "4dabf9d6-d098-47e1-ac49-81f320234778",
+                "name": "cyber_2021_2 Scheme",
+                "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742"
+            }
+        }
+    ],
+    "rooms": [],
+    "faculty": [
+        {
+            "id": "a4c11069-c568-47a4-a9bb-1ffee00f8c6c",
+            "name": "Dr. Anjali Mehta",
+            "organizationEmail": "anjali.mehta@college.edu",
+            "personalEmail": "anjalimehta@gmail.com",
+            "phone": "9876543210",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Associate Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": [
+                {
+                    "id": "3f6aa4e2-5741-4887-80f9-483211dd5dfd",
+                    "courseId": "2f056ab7-10b4-492f-b160-717627ec3b8a",
+                    "semesterId": "96d387d5-cb5a-46a7-8797-2f3d3a2b771a",
+                    "sectionId": null,
+                    "createdAt": "2025-08-30T18:54:59.944Z",
+                    "updatedAt": "2025-09-01T08:36:52.325Z",
+                    "roomIds": [],
+                    "roomId": null,
+                    "scheduleId": "0c2483f8-0fb0-4e33-bc7f-b399b928611d",
+                    "course": {
+                        "id": "2f056ab7-10b4-492f-b160-717627ec3b8a",
+                        "name": "English for Professional Communication",
+                        "code": "24HS02PR0201",
+                        "credits": 1,
+                        "courseType": "Core",
+                        "semesterId": "96d387d5-cb5a-46a7-8797-2f3d3a2b771a"
+                    },
+                    "semester": {
+                        "id": "96d387d5-cb5a-46a7-8797-2f3d3a2b771a",
+                        "number": 2,
+                        "startDate": "2025-08-30T18:34:16.538Z",
+                        "endDate": "2025-08-30T18:34:16.538Z",
+                        "schemaId": "de960e8f-6c2c-4e8e-bc5c-8a1f07c95485",
+                        "availability": []
+                    },
+                    "room": null
+                },
+                {
+                    "id": "32005400-ff11-4891-9e83-ba41b8fac4d9",
+                    "courseId": "ff85e061-7091-4b5e-8040-5fd3f24f4128",
+                    "semesterId": "96d387d5-cb5a-46a7-8797-2f3d3a2b771a",
+                    "sectionId": null,
+                    "createdAt": "2025-08-30T19:06:46.835Z",
+                    "updatedAt": "2025-09-01T08:36:52.325Z",
+                    "roomIds": [],
+                    "roomId": null,
+                    "scheduleId": "0c2483f8-0fb0-4e33-bc7f-b399b928611d",
+                    "course": {
+                        "id": "ff85e061-7091-4b5e-8040-5fd3f24f4128",
+                        "name": "CMOS Digital Circuit Design",
+                        "code": "24EE01TH0201",
+                        "credits": 3,
+                        "courseType": "Core",
+                        "semesterId": "96d387d5-cb5a-46a7-8797-2f3d3a2b771a"
+                    },
+                    "semester": {
+                        "id": "96d387d5-cb5a-46a7-8797-2f3d3a2b771a",
+                        "number": 2,
+                        "startDate": "2025-08-30T18:34:16.538Z",
+                        "endDate": "2025-08-30T18:34:16.538Z",
+                        "schemaId": "de960e8f-6c2c-4e8e-bc5c-8a1f07c95485",
+                        "availability": []
+                    },
+                    "room": null
+                },
+                {
+                    "id": "0cbc16d8-3304-463a-acf0-bb518b43daa7",
+                    "courseId": "215582f8-a37d-4d16-815f-3b90b99655a4",
+                    "semesterId": "96d387d5-cb5a-46a7-8797-2f3d3a2b771a",
+                    "sectionId": null,
+                    "createdAt": "2025-08-30T19:28:39.444Z",
+                    "updatedAt": "2025-09-01T08:36:52.325Z",
+                    "roomIds": [],
+                    "roomId": null,
+                    "scheduleId": "0c2483f8-0fb0-4e33-bc7f-b399b928611d",
+                    "course": {
+                        "id": "215582f8-a37d-4d16-815f-3b90b99655a4",
+                        "name": "Object Oriented Programming",
+                        "code": "24EE01TH0204",
+                        "credits": 3,
+                        "courseType": "Core",
+                        "semesterId": "96d387d5-cb5a-46a7-8797-2f3d3a2b771a"
+                    },
+                    "semester": {
+                        "id": "96d387d5-cb5a-46a7-8797-2f3d3a2b771a",
+                        "number": 2,
+                        "startDate": "2025-08-30T18:34:16.538Z",
+                        "endDate": "2025-08-30T18:34:16.538Z",
+                        "schemaId": "de960e8f-6c2c-4e8e-bc5c-8a1f07c95485",
+                        "availability": []
+                    },
+                    "room": null
+                },
+                {
+                    "id": "f8716b6a-4f96-41f8-a5e0-df0b5c63f558",
+                    "courseId": "355e6130-25ba-464a-b310-7fad27f628ee",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                    "sectionId": null,
+                    "createdAt": "2025-09-03T19:03:17.894Z",
+                    "updatedAt": "2025-09-05T20:08:05.901Z",
+                    "roomIds": [],
+                    "roomId": null,
+                    "scheduleId": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+                    "course": {
+                        "id": "355e6130-25ba-464a-b310-7fad27f628ee",
+                        "name": "Digital System Design",
+                        "code": "24EE01PR0202",
+                        "credits": 1,
+                        "courseType": "Core",
+                        "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                    },
+                    "semester": {
+                        "id": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                        "number": 2,
+                        "startDate": "2025-08-30T19:50:17.123Z",
+                        "endDate": "2025-08-30T19:50:17.123Z",
+                        "schemaId": "b008f458-8054-4cee-a1e4-2cd566110d73",
+                        "availability": []
+                    },
+                    "room": null
+                }
+            ]
+        },
+        {
+            "id": "3faa1141-9af5-4211-8838-f6c70dd9b916",
+            "name": "Mr. Raj Singh",
+            "organizationEmail": "raj.singh@college.edu",
+            "personalEmail": "rajsingh92@yahoo.com",
+            "phone": "9123456789",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Assistant Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": [
+                {
+                    "id": "fc879b97-8e5e-4bd3-94bf-a6f48241f68b",
+                    "courseId": "d00e7980-06fb-4a2d-9d60-538982e3896a",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                    "sectionId": null,
+                    "createdAt": "2025-09-01T07:15:25.718Z",
+                    "updatedAt": "2025-09-05T20:08:05.901Z",
+                    "roomIds": [],
+                    "roomId": null,
+                    "scheduleId": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+                    "course": {
+                        "id": "d00e7980-06fb-4a2d-9d60-538982e3896a",
+                        "name": "CMOS Digital Circuit Design",
+                        "code": "24EE01TH0201",
+                        "credits": 3,
+                        "courseType": "Core",
+                        "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                    },
+                    "semester": {
+                        "id": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                        "number": 2,
+                        "startDate": "2025-08-30T19:50:17.123Z",
+                        "endDate": "2025-08-30T19:50:17.123Z",
+                        "schemaId": "b008f458-8054-4cee-a1e4-2cd566110d73",
+                        "availability": []
+                    },
+                    "room": null
+                },
+                {
+                    "id": "f8716b6a-4f96-41f8-a5e0-df0b5c63f558",
+                    "courseId": "355e6130-25ba-464a-b310-7fad27f628ee",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                    "sectionId": null,
+                    "createdAt": "2025-09-03T19:03:17.894Z",
+                    "updatedAt": "2025-09-05T20:08:05.901Z",
+                    "roomIds": [],
+                    "roomId": null,
+                    "scheduleId": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+                    "course": {
+                        "id": "355e6130-25ba-464a-b310-7fad27f628ee",
+                        "name": "Digital System Design",
+                        "code": "24EE01PR0202",
+                        "credits": 1,
+                        "courseType": "Core",
+                        "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                    },
+                    "semester": {
+                        "id": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                        "number": 2,
+                        "startDate": "2025-08-30T19:50:17.123Z",
+                        "endDate": "2025-08-30T19:50:17.123Z",
+                        "schemaId": "b008f458-8054-4cee-a1e4-2cd566110d73",
+                        "availability": []
+                    },
+                    "room": null
+                }
+            ]
+        },
+        {
+            "id": "640b49dd-e41e-4e57-8312-aeeac8695f2c",
+            "name": "Dr. Neha Sharma",
+            "organizationEmail": "neha.sharma@college.edu",
+            "personalEmail": "dr.neha.sharma@gmail.com",
+            "phone": "9765432101",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": [
+                {
+                    "id": "97eefe41-9d59-4cc5-9fb4-284def7e6a8c",
+                    "courseId": "41bacc71-9447-42a3-8845-8c07a1ce6a66",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                    "sectionId": null,
+                    "createdAt": "2025-09-01T07:16:02.583Z",
+                    "updatedAt": "2025-09-05T20:08:05.901Z",
+                    "roomIds": [],
+                    "roomId": null,
+                    "scheduleId": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+                    "course": {
+                        "id": "41bacc71-9447-42a3-8845-8c07a1ce6a66",
+                        "name": "Digital System Design",
+                        "code": "24EE01TH0202",
+                        "credits": 3,
+                        "courseType": "Core",
+                        "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                    },
+                    "semester": {
+                        "id": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                        "number": 2,
+                        "startDate": "2025-08-30T19:50:17.123Z",
+                        "endDate": "2025-08-30T19:50:17.123Z",
+                        "schemaId": "b008f458-8054-4cee-a1e4-2cd566110d73",
+                        "availability": []
+                    },
+                    "room": null
+                }
+            ]
+        },
+        {
+            "id": "11c5f762-74c9-4e33-911a-8033f949fa12",
+            "name": "Mr. Amit Desai",
+            "organizationEmail": "amit.desai@college.edu",
+            "personalEmail": "amit.desai@hotmail.com",
+            "phone": null,
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Lecturer",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": [
+                {
+                    "id": "670aaf50-5b80-405b-8348-012f44e9d558",
+                    "courseId": "da59416c-7064-48f1-b538-be01f31f874a",
+                    "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                    "sectionId": null,
+                    "createdAt": "2025-09-01T07:18:01.574Z",
+                    "updatedAt": "2025-09-05T20:08:05.901Z",
+                    "roomIds": [],
+                    "roomId": null,
+                    "scheduleId": "6fe97c5a-1531-4f59-93de-ceff61c0d4e3",
+                    "course": {
+                        "id": "da59416c-7064-48f1-b538-be01f31f874a",
+                        "name": "CMOS Digital Circuit Design",
+                        "code": "24EE01PR0201",
+                        "credits": 1,
+                        "courseType": "Core",
+                        "semesterId": "1af4dcaf-6731-41dc-8e1c-d66f421c0677"
+                    },
+                    "semester": {
+                        "id": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                        "number": 2,
+                        "startDate": "2025-08-30T19:50:17.123Z",
+                        "endDate": "2025-08-30T19:50:17.123Z",
+                        "schemaId": "b008f458-8054-4cee-a1e4-2cd566110d73",
+                        "availability": []
+                    },
+                    "room": null
+                }
+            ]
+        },
+        {
+            "id": "9a3166c9-6112-4a06-adfc-5506daf0705e",
+            "name": "Mrs. Pooja Rathi",
+            "organizationEmail": "pooja.rathi@college.edu",
+            "personalEmail": "poojarathi@gmail.com",
+            "phone": "9812345678",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Assistant Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "828f56c4-deca-4866-8580-614a66d2a785",
+            "name": "Dr. Karan Patel",
+            "organizationEmail": "karan.patel@college.edu",
+            "personalEmail": "karanpatel@gmail.com",
+            "phone": "9801234567",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "e57d42b6-8740-4b02-9380-1ecbbb15f027",
+            "name": "Ms. Shweta Nair",
+            "organizationEmail": "shweta.nair@college.edu",
+            "personalEmail": "shwetanair@yahoo.com",
+            "phone": "9977886655",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Assistant Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "aeba8b31-6bec-4060-a9c4-b511c6e356be",
+            "name": "Mr. Arjun Das",
+            "organizationEmail": "arjun.das@college.edu",
+            "personalEmail": "arjundas@gmail.com",
+            "phone": "9345612789",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Lecturer",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "b8007b6a-8166-4a5f-8e45-48ba32532958",
+            "name": "Dr. Rina Kapoor",
+            "organizationEmail": "rina.kapoor@college.edu",
+            "personalEmail": "dr.rina.kapoor@hotmail.com",
+            "phone": null,
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Associate Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "9b61a17d-4e07-47c6-83e7-f5c55a4a2ad8",
+            "name": "Mr. Suresh Menon",
+            "organizationEmail": "suresh.menon@college.edu",
+            "personalEmail": "sureshmenon@gmail.com",
+            "phone": "9988776655",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Assistant Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "dad7bc1d-ba97-4d58-b06f-dcbf6b31d0e4",
+            "name": "Mrs. Kavita Rao",
+            "organizationEmail": "kavita.rao@college.edu",
+            "personalEmail": "kavitarao@gmail.com",
+            "phone": "9812567890",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Lecturer",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "b2f9a816-b1f6-40aa-b6d8-632eb2f126e0",
+            "name": "Dr. Vikram Sen",
+            "organizationEmail": "vikram.sen@college.edu",
+            "personalEmail": "vikramsen@gmail.com",
+            "phone": "9887766554",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "54671e49-4c54-4cba-8abd-c7212b6cf7c7",
+            "name": "Ms. Alisha Verma",
+            "organizationEmail": "alisha.verma@college.edu",
+            "personalEmail": "alishaverma@yahoo.com",
+            "phone": "9734567890",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Assistant Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "de8d88a3-c330-4b0c-b3f9-5b5d6562cf0e",
+            "name": "Mr. Deepak Shah",
+            "organizationEmail": "deepak.shah@college.edu",
+            "personalEmail": "deepakshah@gmail.com",
+            "phone": null,
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Lecturer",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "bc282e6b-542f-4c08-8cca-78ebaf048769",
+            "name": "Dr. Sneha Gupta",
+            "organizationEmail": "sneha.gupta@college.edu",
+            "personalEmail": "snehagupta@gmail.com",
+            "phone": "9900112233",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Associate Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "9e536806-68ff-4711-806f-e64e5aa761e1",
+            "name": "Mrs. Isha Mehra",
+            "organizationEmail": "isha.mehra@college.edu",
+            "personalEmail": "ishamehra@yahoo.com",
+            "phone": "9856231470",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Assistant Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "a5ab4b9b-5299-4856-a522-cf0755910456",
+            "name": "Dr. Arvind Khanna",
+            "organizationEmail": "arvind.khanna@college.edu",
+            "personalEmail": "arvindkhanna@gmail.com",
+            "phone": null,
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "7f7e221e-389b-402e-a915-29b60835012d",
+            "name": "Ms. Tanya Roy",
+            "organizationEmail": "tanya.roy@college.edu",
+            "personalEmail": "tanyaroy@gmail.com",
+            "phone": "9700112233",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Lecturer",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "a5e522d6-61e8-450a-916a-44d370eef1ac",
+            "name": "Mr. Naveen Yadav",
+            "organizationEmail": "naveen.yadav@college.edu",
+            "personalEmail": "naveenyadav@gmail.com",
+            "phone": "9667788990",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Assistant Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        },
+        {
+            "id": "ef81949c-6eff-4b92-abec-d0a0d0e47e21",
+            "name": "Dr. Meena Joshi",
+            "organizationEmail": "meena.joshi@college.edu",
+            "personalEmail": "meenajoshi@gmail.com",
+            "phone": "9898765432",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "designation": "Professor",
+            "availability": [],
+            "department": {
+                "id": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                "name": "Computer Science Department",
+                "password": "$2b$10$xtl013bmniRAPZTogLBFw.fT21x27i0vDJ0zhqjclo3LmQ4KMk.ZK",
+                "schoolId": "90428305-bafd-4c02-bd23-cefc137b6882"
+            },
+            "assignments": []
+        }
+    ],
+    "academicBlocks": [
+        {
+            "id": "73fb719c-0cd0-4dad-b412-c265c88ec766",
+            "name": "Digital",
+            "blockCode": "DT",
+            "universityId": "4b930f3a-22d5-4008-b394-5b7d61ad3dab",
+            "isActive": true,
+            "createdAt": "2025-09-03T14:28:06.836Z",
+            "updatedAt": "2025-09-03T14:28:06.836Z",
+            "rooms": []
+        }
+    ],
+    "schemes": [
+        {
+            "id": "f645d239-bdbf-4ada-a103-0c72d1c999da",
+            "name": "encs 2026",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "semesters": [
+                {
+                    "id": "16c65bd1-7fdc-4617-8ed2-bea2ebdc743d",
+                    "number": 1,
+                    "startDate": "2025-05-25T19:34:52.178Z",
+                    "endDate": "2025-05-25T19:34:52.178Z",
+                    "schemaId": "f645d239-bdbf-4ada-a103-0c72d1c999da",
+                    "availability": []
+                },
+                {
+                    "id": "7ca52890-6ec0-4e75-9306-375a794f8ad0",
+                    "number": 2,
+                    "startDate": "2025-05-25T19:35:11.069Z",
+                    "endDate": "2025-05-25T19:35:11.069Z",
+                    "schemaId": "f645d239-bdbf-4ada-a103-0c72d1c999da",
+                    "availability": []
+                }
+            ],
+            "sections": []
+        },
+        {
+            "id": "2814a42d-7af2-40ae-b83e-dc3ed39e5772",
+            "name": "cse 2025",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "semesters": [
+                {
+                    "id": "593228fd-9317-4fa0-ac89-a75477c19e68",
+                    "number": 1,
+                    "startDate": "2025-05-26T06:56:55.248Z",
+                    "endDate": "2025-05-26T06:56:55.248Z",
+                    "schemaId": "2814a42d-7af2-40ae-b83e-dc3ed39e5772",
+                    "availability": []
+                }
+            ],
+            "sections": []
+        },
+        {
+            "id": "34fb88de-56dc-4eb2-8d3a-636e9bf182a2",
+            "name": "ecss",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "semesters": [
+                {
+                    "id": "ffc6f489-25d4-4691-b548-da404acfc16c",
+                    "number": 2,
+                    "startDate": "2025-08-30T16:27:56.770Z",
+                    "endDate": "2025-08-30T16:27:56.770Z",
+                    "schemaId": "34fb88de-56dc-4eb2-8d3a-636e9bf182a2",
+                    "availability": []
+                }
+            ],
+            "sections": []
+        },
+        {
+            "id": "de960e8f-6c2c-4e8e-bc5c-8a1f07c95485",
+            "name": "ecs_2024_2 Scheme",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "semesters": [
+                {
+                    "id": "96d387d5-cb5a-46a7-8797-2f3d3a2b771a",
+                    "number": 2,
+                    "startDate": "2025-08-30T18:34:16.538Z",
+                    "endDate": "2025-08-30T18:34:16.538Z",
+                    "schemaId": "de960e8f-6c2c-4e8e-bc5c-8a1f07c95485",
+                    "availability": []
+                }
+            ],
+            "sections": []
+        },
+        {
+            "id": "b008f458-8054-4cee-a1e4-2cd566110d73",
+            "name": "ecs_2027_2029 Scheme",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "semesters": [
+                {
+                    "id": "1af4dcaf-6731-41dc-8e1c-d66f421c0677",
+                    "number": 2,
+                    "startDate": "2025-08-30T19:50:17.123Z",
+                    "endDate": "2025-08-30T19:50:17.123Z",
+                    "schemaId": "b008f458-8054-4cee-a1e4-2cd566110d73",
+                    "availability": []
+                }
+            ],
+            "sections": []
+        },
+        {
+            "id": "39bb7c05-f73c-4d91-b552-89d2eeb7b51c",
+            "name": "encs_2029_31 Scheme",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "semesters": [
+                {
+                    "id": "776f1b15-d7a5-48f8-819b-25e2efadacf2",
+                    "number": 2,
+                    "startDate": "2025-09-03T17:24:48.712Z",
+                    "endDate": "2025-09-03T17:24:48.712Z",
+                    "schemaId": "39bb7c05-f73c-4d91-b552-89d2eeb7b51c",
+                    "availability": []
+                }
+            ],
+            "sections": []
+        },
+        {
+            "id": "a6ee5d7a-6401-4172-ab40-28cd5170a39a",
+            "name": "cse_2026_30 Scheme",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "semesters": [
+                {
+                    "id": "450b57bd-940c-4da7-a82f-63aff914145f",
+                    "number": 2,
+                    "startDate": "2025-09-03T18:30:49.051Z",
+                    "endDate": "2025-09-03T18:30:49.051Z",
+                    "schemaId": "a6ee5d7a-6401-4172-ab40-28cd5170a39a",
+                    "availability": []
+                }
+            ],
+            "sections": []
+        },
+        {
+            "id": "dc36f854-37d7-4d20-8182-3d1a93f8c5b6",
+            "name": "ds_2021_2 Scheme",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "semesters": [
+                {
+                    "id": "526bd48e-2176-4b0b-89c5-1fc87ea3b982",
+                    "number": 2,
+                    "startDate": "2025-09-03T18:37:27.564Z",
+                    "endDate": "2025-09-03T18:37:27.564Z",
+                    "schemaId": "dc36f854-37d7-4d20-8182-3d1a93f8c5b6",
+                    "availability": []
+                }
+            ],
+            "sections": []
+        },
+        {
+            "id": "03723d2a-0fa4-48d2-8a52-17aefc1f2896",
+            "name": "ece_2020_2 Scheme",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "semesters": [
+                {
+                    "id": "621ea874-0fd3-4b52-b67a-924d7cdc8a62",
+                    "number": 2,
+                    "startDate": "2025-09-03T18:43:06.770Z",
+                    "endDate": "2025-09-03T18:43:06.770Z",
+                    "schemaId": "03723d2a-0fa4-48d2-8a52-17aefc1f2896",
+                    "availability": []
+                }
+            ],
+            "sections": []
+        },
+        {
+            "id": "4dabf9d6-d098-47e1-ac49-81f320234778",
+            "name": "cyber_2021_2 Scheme",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "semesters": [
+                {
+                    "id": "9bf8babb-395e-407f-b712-01cc019c5afe",
+                    "number": 2,
+                    "startDate": "2025-09-04T07:00:49.541Z",
+                    "endDate": "2025-09-04T07:00:49.541Z",
+                    "schemaId": "4dabf9d6-d098-47e1-ac49-81f320234778",
+                    "availability": []
+                }
+            ],
+            "sections": [
+                {
+                    "id": "6ecaf30c-03f9-416e-831a-839d80f4a621",
+                    "name": "AL",
+                    "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+                    "schemaId": "4dabf9d6-d098-47e1-ac49-81f320234778",
+                    "departmentCode": "department",
+                    "batchYearRange": "2021-2025",
+                    "fullName": "department_2021-2025_section_AL",
+                    "preferredRoom": null,
+                    "createdAt": "2025-09-05T18:36:22.980Z",
+                    "updatedAt": "2025-09-05T18:36:22.980Z"
+                }
+            ]
+        },
+        {
+            "id": "c882f93e-19c0-4e42-8573-975d8ad1c4a1",
+            "name": "encs_2022_2027 Scheme",
+            "departmentId": "a599bf42-05cf-49e8-b53f-869f9a953742",
+            "semesters": [
+                {
+                    "id": "e54639ef-4aab-4eda-9040-70b6d6e087bc",
+                    "number": 2,
+                    "startDate": "2025-09-05T17:44:27.394Z",
+                    "endDate": "2025-09-05T17:44:27.394Z",
+                    "schemaId": "c882f93e-19c0-4e42-8573-975d8ad1c4a1",
+                    "availability": []
+                }
+            ],
+            "sections": []
+        }
+    ],
+    "summary": {
+        "totalAssignments": 4,
+        "totalCourses": 13,
+        "totalSections": 6,
+        "totalRooms": 0,
+        "totalFaculty": 20,
+        "totalAcademicBlocks": 1,
+        "totalSchemes": 11,
+        "timetableSlots": 40
+    }
+}

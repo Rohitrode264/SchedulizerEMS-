@@ -1,49 +1,77 @@
 import { HiAcademicCap, HiArrowRight, HiBookOpen } from 'react-icons/hi';
 import type{ DepartmentCardProps } from '../../types/CardProps';
-
+import { theme } from '../../Theme/theme';
 
 export const DepartmentCard = ({ department, onSelect }: DepartmentCardProps) => {
   return (
     <div 
       onClick={() => onSelect(department.id)}
-      className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all 
-                 duration-300 cursor-pointer group border border-gray-200
-                 hover:border-indigo-500 transform hover:-translate-y-1
-                 relative overflow-hidden"
+      className={`group ${theme.surface.card} ${theme.transition.hover} hover:${theme.shadow.lg} 
+                 cursor-pointer relative overflow-hidden border-2 border-transparent hover:${theme.primary.border}
+                 transform hover:-translate-y-1 transition-all duration-300`}
     >
+      {/* Subtle Background Pattern */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${theme.secondary.light}/20 via-transparent to-${theme.primary.light}/10 
+                    opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
       
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-transparent 
-                    opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      
-      <div className="p-6 relative z-10">
-        <div className="flex flex-col space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-3 bg-indigo-100/80 rounded-xl group-hover:bg-indigo-100
-                            transform group-hover:scale-110 transition-all duration-300
-                            shadow-sm">
-                <HiAcademicCap className="h-7 w-7 text-indigo-600" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-800 group-hover:text-indigo-600
-                            transition-colors duration-200">
-                  {department.name}
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">Academic Department</p>
+      {/* Main Content */}
+      <div className={`${theme.spacing.md} relative z-10`}>
+        {/* Header Section */}
+        <div className="flex items-start justify-between mb-5">
+          <div className="flex items-center space-x-4">
+            <div className={`relative p-3 ${theme.secondary.light} ${theme.rounded.lg} group-hover:${theme.secondary.main} 
+                          group-hover:text-white transform group-hover:scale-105 ${theme.transition.all}
+                          ${theme.shadow.sm} overflow-hidden`}>
+              <HiAcademicCap className={`h-7 w-7 ${theme.secondary.text} group-hover:text-white transition-colors`} />
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <h3 className={`text-xl font-bold ${theme.text.primary} group-hover:${theme.secondary.text}
+                          transition-colors duration-300 mb-1`}>
+                {department.name}
+              </h3>
+              <div className="flex items-center space-x-2">
+                <div className={`${theme.badge.default} ${theme.rounded.lg} px-2 py-1`}>
+                  <span className={`text-xs font-medium ${theme.text.secondary}`}>Academic Department</span>
+                </div>
               </div>
             </div>
-            <HiArrowRight className="w-6 h-6 text-gray-400 group-hover:text-indigo-500 
-                                  transform group-hover:translate-x-1 transition-all" />
           </div>
           
-          <div className="pt-4 border-t border-gray-100 mt-2">
-            <div className="flex items-center space-x-2 text-gray-600 group-hover:text-indigo-600">
-              <HiBookOpen className="w-5 h-5 text-indigo-500" />
-              <span className="text-sm font-medium">View Dashboard</span>
+          {/* Action Arrow */}
+          <div className={`p-2 ${theme.surface.secondary} ${theme.rounded.lg} group-hover:${theme.secondary.main} 
+                        group-hover:text-white transform group-hover:translate-x-1 ${theme.transition.all}
+                        ${theme.shadow.sm}`}>
+            <HiArrowRight className={`w-5 h-5 ${theme.text.tertiary} group-hover:text-white transition-colors`} />
+          </div>
+        </div>
+        
+        {/* Content Section */}
+        <div className="space-y-4">
+          
+          
+          {/* Action Section */}
+          <div className={`pt-3 border-t ${theme.border.light} mt-3`}>
+            <div className={`flex items-center justify-between ${theme.text.secondary} group-hover:${theme.secondary.text}`}>
+              <div className="flex items-center space-x-3">
+                <div className={`p-2 ${theme.success.light} ${theme.rounded.lg} group-hover:${theme.success.main} 
+                              group-hover:text-white transition-all duration-300`}>
+                  <HiBookOpen className={`w-4 h-4 ${theme.success.text} group-hover:text-white transition-colors`} />
+                </div>
+                <span className="text-sm font-semibold">View Dashboard</span>
+              </div>
+              
+              <div className={`text-xs ${theme.text.tertiary} group-hover:${theme.secondary.text} transition-colors`}>
+                Access →
+              </div>
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Hover Border Effect */}
+      <div className={`absolute inset-0 border-2 border-transparent group-hover:${theme.secondary.border} 
+                    ${theme.rounded.lg} transition-all duration-300 pointer-events-none`}></div>
     </div>
   );
 };

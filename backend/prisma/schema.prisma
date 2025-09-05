@@ -109,7 +109,8 @@ model Assignment {
   semester     Semester    @relation(fields: [semesterId], references: [id])
   section      Section?    @relation(fields: [sectionId], references: [id])
   
-  roomId       String?
+  roomIds      String[]    @default([]) // Array of room IDs for multiple room support
+  roomId       String?     // Keep for backward compatibility
   room         Room?       @relation(fields: [roomId], references: [id])
   
   scheduleId   String?

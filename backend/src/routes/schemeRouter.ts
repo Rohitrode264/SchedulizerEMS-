@@ -7,6 +7,15 @@ const schemeRouter=Router();
 
 schemeRouter.get('/:departmentId', verifyToken, async(req,res)=>{
     try {
+        console.log('Backend - Fetching schemes for departmentId:', req.params.departmentId);
+        
+        // First, let's check if the department exists
+        const department = await prisma.department.findUnique({
+            where: { id: req.params.departmentId },
+            select: { id: true, name: true }
+        });
+        console.log('Backend - Department found:', department);
+        
         const scheme = await prisma.scheme.findMany({
             where: {
                 departmentId: req.params.departmentId,
@@ -14,11 +23,22 @@ schemeRouter.get('/:departmentId', verifyToken, async(req,res)=>{
             select: {
                 id: true,
                 name: true,
-               
+                departmentId: true, // Include departmentId in response for debugging
             },
         });
+        console.log('Backend - Found schemes:', scheme.length, 'schemes for department:', req.params.departmentId);
+        console.log('Backend - Scheme details:', scheme.map(s => ({ id: s.id, name: s.name, departmentId: s.departmentId })));
+        
+        // Also check all schemes to see if there are any schemes at all
+        const allSchemes = await prisma.scheme.findMany({
+            select: { id: true, name: true, departmentId: true }
+        });
+        console.log('Backend - Total schemes in database:', allSchemes.length);
+        console.log('Backend - All schemes:', allSchemes.map(s => ({ id: s.id, name: s.name, departmentId: s.departmentId })));
+        
         res.status(200).json(scheme);
     } catch (error) {
+        console.error('Backend - Error fetching schemes:', error);
         res.status(500).json({ error: 'error fetching scheme' });
     }
 })

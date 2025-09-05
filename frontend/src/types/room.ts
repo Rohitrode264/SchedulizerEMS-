@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 
 export interface AcademicBlock {
   id: string;
@@ -16,7 +15,7 @@ export interface AcademicBlock {
 }
 
 export interface Room {
-  name: ReactNode;
+  name?: string;
   id: string;
   code: string;
   capacity: number;

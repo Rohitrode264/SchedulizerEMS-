@@ -12,6 +12,7 @@ interface Batch {
 }
 
 interface Section {
+  totalCount: any;
   id: string;
   name: string;
   departmentId: string;
