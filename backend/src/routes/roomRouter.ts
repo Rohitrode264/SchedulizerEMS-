@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client';
 import { Router, Request, Response } from 'express';
 import { verifyToken } from '../middleware/auth.middleware';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 const roomRouter = Router();
 
 // Get all academic blocks
