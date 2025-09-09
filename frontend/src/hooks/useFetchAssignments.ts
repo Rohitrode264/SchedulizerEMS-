@@ -18,6 +18,7 @@ export type AssignmentType = {
     name: string;
     code: string;
     credits: number;
+    courseType: string;
   };
   faculty: {
     id: string;
@@ -48,7 +49,7 @@ export default function useFetchAssignments(semesterId: string) {
     axios
       .get(`${API_URL}/v1/assignments/${semesterId}`, {
         headers: {
-          'Authorization': `${token.replace(/['"]+/g, '')}`,
+          'Authorization': token.replace(/['"]+/g, ''),
           'Content-Type': 'application/json'
         }
       })

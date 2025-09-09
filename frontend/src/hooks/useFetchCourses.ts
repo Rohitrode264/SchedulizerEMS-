@@ -6,6 +6,7 @@ export type CourseType = {
   name: string;
   code: string;
   credits: number;
+  courseType: string;
   semesterId: string;
 };
 
@@ -31,12 +32,13 @@ export default function useFetchCourses(semesterId: string) {
     axios
       .get(`http://localhost:3000/api/v1/scheme/course/${semesterId}`, {
         headers: {
-          'Authorization': `${token.replace(/['"]+/g, '')}`,
+          'Authorization': token.replace(/['"]+/g, ''),
           'Content-Type': 'application/json'
         }
       })
       .then((res) => {
-        console.log(res);
+        console.log('Courses response:', res);
+        console.log('Courses data:', res.data);
         setCourses(res.data);
       })
       .catch((error) => {

@@ -26,7 +26,7 @@ export default function useSaveAssignments() {
         { assignments },
         {
           headers: {
-            'Authorization': `${token.replace(/['"]+/g, '')}`,
+            'Authorization': token.replace(/['"]+/g, ''),
             'Content-Type': 'application/json'
           }
         }
@@ -57,7 +57,7 @@ export default function useSaveAssignments() {
         assignment,
         {
           headers: {
-            'Authorization': `${token.replace(/['"]+/g, '')}`,
+            'Authorization': token.replace(/['"]+/g, ''),
             'Content-Type': 'application/json'
           }
         }
@@ -88,7 +88,7 @@ export default function useSaveAssignments() {
         assignment,
         {
           headers: {
-            'Authorization': `${token.replace(/['"]+/g, '')}`,
+            'Authorization': token.replace(/['"]+/g, ''),
             'Content-Type': 'application/json'
           }
         }
@@ -118,7 +118,7 @@ export default function useSaveAssignments() {
         `${API_URL}/v1/assignments/${assignmentId}`,
         {
           headers: {
-            'Authorization': `${token.replace(/['"]+/g, '')}`,
+            'Authorization': token.replace(/['"]+/g, ''),
             'Content-Type': 'application/json'
           }
         }

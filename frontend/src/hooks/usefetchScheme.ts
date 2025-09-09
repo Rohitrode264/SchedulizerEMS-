@@ -24,6 +24,10 @@ export default function useFetchScheme(departmentId: string|undefined) {
     }
 
     setLoading(true);
+    console.log('Frontend - Fetching schemes for departmentId:', departmentId);
+    console.log('Frontend - Request URL:', `http://localhost:3000/api/v1/scheme/${departmentId}`);
+    console.log('Frontend - Token:', token ? 'Token exists' : 'No token');
+    
     axios
       .get(`http://localhost:3000/api/v1/scheme/${departmentId}`, {
         headers: {
@@ -32,11 +36,19 @@ export default function useFetchScheme(departmentId: string|undefined) {
         }
       })
       .then((res) => {
+        console.log('Frontend - Schemes response for departmentId:', departmentId, ':', res.data);
+        console.log('Frontend - Number of schemes found:', res.data.length);
+        console.log('Frontend - Response status:', res.status);
+        if (res.data.length > 0) {
+          console.log('Frontend - First scheme details:', res.data[0]);
+        }
         setSchemes(res.data);
         setError(null);
       })
       .catch((error) => {
-        console.error('Failed to fetch schemes:', error);
+        console.error('Frontend - Failed to fetch schemes:', error);
+        console.error('Frontend - Error response:', error.response?.data);
+        console.error('Frontend - Error status:', error.response?.status);
         setError('Failed to fetch schemes');
         setSchemes([]);
       })

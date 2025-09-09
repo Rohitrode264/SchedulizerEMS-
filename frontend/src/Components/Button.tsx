@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '../utils/cn'; 
+import { theme } from '../Theme/theme';
 
 type ButtonProps = {
   children: React.ReactNode;
@@ -23,19 +24,19 @@ export default function Button({
   className = '',
 }: ButtonProps) {
   const baseStyles =
-    'flex items-center justify-center px-5 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer    ';
+    'flex items-center justify-center px-5 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer';
 
   const variants: Record<string, string> = {
     primary:
-      'bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-indigo-400',
+      `${theme.secondary.main} text-white hover:${theme.secondary.hover} disabled:${theme.secondary.light}`,
     secondary:
-      'bg-gray-100 text-indigo-600 hover:bg-gray-200 disabled:opacity-60',
+      `${theme.surface.secondary} ${theme.secondary.text} hover:${theme.surface.tertiary} disabled:opacity-60`,
     outline:
-      'border border-indigo-600 text-indigo-600 bg-white hover:bg-indigo-50 disabled:opacity-60',
+      `border ${theme.secondary.border} ${theme.secondary.text} ${theme.surface.main} hover:${theme.secondary.light} disabled:opacity-60`,
     ghost:
-      'bg-transparent text-indigo-600 hover:bg-indigo-100 disabled:opacity-60',
+      `bg-transparent ${theme.secondary.text} hover:${theme.surface.secondary} disabled:opacity-60`,
     danger:
-      'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400',
+      `${theme.text.tertiary} text-white hover:${theme.text.secondary} disabled:${theme.text.tertiary}`,
   };
 
   return (

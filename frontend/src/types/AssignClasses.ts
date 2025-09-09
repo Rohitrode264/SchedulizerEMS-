@@ -12,12 +12,20 @@ export interface Faculty{
     designation:string;
 }
 
+export interface Room {
+    id: string;
+    code: string;
+    capacity: number;
+    isLab: boolean;
+    isActive: boolean;
+}
+
 export interface Assignment{
     id?:string;
     courseId:string;
-    facultyId:string;
+    facultyIds:string[]; // Changed from facultyId to facultyIds array
     laboratory:string;
-    room:string;
+    roomIds?:string[]; // Changed from roomId to roomIds array for multiple room selection
     credits:number;
     hasLab:boolean;
 }

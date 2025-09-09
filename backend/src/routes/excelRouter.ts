@@ -27,7 +27,7 @@ excelRouter.post('/upload-with-scheme',verifyToken, upload.single('file'), async
     const sheet = workbook.Sheets[sheetName];
     const data: any[][] = xlsx.utils.sheet_to_json(sheet, { header: 1 });
 
-    console.log(`Excel data rows: ${data.length}`);
+   
 
  
     const scheme = await prisma.scheme.create({
@@ -45,14 +45,16 @@ excelRouter.post('/upload-with-scheme',verifyToken, upload.single('file'), async
         continue;
       }
 
-      console.log('Row:', row);
+      
 
       const semesterRaw = row[0]?.toString().trim().toUpperCase();
+      
  
      
       if (semesterRaw && (semesterRaw.startsWith('SEMESTER') || semesterRaw.startsWith('SEMESTSER'))) {
         // Extract semester number
         const semesterNumber = extractSemesterNumber(semesterRaw);
+        
         if (!semesterNumber) {
           console.log(`Could not extract semester number from "${semesterRaw}"`);
           i++;
@@ -108,7 +110,7 @@ excelRouter.post('/upload-with-scheme',verifyToken, upload.single('file'), async
           i++;
         }
 
-        console.log(`Created semester ${semesterNumber} with courses`);
+        
       } else {
         i++;
       }
@@ -127,17 +129,31 @@ excelRouter.post('/upload-with-scheme',verifyToken, upload.single('file'), async
 
 
 function extractSemesterNumber(input: string): number | null {
+ 
 
-  const romanMatch = input.match(/SEMEST(ER|SER)[-–]?(\w+)/i);
-  if (!romanMatch) return null;
+  
+  const arabicMatch = input.match(/SEMEST(ER|SER)[-–]?\s*(\d+)/i);
+  if (arabicMatch) {
+    
+    return parseInt(arabicMatch[2], 10);
+  }
 
-  const roman = romanMatch[2].toUpperCase();
-  const romanToInt: Record<string, number> = {
-    I: 1, II: 2, III: 3, IV: 4, V: 5,
-    VI: 6, VII: 7, VIII: 8, IX: 9, X: 10,
-  };
+  
+  const romanMatch = input.match(/SEMEST(ER|SER)[-–]?\s*([IVX]+)/i);
+  if (romanMatch) {
+    const roman = romanMatch[2].toUpperCase();
+    
+    const romanToInt: Record<string, number> = {
+      I: 1, II: 2, III: 3, IV: 4, V: 5,
+      VI: 6, VII: 7, VIII: 8, IX: 9, X: 10,
+    };
+    const result = romanToInt[roman] ?? null;
+  
+    return result;
+  }
 
-  return romanToInt[roman] ?? null;
+  
+  return null;
 }
 
 export default excelRouter;
