@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Plus, X, Pencil, Trash2 } from 'lucide-react';
 import { theme } from '../Theme/theme';
 import type { Section } from '../types/sections';
