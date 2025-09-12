@@ -23,7 +23,8 @@ export interface Room {
   isActive: boolean;
   academicBlockId: string;
   departmentId?: string;
-  availability: number[];
+  availability: number[]; // Indices of available slots (legacy)
+  availability01?: number[]; // 0/1 array where 0=available, 1=blocked
   createdAt: string;
   updatedAt: string;
   academicBlock: AcademicBlock;
@@ -67,6 +68,7 @@ export interface CreateRoomData {
   academicBlockId: string;
   departmentId?: string;
   availability: number[];
+  availability01?: number[];
 }
 
 export interface UpdateRoomData extends Partial<CreateRoomData> {

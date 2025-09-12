@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Room, AcademicBlock, CreateRoomData, UpdateRoomData } from '../../types/room';
 import { InputField } from '../InputField';
 import Button from '../Button';
-import { Building2, Hash, Users, FlaskConical, Calendar } from 'lucide-react';
+import { Building2, Hash, Users, FlaskConical, Calendar, Check, X } from 'lucide-react';
 
 interface RoomFormProps {
   room?: Room;
@@ -19,13 +19,14 @@ export const RoomForm: React.FC<RoomFormProps> = ({
   onCancel,
   loading = false
 }) => {
-  const [formData, setFormData] = useState<CreateRoomData>({
+  const [formData, setFormData] = useState<CreateRoomData & { availability01: number[] }>({
     code: '',
     capacity: 0,
     isLab: false,
     academicBlockId: '',
     departmentId: '',
     availability: [],
+    availability01: new Array(72).fill(0), // Default: all available (0s)
     name: ''
   });
 
@@ -40,6 +41,7 @@ export const RoomForm: React.FC<RoomFormProps> = ({
         academicBlockId: room.academicBlockId,
         departmentId: room.departmentId || '',
         availability: room.availability,
+        availability01: room.availability01 || new Array(72).fill(0), // Use availability01 if available
         name: ''
       });
     }
@@ -74,11 +76,11 @@ export const RoomForm: React.FC<RoomFormProps> = ({
     await onSubmit(formData);
   };
 
-  const handleInputChange = (field: keyof CreateRoomData, value: any) => {
+  const handleInputChange = (field: keyof (CreateRoomData & { availability01: number[] }), value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+    if (errors[field as string]) {
+      setErrors(prev => ({ ...prev, [field as string]: '' }));
     }
   };
 
@@ -230,11 +232,38 @@ export const RoomForm: React.FC<RoomFormProps> = ({
 
              {/* Availability */}
        <div>
-         <div className="flex items-center space-x-2 mb-3">
-           <Calendar className="w-4 h-4 text-gray-500" />
-           <label className="block text-sm font-medium text-gray-700">
-             Available Time Slots (6 Days × 12 Hours: 8 AM to 8 PM)
-           </label>
+         <div className="flex items-center justify-between mb-3">
+           <div className="flex items-center space-x-2">
+             <Calendar className="w-4 h-4 text-gray-500" />
+             <label className="block text-sm font-medium text-gray-700">
+               Room Availability (6 Days × 12 Hours: 8 AM to 8 PM)
+             </label>
+           </div>
+           <div className="flex space-x-2">
+             <button
+               type="button"
+               onClick={() => {
+                 const allAvailable = new Array(72).fill(0);
+                 handleInputChange('availability01', allAvailable);
+               }}
+               className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+             >
+               Make All Available
+             </button>
+             <button
+               type="button"
+               onClick={() => {
+                 const allBlocked = new Array(72).fill(1);
+                 handleInputChange('availability01', allBlocked);
+               }}
+               className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+             >
+               Block All
+             </button>
+           </div>
+         </div>
+         <div className="text-xs text-gray-500 mb-3">
+           Click on time slots to toggle availability. Green = Available, Red = Blocked
          </div>
          <div className="grid grid-cols-6 gap-4">
            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day, dayIndex) => (
@@ -243,30 +272,48 @@ export const RoomForm: React.FC<RoomFormProps> = ({
                <div className="grid grid-cols-2 gap-1">
                  {Array.from({ length: 12 }, (_, slotIndex) => {
                    const hour = slotIndex + 8; // 8 AM to 8 PM
-                   const availabilityIndex = dayIndex * 12 + slotIndex;
+                   const globalIndex = dayIndex * 12 + slotIndex;
                    const timeText = hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`;
+                   const isAvailable = formData.availability01[globalIndex] === 0;
                    
                    return (
-                     <label key={slotIndex} className="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded transition-colors duration-200">
-                       <input
-                         type="checkbox"
-                         checked={formData.availability.includes(availabilityIndex)}
-                         onChange={(e) => {
-                           if (e.target.checked) {
-                             handleInputChange('availability', [...formData.availability, availabilityIndex]);
-                           } else {
-                             handleInputChange('availability', formData.availability.filter(slot => slot !== availabilityIndex));
-                           }
-                         }}
-                         className="mr-1 w-3 h-3 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                       />
-                       <span className="text-xs text-gray-700 font-medium">{timeText}</span>
-                     </label>
+                     <button
+                       key={slotIndex}
+                       type="button"
+                       onClick={() => {
+                         const newAvailability = [...formData.availability01];
+                         newAvailability[globalIndex] = isAvailable ? 1 : 0;
+                         handleInputChange('availability01', newAvailability);
+                       }}
+                       className={`p-2 text-center text-xs rounded transition-colors ${
+                         isAvailable
+                           ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                           : 'bg-red-100 text-red-800 hover:bg-red-200'
+                       }`}
+                       title={`${day} ${timeText} - Click to ${isAvailable ? 'block' : 'make available'}`}
+                     >
+                       <div className="font-medium">{timeText}</div>
+                       <div className="mt-1">
+                         {isAvailable ? (
+                           <Check className="w-3 h-3 mx-auto text-green-600" />
+                         ) : (
+                           <X className="w-3 h-3 mx-auto text-red-600" />
+                         )}
+                       </div>
+                     </button>
                    );
                  })}
                </div>
              </div>
            ))}
+         </div>
+         <div className="mt-3 text-sm text-gray-600">
+           Available: <span className="font-medium text-green-600">
+             {formData.availability01.filter((slot: number) => slot === 0).length}
+           </span> | 
+           Blocked: <span className="font-medium text-red-600">
+             {formData.availability01.filter((slot: number) => slot === 1).length}
+           </span>
          </div>
        </div>
 

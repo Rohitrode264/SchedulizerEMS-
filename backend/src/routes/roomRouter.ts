@@ -3,6 +3,30 @@ import { verifyToken } from '../middleware/auth.middleware';
 import { prisma } from '../lib/prisma';
 const roomRouter = Router();
 
+// Helpers to convert between legacy indices array and new 0/1 binary array
+const TOTAL_DAYS = 6;
+const SLOTS_PER_DAY = 12;
+const TOTAL_SLOTS = TOTAL_DAYS * SLOTS_PER_DAY; // 72
+
+const indicesToBinary = (indices: number[]): number[] => {
+  const set = new Set(indices || []);
+  const binary: number[] = new Array(TOTAL_SLOTS);
+  for (let i = 0; i < TOTAL_SLOTS; i++) {
+    binary[i] = set.has(i) ? 0 : 1; // 0 = free, 1 = blocked
+  }
+  return binary;
+};
+
+const binaryToIndices = (binary: number[]): number[] => {
+  if (!Array.isArray(binary) || binary.length === 0) return [];
+  const indices: number[] = [];
+  const len = Math.min(binary.length, TOTAL_SLOTS);
+  for (let i = 0; i < len; i++) {
+    if (binary[i] === 0) indices.push(i);
+  }
+  return indices;
+};
+
 // Get all academic blocks
 roomRouter.get('/blocks', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -205,7 +229,8 @@ roomRouter.post('/', verifyToken, async (req: Request, res: Response): Promise<v
       isLab,
       academicBlockId,
       departmentId,
-      availability
+      availability,
+      availability01
     } = req.body as any;
 
     // Validate required fields
@@ -234,7 +259,36 @@ roomRouter.post('/', verifyToken, async (req: Request, res: Response): Promise<v
     if (departmentId === '' || departmentId === null) {
       departmentId = undefined;
     }
-    const safeAvailability = Array.isArray(availability) ? availability : [];
+    // Support both representations
+    const providedBinary = Array.isArray(availability01) ? availability01 : undefined;
+    const providedIndices = Array.isArray(availability) ? availability : undefined;
+    
+    // Always ensure availability01 is a proper 0/1 array
+    const defaultSize = 72; // 6 days × 12 hours
+    let indices, binary;
+    
+    if (providedBinary && Array.isArray(providedBinary)) {
+      // Use provided binary array (0s and 1s)
+      binary = providedBinary;
+      indices = binaryToIndices(binary);
+    } else if (providedIndices && Array.isArray(providedIndices)) {
+      // Convert from indices to binary
+      indices = providedIndices;
+      binary = indicesToBinary(indices);
+    } else {
+      // Default: all slots available (all 0s)
+      binary = new Array(defaultSize).fill(0); // 0 = available, 1 = blocked
+      indices = [];
+    }
+    
+    // Ensure binary array is exactly 72 elements
+    if (binary.length !== defaultSize) {
+      const paddedBinary = new Array(defaultSize).fill(0);
+      for (let i = 0; i < Math.min(binary.length, defaultSize); i++) {
+        paddedBinary[i] = binary[i];
+      }
+      binary = paddedBinary;
+    }
 
     // Create room
     const room = await prisma.room.create({
@@ -244,8 +298,9 @@ roomRouter.post('/', verifyToken, async (req: Request, res: Response): Promise<v
         isLab: isLab || false,
         academicBlockId,
         departmentId,
-        availability: safeAvailability
-      },
+        availability: indices,
+        availability01: binary
+      } as any,
       include: {
         academicBlock: true,
         department: true
@@ -277,6 +332,7 @@ roomRouter.put('/:id', verifyToken, async (req: Request, res: Response): Promise
       academicBlockId,
       departmentId,
       availability,
+      availability01,
       isActive
     } = req.body as any;
 
@@ -312,7 +368,35 @@ roomRouter.put('/:id', verifyToken, async (req: Request, res: Response): Promise
     if (departmentId === '' || departmentId === null) {
       departmentId = undefined;
     }
-    const safeAvailability = Array.isArray(availability) ? availability : undefined;
+    // Always ensure availability01 is a proper 0/1 array
+    const defaultSize = 72; // 6 days × 12 hours
+    const providedBinary = Array.isArray(availability01) ? availability01 : undefined;
+    const providedIndices = Array.isArray(availability) ? availability : undefined;
+    
+    let indices, binary;
+    
+    if (providedBinary && Array.isArray(providedBinary)) {
+      // Use provided binary array (0s and 1s)
+      binary = providedBinary;
+      indices = binaryToIndices(binary);
+    } else if (providedIndices && Array.isArray(providedIndices)) {
+      // Convert from indices to binary
+      indices = providedIndices;
+      binary = indicesToBinary(indices);
+    } else {
+      // Keep existing values or use defaults
+      indices = providedIndices;
+      binary = providedBinary;
+    }
+    
+    // Ensure binary array is exactly 72 elements if provided
+    if (binary && binary.length !== defaultSize) {
+      const paddedBinary = new Array(defaultSize).fill(0);
+      for (let i = 0; i < Math.min(binary.length, defaultSize); i++) {
+        paddedBinary[i] = binary[i];
+      }
+      binary = paddedBinary;
+    }
 
     // Update room
     const updatedRoom = await prisma.room.update({
@@ -323,9 +407,10 @@ roomRouter.put('/:id', verifyToken, async (req: Request, res: Response): Promise
         isLab,
         academicBlockId,
         departmentId,
-        availability: safeAvailability,
+        availability: indices,
+        availability01: binary,
         isActive
-      },
+      } as any,
       include: {
         academicBlock: true,
         department: true
@@ -458,9 +543,9 @@ roomRouter.get('/stats/overview', async (req: Request, res: Response): Promise<v
         totalLabs,
         totalClassrooms,
         totalBlocks,
-        roomsByBlock: roomsByBlock.map(item => ({
+        roomsByBlock: roomsByBlock.map((item: { academicBlockId: any; _count: { id: any; }; }) => ({
           blockId: item.academicBlockId,
-          roomCount: item._count && typeof item._count === 'object' ? item._count.id || 0 : 0
+          roomCount: typeof item._count === 'object' ? item._count.id || 0 : 0
         }))
       }
     });
@@ -513,7 +598,10 @@ roomRouter.get('/:id/availability', async (req: Request, res: Response): Promise
 
        // Calculate the index in the flattened availability array (6 days × 12 hours)
        const availabilityIndex = dayIndex * 12 + slotIndex;
-      const isAvailable = room.availability.includes(availabilityIndex);
+     const binary = (room as any).availability01 && (room as any).availability01.length > 0
+       ? (room as any).availability01
+       : indicesToBinary((room as any).availability || []);
+      const isAvailable = binary[availabilityIndex] === 0;
 
       res.status(200).json({
         success: true,
@@ -536,10 +624,13 @@ roomRouter.get('/:id/availability', async (req: Request, res: Response): Promise
        for (let slot = 0; slot < 12; slot++) {
          const availabilityIndex = day * 12 + slot;
          const hour = slot + 8; // Convert to 8 AM to 8 PM
+         const binary = (room as any).availability01 && (room as any).availability01.length > 0
+           ? (room as any).availability01
+           : indicesToBinary((room as any).availability || []);
          daySlots.push({
            slot,
            time: `${hour}:00`,
-           isAvailable: room.availability.includes(availabilityIndex),
+           isAvailable: binary[availabilityIndex] === 0,
            availabilityIndex
          });
        }
@@ -593,6 +684,7 @@ roomRouter.get('/available', async (req: Request, res: Response): Promise<void> 
 
      const availabilityIndex = dayIndex * 12 + slotIndex;
 
+    // We keep legacy indices synced, so querying by has is still efficient
     const where: any = {
       isActive: true,
       availability: {

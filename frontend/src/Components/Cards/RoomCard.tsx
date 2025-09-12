@@ -7,13 +7,15 @@ interface RoomCardProps {
   onEdit: (room: Room) => void;
   onDelete: (room: Room) => void;
   onViewDetails: (room: Room) => void;
+  onEditAvailability?: (room: Room) => void;
 }
 
 export const RoomCard: React.FC<RoomCardProps> = ({
   room,
   onEdit,
   onDelete,
-  onViewDetails
+  onViewDetails,
+  onEditAvailability
 }) => {
   const getRoomTypeColor = (isLab: boolean) => {
     return isLab ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800';
@@ -131,7 +133,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({
 
       {/* Actions */}
       <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 rounded-b-lg">
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 mb-2">
           <Button
             variant="secondary"
             onClick={() => onViewDetails(room)}
@@ -155,6 +157,15 @@ export const RoomCard: React.FC<RoomCardProps> = ({
             Delete
           </Button>
         </div>
+        {onEditAvailability && (
+          <Button
+            variant="outline"
+            onClick={() => onEditAvailability(room)}
+            className="w-full"
+          >
+            Edit Availability
+          </Button>
+        )}
         {(room._count?.assignments ?? 0) > 0 && (
           <p className="text-xs text-red-600 mt-2 text-center">
             Cannot delete: Room has {room._count?.assignments ?? 0} assignment(s)

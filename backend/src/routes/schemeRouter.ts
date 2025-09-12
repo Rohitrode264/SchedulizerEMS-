@@ -1,6 +1,5 @@
-import { PrismaClient  } from '@prisma/client'
 import {Router} from 'express';
-const prisma= new PrismaClient();
+import { prisma } from '../lib/prisma';
 import { verifyToken } from '../middleware/auth.middleware';
 
 const schemeRouter=Router();
@@ -27,14 +26,14 @@ schemeRouter.get('/:departmentId', verifyToken, async(req,res)=>{
             },
         });
         console.log('Backend - Found schemes:', scheme.length, 'schemes for department:', req.params.departmentId);
-        console.log('Backend - Scheme details:', scheme.map(s => ({ id: s.id, name: s.name, departmentId: s.departmentId })));
+        console.log('Backend - Scheme details:', scheme.map((s: { id: any; name: any; departmentId: any; }) => ({ id: s.id, name: s.name, departmentId: s.departmentId })));
         
         // Also check all schemes to see if there are any schemes at all
         const allSchemes = await prisma.scheme.findMany({
             select: { id: true, name: true, departmentId: true }
         });
         console.log('Backend - Total schemes in database:', allSchemes.length);
-        console.log('Backend - All schemes:', allSchemes.map(s => ({ id: s.id, name: s.name, departmentId: s.departmentId })));
+        console.log('Backend - All schemes:', allSchemes.map((s: { id: any; name: any; departmentId: any; }) => ({ id: s.id, name: s.name, departmentId: s.departmentId })));
         
         res.status(200).json(scheme);
     } catch (error) {

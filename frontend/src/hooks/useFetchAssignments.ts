@@ -5,9 +5,12 @@ import { API_URL } from '../config/config';
 export type AssignmentType = {
   id: string;
   courseId: string;
-  facultyId: string;
+  facultyId?: string; // Keep for backward compatibility
+  facultyIds?: string[]; // New: array of faculty IDs
   laboratory: string;
-  room: string;
+  room?: string; // Keep for backward compatibility
+  roomIds?: string[]; // New: array of room IDs
+  roomId?: string; // New: single room ID
   credits: number;
   hasLab: boolean;
   semesterId: string;
@@ -20,11 +23,16 @@ export type AssignmentType = {
     credits: number;
     courseType: string;
   };
-  faculty: {
+  faculty?: { // Keep for backward compatibility
     id: string;
     name: string;
     designation: string;
   };
+  faculties?: { // New: array of faculty objects
+    id: string;
+    name: string;
+    designation: string;
+  }[];
 };
 
 export default function useFetchAssignments(semesterId: string) {
@@ -54,6 +62,7 @@ export default function useFetchAssignments(semesterId: string) {
         }
       })
       .then((res) => {
+        console.log('Fetched assignments from backend:', res.data);
         setAssignments(res.data);
       })
       .catch((error) => {

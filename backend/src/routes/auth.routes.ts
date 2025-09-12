@@ -1,6 +1,6 @@
 import express, { Router, Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { generateToken } from '../utils/jwt';
 import { verifyToken } from '../middleware/auth.middleware';
 
@@ -12,7 +12,6 @@ interface AuthRequest extends Request {
 }
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 router.get('/universities', async (req, res) => {
   console.log('Fetching universities');
