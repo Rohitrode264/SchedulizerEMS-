@@ -62,15 +62,50 @@ export const AssignClass = () => {
     
     useEffect(() => {
         if (existingAssignments && existingAssignments.length > 0) {
-            const formattedAssignments: Assignment[] = existingAssignments.map(assignment => ({
-                id: assignment.id, // Keep the ID to track existing assignments
-                courseId: assignment.courseId,
-                facultyIds: assignment.facultyId ? [assignment.facultyId] : [], // Convert single facultyId to array
-                laboratory: assignment.laboratory,
-                roomIds: assignment.room ? [assignment.room] : [], // Convert room string to roomIds array
-                credits: assignment.credits,
-                hasLab: assignment.hasLab,
-            }));
+            console.log('Loading existing assignments:', existingAssignments);
+            const formattedAssignments: Assignment[] = existingAssignments.map(assignment => {
+                console.log('Processing assignment:', assignment);
+                
+                // Handle faculty IDs - support both old and new format
+                let facultyIds: string[] = [];
+                if (assignment.facultyIds && Array.isArray(assignment.facultyIds)) {
+                    facultyIds = assignment.facultyIds;
+                } else if (assignment.facultyId) {
+                    facultyIds = [assignment.facultyId];
+                } else if (assignment.faculties && Array.isArray(assignment.faculties)) {
+                    facultyIds = assignment.faculties.map(f => f.id);
+                }
+                
+                // Handle room IDs - support both old and new format
+                let roomIds: string[] = [];
+                if (assignment.roomIds && Array.isArray(assignment.roomIds)) {
+                    roomIds = assignment.roomIds;
+                } else if (assignment.roomId) {
+                    roomIds = [assignment.roomId];
+                } else if (assignment.room) {
+                    roomIds = [assignment.room];
+                }
+                
+                console.log('Formatted assignment:', {
+                    id: assignment.id,
+                    courseId: assignment.courseId,
+                    facultyIds,
+                    roomIds,
+                    laboratory: assignment.laboratory,
+                    credits: assignment.credits,
+                    hasLab: assignment.hasLab
+                });
+                
+                return {
+                    id: assignment.id,
+                    courseId: assignment.courseId,
+                    facultyIds,
+                    laboratory: assignment.laboratory,
+                    roomIds,
+                    credits: assignment.credits,
+                    hasLab: assignment.hasLab,
+                };
+            });
             setAssignments(formattedAssignments);
             
             // Track existing assignment IDs
@@ -350,6 +385,45 @@ export const AssignClass = () => {
                                                     placeholder="Select rooms (optional)"
                                                     label="Rooms"
                                                 />
+                                                
+                                                {/* Room Assignment Summary */}
+                                                {assignment.roomIds && assignment.roomIds.length > 0 && (
+                                                    <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                                                        <h4 className="text-sm font-semibold text-green-800 mb-2 flex items-center">
+                                                            <Building className="w-4 h-4 mr-1" />
+                                                            Assigned Rooms ({assignment.roomIds.length})
+                                                        </h4>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {assignment.roomIds.map(roomId => {
+                                                                const room = rooms.find(r => r.id === roomId);
+                                                                return room ? (
+                                                                    <span
+                                                                        key={roomId}
+                                                                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                                                                    >
+                                                                        {room.name || room.code} ({room.academicBlock?.name})
+                                                                    </span>
+                                                                ) : (
+                                                                    <span
+                                                                        key={roomId}
+                                                                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
+                                                                    >
+                                                                        Room ID: {roomId}
+                                                                    </span>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                
+                                                {(!assignment.roomIds || assignment.roomIds.length === 0) && (
+                                                    <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                                        <p className="text-sm text-yellow-800">
+                                                            <Building className="w-4 h-4 inline mr-1" />
+                                                            No rooms assigned to this course
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">

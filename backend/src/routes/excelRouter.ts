@@ -1,10 +1,9 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import xlsx from 'xlsx';
-import { PrismaClient } from '@prisma/client';
 import  {verifyToken } from '../middleware/auth.middleware';
-const prisma = new PrismaClient();
-const excelRouter = Router();
+import { prisma } from '../lib/prisma';
+const excelRouter = Router();   
 const upload = multer({ storage: multer.memoryStorage() });
 
 excelRouter.post('/upload-with-scheme',verifyToken, upload.single('file'), async (req: Request, res: Response) => {

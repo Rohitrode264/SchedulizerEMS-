@@ -4,6 +4,8 @@ import { useRooms } from '../hooks/useRooms';
 import { RoomCard } from '../Components/Cards/RoomCard';
 import { RoomForm } from '../Components/Forms/RoomForm';
 import { RoomFilters } from '../Components/RoomFilters';
+import { RoomAvailabilityEditor } from '../Components/RoomAvailabilityEditor';
+import { useRoomAvailability } from '../hooks/useRoomAvailability';
 import Button from '../Components/Button';
 import { Building2, FlaskConical, BookOpen, Building, AlertTriangle, X, PlusSquare } from 'lucide-react';
 import { AcademicBlockForm } from '../Components/Forms/AcademicBlockForm';
@@ -35,7 +37,9 @@ export const RoomManagement: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<Room | null>(null);
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
   const [showBlockForm, setShowBlockForm] = useState(false);
+  const [editingAvailability, setEditingAvailability] = useState<Room | null>(null);
   const { universities } = useUniversities();
+  const { updateRoomAvailability, loading: availabilityLoading } = useRoomAvailability();
 
   useEffect(() => {
     fetchRooms(filters);
@@ -74,6 +78,27 @@ export const RoomManagement: React.FC = () => {
   const handleViewDetails = (room: Room) => {
     // TODO: Implement room details view
     console.log('View details for room:', room);
+  };
+
+  const handleEditAvailability = (room: Room) => {
+    setEditingAvailability(room);
+  };
+
+  const handleSaveAvailability = async (availability01: number[]) => {
+    if (editingAvailability) {
+      try {
+        await updateRoomAvailability(editingAvailability.id, availability01);
+        setEditingAvailability(null);
+        // Refresh rooms to show updated availability
+        fetchRooms(filters);
+      } catch (error) {
+        console.error('Failed to update room availability:', error);
+      }
+    }
+  };
+
+  const handleCancelAvailability = () => {
+    setEditingAvailability(null);
   };
 
   const handleFiltersChange = (newFilters: RoomFiltersType) => {
@@ -409,6 +434,7 @@ export const RoomManagement: React.FC = () => {
                   onEdit={handleEditRoom}
                   onDelete={() => setShowDeleteConfirm(room)}
                   onViewDetails={handleViewDetails}
+                  onEditAvailability={handleEditAvailability}
                 />
               ))}
             </div>
@@ -467,6 +493,18 @@ export const RoomManagement: React.FC = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Room Availability Editor Modal */}
+        {editingAvailability && (
+          <RoomAvailabilityEditor
+            roomId={editingAvailability.id}
+            roomCode={editingAvailability.code}
+            initialAvailability={editingAvailability.availability01}
+            onSave={handleSaveAvailability}
+            onCancel={handleCancelAvailability}
+            loading={availabilityLoading}
+          />
         )}
       </div>
     </div>

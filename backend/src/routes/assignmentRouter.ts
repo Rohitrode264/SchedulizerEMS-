@@ -40,7 +40,8 @@ assignmentRouter.get('/:semesterId', verifyToken, async (req: Request, res: Resp
             ...a,
             faculty: a.faculties, // Return all faculties
             facultyIds: a.faculties.map((f: any) => f.id), // Return faculty IDs array
-            roomIds: a.roomIds || [], // Return room IDs array
+            roomIds: a.roomIds || [], // Return room IDs array (always present)
+            roomId: a.roomId || null, // Return room ID (always present)
             room: a.room ? a.room.name ?? '' : ''
         }));
 
@@ -56,6 +57,29 @@ assignmentRouter.post('/:semesterId', verifyToken, async (req: Request, res: Res
     try {
         const { semesterId } = req.params;
         const { courseId, facultyIds, laboratory, roomIds, roomId, credits, hasLab } = req.body;
+
+        // Debug logging
+        console.log('Assignment creation request body:', req.body);
+        console.log('roomIds received:', roomIds);
+        console.log('roomId received:', roomId);
+
+        // Sanitize room fields - remove zeros, empty strings, and null values
+        const sanitizedRoomIds = Array.isArray(roomIds) 
+            ? roomIds.filter(id => id && id !== '0' && id !== '' && id !== null && id !== undefined)
+            : [];
+        
+        // Set roomId to first room from roomIds if roomId is not explicitly provided
+        let sanitizedRoomId = (roomId && roomId !== '0' && roomId !== '' && roomId !== null && roomId !== undefined) 
+            ? roomId 
+            : null;
+        
+        // If no explicit roomId but we have roomIds, use the first one for backward compatibility
+        if (!sanitizedRoomId && sanitizedRoomIds.length > 0) {
+            sanitizedRoomId = sanitizedRoomIds[0];
+        }
+
+        console.log('sanitizedRoomIds:', sanitizedRoomIds);
+        console.log('sanitizedRoomId:', sanitizedRoomId);
 
 
         if (!courseId || !facultyIds || !Array.isArray(facultyIds) || facultyIds.length === 0) {
@@ -114,8 +138,8 @@ assignmentRouter.post('/:semesterId', verifyToken, async (req: Request, res: Res
             data: {
                 courseId,
                 semesterId,
-                roomIds: roomIds || [], // Store multiple room IDs
-                roomId: roomId || null, // Keep for backward compatibility
+                roomIds: sanitizedRoomIds, // Store sanitized room IDs
+                roomId: sanitizedRoomId, // Store sanitized room ID
                 faculties: {
                     connect: facultyIds.map(id => ({ id }))
                 }
@@ -159,11 +183,11 @@ assignmentRouter.post('/:semesterId', verifyToken, async (req: Request, res: Res
 
         const responseBody: any = {
             ...created,
-            faculty: created.faculties, // Return all faculties
-            facultyIds: created.faculties.map(f => f.id), // Return faculty IDs array
+            faculty: created.faculties, 
+            facultyIds: created.faculties.map((f: { id: any; }) => f.id), 
             laboratory: laboratory || '',
-            roomIds: roomIds || [], // Return room IDs array
-            roomId: roomId || null, // Keep for backward compatibility
+            roomIds: sanitizedRoomIds, 
+            roomId: sanitizedRoomId, 
             credits: credits || 0,
             hasLab: !!hasLab
         };
@@ -180,6 +204,21 @@ assignmentRouter.put('/:assignmentId', verifyToken, async (req: Request, res: Re
     try {
         const { assignmentId } = req.params;
         const { courseId, facultyIds, laboratory, roomIds, roomId, credits, hasLab } = req.body;
+
+        // Sanitize room fields - remove zeros, empty strings, and null values
+        const sanitizedRoomIds = Array.isArray(roomIds) 
+            ? roomIds.filter(id => id && id !== '0' && id !== '' && id !== null && id !== undefined)
+            : [];
+        
+        // Set roomId to first room from roomIds if roomId is not explicitly provided
+        let sanitizedRoomId = (roomId && roomId !== '0' && roomId !== '' && roomId !== null && roomId !== undefined) 
+            ? roomId 
+            : null;
+        
+        // If no explicit roomId but we have roomIds, use the first one for backward compatibility
+        if (!sanitizedRoomId && sanitizedRoomIds.length > 0) {
+            sanitizedRoomId = sanitizedRoomIds[0];
+        }
 
         
         if (!courseId || !facultyIds || !Array.isArray(facultyIds) || facultyIds.length === 0) {
@@ -222,8 +261,8 @@ assignmentRouter.put('/:assignmentId', verifyToken, async (req: Request, res: Re
             where: { id: assignmentId },
             data: {
                 courseId,
-                roomIds: roomIds || [], // Store multiple room IDs
-                roomId: roomId || null, // Keep for backward compatibility
+                roomIds: sanitizedRoomIds, // Store sanitized room IDs
+                roomId: sanitizedRoomId, // Store sanitized room ID
                 faculties: {
                     set: facultyIds.map(id => ({ id }))
                 }
@@ -252,10 +291,10 @@ assignmentRouter.put('/:assignmentId', verifyToken, async (req: Request, res: Re
         const responseBody: any = {
             ...updated,
             faculty: updated.faculties, // Return all faculties
-            facultyIds: updated.faculties.map(f => f.id), // Return faculty IDs array
+            facultyIds: updated.faculties.map((f: { id: any; }) => f.id), // Return faculty IDs array
             laboratory: laboratory || '',
-            roomIds: roomIds || [], // Return room IDs array
-            roomId: roomId || null, // Keep for backward compatibility
+            roomIds: sanitizedRoomIds, // Return sanitized room IDs array
+            roomId: sanitizedRoomId, // Return sanitized room ID
             credits: credits || 0,
             hasLab: !!hasLab
         };
@@ -326,7 +365,30 @@ assignmentRouter.post('/:semesterId/bulk', verifyToken, async (req: Request, res
         });
 
         for (const assignmentData of assignments) {
-            const { courseId, facultyIds, laboratory, roomId, credits, hasLab } = assignmentData;
+            const { courseId, facultyIds, laboratory, roomIds, roomId, credits, hasLab } = assignmentData;
+
+            // Debug logging
+            console.log('Bulk assignment data:', assignmentData);
+            console.log('roomIds in bulk:', roomIds);
+            console.log('roomId in bulk:', roomId);
+
+            // Sanitize room fields - remove zeros, empty strings, and null values
+            const sanitizedRoomIds = Array.isArray(roomIds) 
+                ? roomIds.filter(id => id && id !== '0' && id !== '' && id !== null && id !== undefined)
+                : [];
+            
+            // Set roomId to first room from roomIds if roomId is not explicitly provided
+            let sanitizedRoomId = (roomId && roomId !== '0' && roomId !== '' && roomId !== null && roomId !== undefined) 
+                ? roomId 
+                : null;
+            
+            // If no explicit roomId but we have roomIds, use the first one for backward compatibility
+            if (!sanitizedRoomId && sanitizedRoomIds.length > 0) {
+                sanitizedRoomId = sanitizedRoomIds[0];
+            }
+
+            console.log('sanitizedRoomIds in bulk:', sanitizedRoomIds);
+            console.log('sanitizedRoomId in bulk:', sanitizedRoomId);
 
             
             if (!courseId || !facultyIds || !Array.isArray(facultyIds) || facultyIds.length === 0) {
@@ -372,7 +434,8 @@ assignmentRouter.post('/:semesterId/bulk', verifyToken, async (req: Request, res
                 data: {
                     courseId,
                     semesterId,
-                    roomId: roomId || null, 
+                    roomIds: sanitizedRoomIds, // Store sanitized room IDs
+                    roomId: sanitizedRoomId, // Store sanitized room ID
                     faculties: {
                         connect: facultyIds.map(id => ({ id }))
                     }
@@ -417,9 +480,10 @@ assignmentRouter.post('/:semesterId/bulk', verifyToken, async (req: Request, res
             const responseBody: any = {
                 ...created,
                 faculty: created.faculties, // Return all faculties
-                facultyId: created.faculties.map(f => f.id), // Return faculty IDs array
+                facultyIds: created.faculties.map((f: { id: string }) => f.id), // Return faculty IDs array
                 laboratory: laboratory || '',
-                roomId: roomId || null,
+                roomIds: sanitizedRoomIds, // Return sanitized room IDs array
+                roomId: sanitizedRoomId, // Return sanitized room ID
                 credits: credits || 0,
                 hasLab: !!hasLab
             };

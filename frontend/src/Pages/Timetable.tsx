@@ -244,6 +244,19 @@ const Timetable = () => {
                       {assignment.section && (
                         <p className="text-sm text-gray-600">Section: {assignment.section.name}</p>
                       )}
+                      {assignment.room && (
+                        <p className="text-sm text-gray-600">
+                          Room: {assignment.room.code} ({assignment.room.academicBlock?.name || 'Unknown Block'})
+                        </p>
+                      )}
+                      {assignment.roomIds && assignment.roomIds.length > 0 && !assignment.room && (
+                        <p className="text-sm text-gray-600">
+                          Rooms: {assignment.roomIds.join(', ')}
+                        </p>
+                      )}
+                      {!assignment.room && (!assignment.roomIds || assignment.roomIds.length === 0) && (
+                        <p className="text-sm text-gray-500">No room assigned</p>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -1,6 +1,5 @@
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '../lib/prisma';
 import { Router } from 'express';
-const prisma = new PrismaClient();
 import { verifyToken } from '../middleware/auth.middleware';
 
 const sectionsRouter = Router();

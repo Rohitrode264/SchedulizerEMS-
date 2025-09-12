@@ -170,7 +170,8 @@ model Room {
   isActive        Boolean       @default(true)
   academicBlockId String
   departmentId    String?
-  availability    Int[]        // 6 days × 12 hours (8 AM to 8 PM, flattened array)
+  availability    Int[]        // Indices of available slots (legacy, kept for compatibility)
+  availability01  Int[]        // 0 = free, 1 = blocked (length 72: 6 days × 12 hours)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   

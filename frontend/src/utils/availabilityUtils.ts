@@ -19,6 +19,32 @@ export interface AvailabilityMatrix {
   availabilityMatrix: DayAvailability[];
 }
 
+// Convert availability indices (stored in DB as available slots) to a
+// binary array of length 72 where 0 = free, 1 = blocked
+export const indicesToBinaryAvailability = (availabilityIndices: number[], totalDays = 6, slotsPerDay = 12): number[] => {
+  const totalSlots = totalDays * slotsPerDay;
+  const availableSet = new Set(availabilityIndices);
+  const binary: number[] = new Array(totalSlots);
+  for (let i = 0; i < totalSlots; i++) {
+    // If the index exists in DB list, it means available → binary 0 (free)
+    binary[i] = availableSet.has(i) ? 0 : 1; // 1 means blocked
+  }
+  return binary;
+};
+
+// Convert binary array (0 = free, 1 = blocked) back to availability indices
+// that match current backend storage (indices list of available slots)
+export const binaryToIndicesAvailability = (binaryAvailability: number[], totalDays = 6, slotsPerDay = 12): number[] => {
+  const indices: number[] = [];
+  const totalSlots = totalDays * slotsPerDay;
+  for (let i = 0; i < Math.min(totalSlots, binaryAvailability.length); i++) {
+    if (binaryAvailability[i] === 0) {
+      indices.push(i);
+    }
+  }
+  return indices;
+};
+
 // Convert day and hour to availability index (8 AM to 8 PM = 12 hours)
 export const getAvailabilityIndex = (day: number, hour: number): number => {
   // hour should be 8-19 (8 AM to 8 PM), convert to 0-11
@@ -71,11 +97,23 @@ export const createAvailabilityMatrix = (roomId: string, roomCode: string, avail
     for (let slotIndex = 0; slotIndex < 12; slotIndex++) {
       const hour = slotIndex + 8; // 8 AM to 8 PM
       const availabilityIndex = day * 12 + slotIndex;
+      // Support both representations seamlessly:
+      // - If array is long (>= 40/72) and contains only 0/1, treat 0 as free
+      // - Otherwise treat it as indices-of-available (current backend storage)
+      let isAvailable: boolean;
+      if (availability.length >= 40 && availability.some(v => v === 0 || v === 1)) {
+        // Binary form
+        const value = availability[availabilityIndex] ?? 1; // default blocked
+        isAvailable = value === 0;
+      } else {
+        // Indices form (includes = available)
+        isAvailable = availability.includes(availabilityIndex);
+      }
       daySlots.push({
         day,
         hour,
         availabilityIndex,
-        isAvailable: availability.includes(availabilityIndex)
+        isAvailable
       });
     }
     availabilityMatrix.push({

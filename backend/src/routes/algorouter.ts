@@ -189,6 +189,7 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
     const processedAssignments = schedule.assignments.map(assignment => ({
       ...assignment,
       roomIds: assignment.roomIds || (assignment.roomId ? [assignment.roomId] : []),
+      roomId: assignment.roomId || null, // Always include roomId field
       facultyIds: assignment.faculties ? assignment.faculties.map(f => f.id) : [],
       // Ensure sectionId is present if assignment has a section
       sectionId: assignment.sectionId || null
@@ -198,6 +199,7 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
     const processedRooms = rooms.map(room => {
       const expectedSize = schedule.days * schedule.slots;
       let availability = room.availability || [];
+      let availability01 = (room as any).availability01 || [];
       
       // Check if room has any assignments
       const hasAssignments = room.assignments && room.assignments.length > 0;
@@ -208,9 +210,15 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
         availability = new Array(expectedSize).fill(0);
       }
       
+      // Ensure availability01 is also properly sized (0=free, 1=blocked)
+      if (!availability01 || availability01.length !== expectedSize) {
+        availability01 = new Array(expectedSize).fill(0); // 0 = free by default
+      }
+      
       return {
         ...room,
-        availability: availability
+        availability: availability,
+        availability01: availability01
       };
     });
 
@@ -375,6 +383,7 @@ algoRouter.get('/rooms/availability/:departmentId', async (req, res) => {
       // Default to 5 days × 8 slots = 40 slots if no schedule context
       const expectedSize = 40; // 5 days × 8 slots
       let availability = room.availability || [];
+      let availability01 = (room as any).availability01 || [];
       
       // Check if room has any assignments
       const hasAssignments = room.assignments && room.assignments.length > 0;
@@ -385,6 +394,11 @@ algoRouter.get('/rooms/availability/:departmentId', async (req, res) => {
         availability = new Array(expectedSize).fill(0);
       }
       
+      // Ensure availability01 is also properly sized (0=free, 1=blocked)
+      if (!availability01 || availability01.length !== expectedSize) {
+        availability01 = new Array(expectedSize).fill(0); // 0 = free by default
+      }
+      
       return {
         id: room.id,
         code: room.code,
@@ -392,6 +406,7 @@ algoRouter.get('/rooms/availability/:departmentId', async (req, res) => {
         isLab: room.isLab,
         academicBlock: room.academicBlock,
         availability: availability,
+        availability01: availability01,
         currentAssignments: room.assignments.length,
         assignments: room.assignments
       };
