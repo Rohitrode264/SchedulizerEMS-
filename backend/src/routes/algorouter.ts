@@ -37,8 +37,8 @@ algoRouter.get('/debug/assignments/:semesterId', async (req, res) => {
       totalAssignments: assignments.length,
       assignments: assignments,
       schedule: schedule,
-      assignmentsWithScheduleId: assignments.filter(a => a.scheduleId),
-      assignmentsWithoutScheduleId: assignments.filter(a => !a.scheduleId)
+      assignmentsWithScheduleId: assignments.filter((a: { scheduleId: any; }) => a.scheduleId),
+      assignmentsWithoutScheduleId: assignments.filter((a: { scheduleId: any; }) => !a.scheduleId)
     });
   } catch (error) {
     console.error('Error debugging assignments:', error);
@@ -104,7 +104,7 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
     }
 
     // Get all semester IDs from this schedule
-    const semesterIds = schedule.scheduleSemesters.map(ss => ss.semester.id);
+    const semesterIds = schedule.scheduleSemesters.map((ss: any) => ss.semester.id);
 
     // Get additional data that might not be directly linked
     const additionalData = await prisma.$transaction([
@@ -186,17 +186,28 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
     const [sections, rooms, faculty, academicBlocks, schemes] = additionalData;
 
     // Process assignments to include roomIds array, facultyIds array, and fix sectionId
-    const processedAssignments = schedule.assignments.map(assignment => ({
-      ...assignment,
-      roomIds: assignment.roomIds || (assignment.roomId ? [assignment.roomId] : []),
-      roomId: assignment.roomId || null, // Always include roomId field
-      facultyIds: assignment.faculties ? assignment.faculties.map(f => f.id) : [],
-      // Ensure sectionId is present if assignment has a section
-      sectionId: assignment.sectionId || null
-    }));
+    const processedAssignments = schedule.assignments.map((assignment: any) => {
+      // Get all room IDs for this assignment
+      const allRoomIds = assignment.roomIds || (assignment.roomId ? [assignment.roomId] : []);
+      
+      // Find all room details for the roomIds array
+      const assignedRooms = allRoomIds.map((roomId: string) => {
+        return rooms.find((room: any) => room.id === roomId);
+      }).filter(Boolean); // Remove any undefined rooms
+      
+      return {
+        ...assignment,
+        roomIds: allRoomIds,
+        roomId: assignment.roomId || null, // Always include roomId field
+        assignedRooms: assignedRooms, // Full room details for all assigned rooms
+        facultyIds: assignment.faculties ? assignment.faculties.map((f: any) => f.id) : [],
+        // Ensure sectionId is present if assignment has a section
+        sectionId: assignment.sectionId || null
+      };
+    });
 
     // Process rooms to ensure availability array is consistent (days × slots)
-    const processedRooms = rooms.map(room => {
+    const processedRooms = rooms.map((room: any) => {
       const expectedSize = schedule.days * schedule.slots;
       let availability = room.availability || [];
       let availability01 = (room as any).availability01 || [];
@@ -223,7 +234,7 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
     });
 
     // Process faculty - keep their actual availability, don't use zeros
-    const processedFaculty = faculty.map(fac => {
+    const processedFaculty = faculty.map((fac: any) => {
       const expectedSize = schedule.days * schedule.slots;
       let availability = fac.availability || [];
       
@@ -249,7 +260,7 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
         semesterIds: semesterIds
       },
       department: schedule.department,
-      semesters: schedule.scheduleSemesters.map(ss => ({
+      semesters: schedule.scheduleSemesters.map((ss: any) => ({
         id: ss.semester.id,
         number: ss.semester.number,
         startDate: ss.semester.startDate,
@@ -307,7 +318,7 @@ algoRouter.post('/schedule/:scheduleId/link-assignments', verifyToken, async (re
       return;
     }
     
-    const semesterIds = schedule.scheduleSemesters.map(ss => ss.semesterId);
+    const semesterIds = schedule.scheduleSemesters.map((ss: any) => ss.semesterId);
     
     // Link all assignments of these semesters to this schedule
     const result = await prisma.assignment.updateMany({
@@ -379,7 +390,7 @@ algoRouter.get('/rooms/availability/:departmentId', async (req, res) => {
     });
 
     // Calculate availability matrix for each room
-    const roomsWithAvailability = rooms.map(room => {
+    const roomsWithAvailability = rooms.map((room: any) => {
       // Default to 5 days × 8 slots = 40 slots if no schedule context
       const expectedSize = 40; // 5 days × 8 slots
       let availability = room.availability || [];
