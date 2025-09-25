@@ -10,6 +10,7 @@ import sectionsRouter from './routes/sectionsRouter';
 import scheduleRouter from './routes/scheduleRouter';
 import algoRouter from './routes/algorouter';
 import roomRouter from './routes/roomRouter';
+import morgan from 'morgan';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ const app = express();
 app.use(express.json()); 
 
 app.use(cors());
+app.use(morgan('dev'))
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -32,6 +34,7 @@ app.use('/api/v1/sections', sectionsRouter)
 app.use('/api/v1/schedule', scheduleRouter)
 app.use('/api/v1/algo', algoRouter)
 app.use('/api/v1/rooms', roomRouter)
+
 
 const PORT = process.env.PORT || 3000;
 

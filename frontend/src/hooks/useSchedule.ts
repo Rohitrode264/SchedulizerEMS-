@@ -58,6 +58,72 @@ export const useSchedule = (departmentId: string) => {
     }
   };
 
+  // Get timetable entries for a schedule
+  const getTimetableEntries = async (scheduleId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+
+      const response = await axios.get(`${API_URL}/v1/algo/schedule/${scheduleId}/timetable`, {
+        headers: {
+          'Authorization': token.replace(/['"]+/g, '')
+        }
+      });
+      setError(null);
+      return response.data as { scheduleId: string; count: number; entries: any[] };
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Failed to fetch timetable');
+      console.error('Error fetching timetable:', err);
+      throw err;
+    }
+  };
+
+  // Delete timetable for a schedule
+  const deleteTimetable = async (scheduleId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+
+      const response = await axios.delete(`${API_URL}/v1/algo/schedule/${scheduleId}/timetable`, {
+        headers: {
+          'Authorization': token.replace(/['"]+/g, '')
+        }
+      });
+      setError(null);
+      return response.data;
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Failed to delete timetable');
+      console.error('Error deleting timetable:', err);
+      throw err;
+    }
+  };
+
+  // Generate timetable (server will also wipe previous safely)
+  const generateTimetable = async (scheduleId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+
+      const response = await axios.get(`${API_URL}/v1/algo/schedule/all-data/${scheduleId}`, {
+        headers: {
+          'Authorization': token.replace(/['"]+/g, '')
+        }
+      });
+      setError(null);
+      return response.data;
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Failed to generate timetable');
+      console.error('Error generating timetable:', err);
+      throw err;
+    }
+  };
+
   // Create a new schedule
   const createSchedule = async (scheduleData: CreateScheduleData) => {
     try {
@@ -150,6 +216,9 @@ export const useSchedule = (departmentId: string) => {
     createSchedule,
     deleteSchedule,
     getScheduleData,
+    getTimetableEntries,
+    deleteTimetable,
+    generateTimetable,
     linkAssignments,
     refetch: fetchSchedules
   };

@@ -1,55 +1,122 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../config/config';
 import Button from '../Components/Button';
-import { ArrowLeft, CalendarDays, Users, Clock } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Clock, LayoutGrid } from 'lucide-react';
 
 const Timetable = () => {
   const { scheduleId, departmentId } = useParams();
   const navigate = useNavigate();
-  const [scheduleData, setScheduleData] = useState<any>(null);
+  const [timetableData, setTimetableData] = useState<{ scheduleId: string; count: number; entries: any[] } | null>(null);
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Derive values from data (must be declared before any early returns)
+  const entries = timetableData?.entries || [];
+  const computedDays = useMemo(() => (
+    entries.length ? Math.max(...entries.map((e: any) => e.day || 0)) + 1 : 5
+  ), [entries]);
+  const computedSlots = useMemo(() => (
+    entries.length ? Math.max(...entries.map((e: any) => e.slot || 0)) + 1 : 8
+  ), [entries]);
+  const sections = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; batch?: string }>();
+    for (const e of entries) {
+      if (e.section) map.set(e.sectionId, { id: e.sectionId, name: e.section.name, batch: e.section.batchYearRange });
+      else if (e.sectionId) map.set(e.sectionId, { id: e.sectionId, name: e.sectionId.slice(0, 6) });
+    }
+    return Array.from(map.values());
+  }, [entries]);
+  const activeEntries = useMemo(() => (
+    entries.filter((e: any) => !activeSectionId || e.sectionId === activeSectionId)
+  ), [entries, activeSectionId]);
+  const cellMap = useMemo(() => {
+    const map = new Map<string, any[]>();
+    for (const e of activeEntries) {
+      const key = `${e.day}-${e.slot}`;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(e);
+    }
+    return map;
+  }, [activeEntries]);
+
+  // Generate human-readable times for slot headers (default 9:00 start, 60m duration)
+  const slotTimes = useMemo(() => {
+    const times: string[] = [];
+    const startHour = 9;
+    const slotMinutes = 60;
+    for (let i = 0; i < computedSlots; i++) {
+      const start = new Date(2000, 0, 1, startHour, 0, 0);
+      start.setMinutes(start.getMinutes() + i * slotMinutes);
+      const end = new Date(start);
+      end.setMinutes(end.getMinutes() + slotMinutes);
+      const fmt = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+      times.push(`${fmt(start)}–${fmt(end)}`);
+    }
+    return times;
+  }, [computedSlots]);
+
+  // Section color coding
+  const palette = ['#6366f1', '#059669', '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+  const sectionColor = useMemo(() => {
+    const map = new Map<string, string>();
+    sections.forEach((s, idx) => {
+      map.set(s.id, palette[idx % palette.length]);
+    });
+    return map;
+  }, [sections]);
+
+  // Detect practicals (2 consecutive slots)
+  const isPractical = (e: any) => {
+    const code: string = e.course?.code || '';
+    const credits: number | undefined = e.course?.credits;
+    return code.includes('PR') || credits === 1;
+  };
+  const hasNextSame = (e: any) => entries.some((x: any) => x.day === e.day && x.slot === e.slot + 1 && x.sectionId === e.sectionId && x.courseId === e.courseId);
+  const continuationKeys = useMemo(() => {
+    const set = new Set<string>();
+    for (const e of entries) {
+      if (isPractical(e) && hasNextSame(e)) {
+        set.add(`${e.day}-${e.slot + 1}-${e.sectionId}-${e.courseId}`);
+      }
+    }
+    return set;
+  }, [entries]);
+
   useEffect(() => {
-    const fetchScheduleData = async () => {
+    const fetchTimetable = async () => {
       if (scheduleId) {
         try {
           setIsLoading(true);
           setError(null);
-          console.log('Fetching schedule data for:', scheduleId);
-          console.log('Setting isLoading to true');
           
           const token = localStorage.getItem('token');
           if (!token) {
             throw new Error('Authentication token not found');
           }
 
-          const response = await axios.get(`${API_URL}/v1/algo/schedule/all-data/${scheduleId}`, {
+          const response = await axios.get(`${API_URL}/v1/algo/schedule/${scheduleId}/timetable`, {
             headers: {
               'Authorization': token.replace(/['"]+/g, '')
             }
           });
           
-          console.log('Received schedule data:', response.data);
-          console.log('Setting scheduleData and isLoading to false');
-          setScheduleData(response.data);
+          setTimetableData(response.data);
+          // Default to all sections visible
+          setActiveSectionId(null);
         } catch (error: any) {
-          console.error('Error fetching schedule data:', error);
-          setError(error?.response?.data?.message || 'Failed to fetch schedule data');
+          console.error('Error fetching timetable:', error);
+          setError(error?.response?.data?.message || 'Failed to fetch timetable');
         } finally {
-          console.log('Finally block: Setting isLoading to false');
           setIsLoading(false);
         }
       }
     };
 
-    fetchScheduleData();
+    fetchTimetable();
   }, [scheduleId]);
-
-  // Debug: Log current state
-  console.log('Current state:', { isLoading, scheduleData: !!scheduleData, error });
 
   if (isLoading) {
     return (
@@ -79,7 +146,7 @@ const Timetable = () => {
     );
   }
 
-  if (!scheduleData) {
+  if (!timetableData) {
     return (
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-7xl mx-auto">
@@ -91,192 +158,120 @@ const Timetable = () => {
     );
   }
 
-  // Simple data access without destructuring
-  const schedule = scheduleData.schedule;
-  const assignments = scheduleData.assignments || [];
-  const summary = scheduleData.summary || {};
-
-  console.log('Rendering with:', { schedule, assignments, summary });
-
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Button
-                variant="outline"
                 onClick={() => navigate(`/department/${departmentId}/schedules`)}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white hover:opacity-90"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Schedules
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {schedule ? schedule.name : 'Schedule'}
+                <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <LayoutGrid className="w-5 h-5 text-indigo-600" /> Timetable
                 </h1>
-                <p className="text-gray-600">Timetable View</p>
+                <p className="text-gray-600">Visualized by days and slots</p>
               </div>
             </div>
             <div className="flex items-center space-x-4 text-sm text-gray-600">
               <div className="flex items-center space-x-2">
                 <CalendarDays className="w-4 h-4" />
-                <span>{schedule ? schedule.days : 0} days</span>
+                <span>{computedDays} days</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Clock className="w-4 h-4" />
-                <span>{schedule ? schedule.slots : 0} slots</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Users className="w-4 h-4" />
-                <span>{summary.totalAssignments || 0} assignments</span>
+                <span>{computedSlots} slots</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Data Debug Section */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-          <h3 className="font-medium text-yellow-800 mb-2">Debug Info:</h3>
-          <div className="text-sm text-yellow-700">
-            <p>Schedule ID: {scheduleId}</p>
-            <p>Assignments Count: {assignments.length}</p>
-            <p>Summary: {JSON.stringify(summary)}</p>
-          </div>
-        </div>
-
-        {/* Action Section */}
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-medium text-green-800 mb-2">Ready for AI Timetable Generation</h3>
-              <p className="text-sm text-green-700">
-                You have {assignments.length} courses assigned. Add more courses or generate the timetable.
-              </p>
-            </div>
-            <div className="flex space-x-3">
-              <Button
-                onClick={() => {
-                  // Navigate to assign-class with the first semester if available
-                  if (schedule.semesterIds && schedule.semesterIds.length > 0) {
-                    navigate(`/department/${departmentId}/assign-class/${schedule.semesterIds[0]}`);
-                  } else {
-                    navigate(`/department/${departmentId}/classes`);
-                  }
-                }}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
-              >
-                <CalendarDays className="w-4 h-4" />
-                Assign More Courses
-              </Button>
-              <Button
-                variant="outline"
-                className="border-green-600 text-green-600 hover:bg-green-50 px-4 py-2 rounded-lg"
-              >
-                Generate Timetable
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Timetable Grid */}
-        {schedule && (
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Timetable Grid</h2>
-            <div className="grid grid-cols-7 gap-2">
-              {/* Header Row */}
-              <div className="p-3 bg-gray-100 font-medium text-center text-sm">Time/Day</div>
-              {Array.from({ length: schedule.days || 0 }, (_, i) => (
-                <div key={i} className="p-3 bg-gray-100 font-medium text-center text-sm">
-                  Day {i + 1}
-                </div>
-              ))}
-              
-              {/* Time Slots */}
-              {Array.from({ length: schedule.slots || 0 }, (_, slotIndex) => (
-                <React.Fragment key={slotIndex}>
-                  <div className="p-3 bg-gray-50 text-center text-sm font-medium">
-                    Slot {slotIndex + 1}
-                  </div>
-                  {Array.from({ length: schedule.days || 0 }, (_, dayIndex) => (
-                    <div key={dayIndex} className="p-3 border border-gray-200 min-h-[80px] bg-gray-50">
-                      <div className="text-xs text-gray-500 text-center">
-                        Available for assignment
-                      </div>
-                    </div>
-                  ))}
-                </React.Fragment>
-              ))}
-            </div>
+        {/* Section Tabs */}
+        {sections.length > 0 && (
+          <div className="mb-6 flex flex-wrap gap-3 items-center">
+            <button
+              onClick={() => setActiveSectionId(null)}
+              className={`px-4 py-2 rounded-full text-sm font-medium border ${activeSectionId === null ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`}
+            >
+              All Sections
+            </button>
+            {sections.map((s) => (
+              <div key={s.id} className="flex items-center gap-2">
+                <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: sectionColor.get(s.id) }}></span>
+                <button
+                  onClick={() => setActiveSectionId(s.id)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium border ${activeSectionId === s.id ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`}
+                >
+                  Section {s.name}{s.batch ? ` • ${s.batch}` : ''}
+                </button>
+              </div>
+            ))}
           </div>
         )}
 
-        {/* Assignments Summary */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Course Assignments ({assignments.length})
-          </h2>
-          {assignments.length > 0 ? (
-            <div className="space-y-4">
-              {assignments.map((assignment: any, index: number) => (
-                <div key={assignment.id || index} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium text-gray-900">
-                        {assignment.course ? assignment.course.name : 'Unknown Course'}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        Code: {assignment.course ? assignment.course.code : 'N/A'}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Credits: {assignment.course ? assignment.course.credits : 'N/A'}
-                      </p>
+        {/* Timetable Grid (Columns = Slots/Time, Rows = Days) */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Timetable</h2>
+          <div className={`grid gap-2`} style={{ gridTemplateColumns: `repeat(${computedSlots + 1}, minmax(0, 1fr))` }}>
+            {/* Header Row */}
+            <div className="p-3 bg-gray-100 font-medium text-center text-sm rounded-lg">Day/Time</div>
+            {slotTimes.map((label, idx) => (
+              <div key={idx} className="p-3 bg-gray-100 font-medium text-center text-sm rounded-lg">{label}</div>
+            ))}
+
+            {/* Days as rows */}
+            {Array.from({ length: computedDays }, (_, dayIndex) => (
+              <React.Fragment key={dayIndex}>
+                <div className="p-3 bg-gray-50 text-center text-sm font-medium rounded-lg">Day {dayIndex + 1}</div>
+                {Array.from({ length: computedSlots }, (_, slotIndex) => {
+                  const key = `${dayIndex}-${slotIndex}`;
+                  const cellEntries = cellMap.get(key) || [];
+                  return (
+                    <div key={slotIndex} className="p-2 border border-gray-100 min-h-[92px] bg-white rounded-lg">
+                      {cellEntries.length === 0 ? (
+                        <div className="h-full flex items-center justify-center text-xs text-gray-400">—</div>
+                      ) : (
+                        <div className="space-y-2">
+                          {cellEntries.map((e, idx) => {
+                            // Merge practicals into a single box spanning 2 slots (visual only)
+                            const merge = isPractical(e) && hasNextSame(e) && !continuationKeys.has(`${e.day}-${e.slot}-${e.sectionId}-${e.courseId}`);
+                            const bg = sectionColor.get(e.sectionId) || '#6366f1';
+                            return (
+                              <div key={idx} className="rounded-lg p-2 text-xs text-white" style={{ backgroundColor: bg }}>
+                                <div className="flex items-center justify-between">
+                                  <div className="font-semibold truncate">{e.course?.name || e.courseId}</div>
+                                  <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-white/20">
+                                    {isPractical(e) ? 'Practical' : 'Theory'}{merge ? ' ×2' : ''}
+                                  </span>
+                                </div>
+                                <div className="opacity-90 truncate">{(e.roomCodes?.length || e.roomIds?.length) ? `Room: ${(e.roomCodes || e.roomIds).join(', ')}` : 'Room: —'}</div>
+                                <div className="opacity-90 truncate">{(e.facultyNames?.length || e.facultyIds?.length) ? `Faculty: ${(e.facultyNames || e.facultyIds).join(', ')}` : 'Faculty: —'}</div>
+                                <div className="opacity-90 truncate text-[10px]">{e.section?.fullName ? `Section ${e.section.name} • ${e.section.fullName}` : `Section ${e.section?.name || e.sectionId.slice(0,6)}`}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-600">
-                        Faculty: {assignment.faculties && assignment.faculties.length > 0 
-                          ? assignment.faculties.map((f: any) => f.name).join(', ')
-                          : 'No faculty assigned'
-                        }
-                      </p>
-                      {assignment.section && (
-                        <p className="text-sm text-gray-600">Section: {assignment.section.name}</p>
-                      )}
-                      {assignment.room && (
-                        <p className="text-sm text-gray-600">
-                          Room: {assignment.room.code} ({assignment.room.academicBlock?.name || 'Unknown Block'})
-                        </p>
-                      )}
-                      {assignment.roomIds && assignment.roomIds.length > 0 && !assignment.room && (
-                        <p className="text-sm text-gray-600">
-                          Rooms: {assignment.roomIds.join(', ')}
-                        </p>
-                      )}
-                      {!assignment.room && (!assignment.roomIds || assignment.roomIds.length === 0) && (
-                        <p className="text-sm text-gray-500">No room assigned</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">No Assignments Found</p>
-              <p className="text-sm text-gray-400 mb-4">
-                This schedule doesn't have any course assignments yet.
-              </p>
-              <Button
-                onClick={() => navigate(`/department/${departmentId}/schedules`)}
-                className="flex items-center space-x-2"
-              >
-                <CalendarDays className="w-4 h-4" />
-                Back to Schedules
-              </Button>
-            </div>
-          )}
+                  );
+                })}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-600">Schedule ID: {scheduleId}</div>
+            <Button onClick={() => navigate(`/department/${departmentId}/schedules`)} className="bg-indigo-600 text-white hover:opacity-90">Back to Schedules</Button>
+          </div>
         </div>
       </div>
     </div>

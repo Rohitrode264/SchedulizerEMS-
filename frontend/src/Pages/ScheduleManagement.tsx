@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { HiPlus, HiCalendar, HiArrowLeft } from 'react-icons/hi';
 import toast from 'react-hot-toast';
@@ -13,7 +13,11 @@ export default function ScheduleManagement() {
   const [showForm, setShowForm] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
 
-  const { schedules, loading, error, createSchedule, deleteSchedule, getScheduleData } = useSchedule(departmentId!);
+  const { schedules, loading, error, createSchedule, deleteSchedule, getScheduleData, getTimetableEntries, deleteTimetable, generateTimetable } = useSchedule(departmentId!);
+  const [timetableCounts, setTimetableCounts] = useState<Record<string, number>>({});
+  const [showGenerateConfirm, setShowGenerateConfirm] = useState<{ open: boolean; scheduleId?: string }>({ open: false });
+  const [showGenerating, setShowGenerating] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ open: boolean; scheduleId?: string }>({ open: false });
 
   const handleCreateSchedule = async (scheduleData: any) => {
     const newSchedule = await createSchedule(scheduleData);
@@ -43,8 +47,68 @@ export default function ScheduleManagement() {
     }
   };
 
-  const handleGenerateTimetable = (scheduleId: string) => {
-    navigate(`/department/${departmentId}/timetable/${scheduleId}`);
+  const handleGenerateTimetable = async (scheduleId: string) => {
+    setShowGenerateConfirm({ open: true, scheduleId });
+  };
+
+  const confirmGenerate = async () => {
+    const scheduleId = showGenerateConfirm.scheduleId!;
+    setShowGenerateConfirm({ open: false });
+    setShowGenerating(true);
+    try {
+      await generateTimetable(scheduleId);
+      toast.success('Timetable generated');
+      await refreshTimetableCount(scheduleId);
+    } catch {
+      toast.error('Failed to generate timetable');
+    } finally {
+      setShowGenerating(false);
+    }
+  };
+
+  const refreshTimetableCount = async (scheduleId: string) => {
+    try {
+      const res = await getTimetableEntries(scheduleId);
+      setTimetableCounts((prev) => ({ ...prev, [scheduleId]: res.count }));
+    } catch {}
+  };
+
+  useEffect(() => {
+    // On load, probe each schedule for timetable availability
+    (async () => {
+      for (const s of schedules) {
+        await refreshTimetableCount(s.id);
+      }
+    })();
+  }, [schedules.map(s => s.id).join(',')]);
+
+  const handleViewTimetable = async (scheduleId: string) => {
+    try {
+      const res = await getTimetableEntries(scheduleId);
+      if (!res.count) {
+        toast.error('No timetable available');
+        return;
+      }
+      navigate(`/department/${departmentId}/timetable/${scheduleId}`);
+    } catch {
+      // error toast handled in hook
+    }
+  };
+
+  const handleDeleteTimetable = async (scheduleId: string) => {
+    setShowDeleteConfirm({ open: true, scheduleId });
+  };
+
+  const confirmDeleteTimetable = async () => {
+    const scheduleId = showDeleteConfirm.scheduleId!;
+    setShowDeleteConfirm({ open: false });
+    try {
+      await deleteTimetable(scheduleId);
+      toast.success('Timetable deleted');
+      await refreshTimetableCount(scheduleId);
+    } catch {
+      toast.error('Failed to delete timetable');
+    }
   };
 
   if (!departmentId) {
@@ -144,6 +208,9 @@ export default function ScheduleManagement() {
                       onView={handleViewSchedule}
                       onDelete={handleDeleteSchedule}
                       onGenerateTimetable={handleGenerateTimetable}
+                      onViewTimetable={handleViewTimetable}
+                      onDeleteTimetable={handleDeleteTimetable}
+                      timetableAvailable={(timetableCounts[schedule.id] || 0) > 0}
                     />
                   ))}
                 </div>
@@ -202,15 +269,25 @@ export default function ScheduleManagement() {
                     <p className="text-gray-900">{selectedSchedule.assignments.length} assignments</p>
                   </div>
 
-                  <div className="pt-4 border-t border-gray-100">
+                  <div className="pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <button
+                      onClick={() => handleViewTimetable(selectedSchedule.id)}
+                      disabled={(timetableCounts[selectedSchedule.id] || 0) === 0}
+                      className={`py-2.5 rounded-xl shadow-md transform transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 ${(timetableCounts[selectedSchedule.id] || 0) > 0 ? 'bg-blue-600 text-white hover:shadow-lg hover:-translate-y-0.5 focus:ring-blue-500' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+                    >
+                      View Timetable
+                    </button>
                     <button
                       onClick={() => handleGenerateTimetable(selectedSchedule.id)}
-                      className="w-full py-2.5 bg-gradient-to-r from-green-500 to-green-600
-                               rounded-xl shadow-md hover:shadow-lg transform transition-all
-                               duration-200 text-white font-medium hover:-translate-y-0.5
-                               focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                      className="py-2.5 bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-200 text-white font-medium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                     >
                       Generate Timetable
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTimetable(selectedSchedule.id)}
+                      className="py-2.5 bg-red-600 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-200 text-white font-medium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    >
+                      Delete Timetable
                     </button>
                   </div>
                 </div>
@@ -237,6 +314,58 @@ export default function ScheduleManagement() {
           </div>
         </div>
       </div>
+
+      {/* Generate Confirmation Modal */}
+      {showGenerateConfirm.open && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Generate Timetable?</h3>
+            <p className="text-gray-700 mb-4">
+              This will erase any existing timetable and update availability. Proceed?
+            </p>
+            <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-700 mb-4">
+              The scheduler will read your assignments, rooms, and constraints to place classes across days and slots while avoiding conflicts and honoring capacities.
+            </div>
+            <div className="flex items-center justify-end space-x-3">
+              <button onClick={() => setShowGenerateConfirm({ open: false })} className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700">Cancel</button>
+              <button onClick={confirmGenerate} className="px-4 py-2 rounded-lg bg-green-600 text-white">Generate</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Generating Modal (no close) */}
+      {showGenerating && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 text-center border border-gray-100">
+            <div className="mx-auto mb-4 h-12 w-12 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-1">Generating your timetable</h4>
+            <p className="text-gray-600">Please wait while we prepare an optimized schedule for you.</p>
+            <div className="mt-4 text-xs text-gray-400">This may take a couple of minutes depending on data size.</div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Timetable Confirmation Modal */}
+      {showDeleteConfirm.open && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Delete Timetable?</h3>
+            <p className="text-gray-700 mb-4">
+              Deleting the timetable will remove all scheduled entries for this schedule and free the related availability for rooms and faculty.
+            </p>
+            <ul className="list-disc pl-6 text-sm text-gray-700 space-y-1 mb-4">
+              <li>All timetable entries for this schedule will be removed.</li>
+              <li>Availability indices previously marked as occupied will be cleared.</li>
+              <li>You can generate a new timetable at any time afterwards.</li>
+            </ul>
+            <div className="flex items-center justify-end space-x-3">
+              <button onClick={() => setShowDeleteConfirm({ open: false })} className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700">Cancel</button>
+              <button onClick={confirmDeleteTimetable} className="px-4 py-2 rounded-lg bg-red-600 text-white">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

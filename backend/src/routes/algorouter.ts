@@ -1,8 +1,29 @@
 import { Router } from 'express';
 import { prisma } from '../lib/prisma';
 import { verifyToken } from '../middleware/auth.middleware';
+import { dataFetcher } from '../controller/dataFetcher';
+import { generateTimetable } from '../controller/generation';
+import { JsonObject } from '@prisma/client/runtime/library';
+import { time } from 'console';
 
 const algoRouter = Router();
+
+function purifyToJson<T = any>(rawStr: string): T {
+  // 1. Remove Markdown fences like ```json ... ```
+  let cleaned = rawStr.replace(/^```(?:json)?|```$/gim, "").trim();
+
+  // 2. Replace escaped newlines and tabs with real ones
+  cleaned = cleaned.replace(/\\n/g, "\n").replace(/\\t/g, "\t");
+
+  // 3. Replace escaped quotes \" with "
+  cleaned = cleaned.replace(/\\"/g, '"');
+
+  // 4. Trim again just in case
+  cleaned = cleaned.trim();
+
+  // 5. Parse to JSON
+  return JSON.parse(cleaned) as T;
+}
 
 //Check assignments for a semester
 algoRouter.get('/debug/assignments/:semesterId', async (req, res) => {
@@ -48,250 +69,201 @@ algoRouter.get('/debug/assignments/:semesterId', async (req, res) => {
 
 // Comprehensive endpoint: Get ALL data using schedule ID
 algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
-  try {
-    const { scheduleId } = req.params;
+  try{
+    const {scheduleId}=req.params;
+    // Load schedule for slots/days metadata
+    const schedule = await prisma.schedule.findUnique({ where: { id: scheduleId } });
+    const scheduleSlots = schedule?.slots ?? 8;
+    const scheduleDays = schedule?.days ?? 5;
+    const expectedSize = scheduleSlots * scheduleDays;
 
-    // Get the schedule with all related data
-    const schedule = await prisma.schedule.findUnique({
-      where: { id: scheduleId },
-      include: {
-        department: {
-          include: {
-            school: {
-              include: {
-                university: true
-              }
-            }
+    // Pre-clean: revert availability for any existing timetable entries, then delete them
+    const existingEntries = await prisma.timetableEntry.findMany({
+      where: { scheduleId },
+      select: { day: true, slot: true, facultyIds: true, roomIds: true }
+    });
+
+    if (existingEntries.length > 0) {
+      const uniqueFacultyIdsPre = Array.from(new Set(existingEntries.flatMap(e => e.facultyIds || [])));
+      const uniqueRoomIdsPre = Array.from(new Set(existingEntries.flatMap(e => e.roomIds || [])));
+
+      const [facultiesPre, roomsPre] = await Promise.all([
+        uniqueFacultyIdsPre.length ? prisma.faculty.findMany({ where: { id: { in: uniqueFacultyIdsPre } }, select: { id: true, availability: true } }) : Promise.resolve([]),
+        uniqueRoomIdsPre.length ? prisma.room.findMany({ where: { id: { in: uniqueRoomIdsPre } }, select: { id: true, availability01: true } }) : Promise.resolve([])
+      ]);
+
+      const facultyMapPre = new Map<string, number[]>();
+      for (const f of facultiesPre as any[]) {
+        const arr = Array.isArray(f.availability) && f.availability.length === expectedSize ? [...f.availability] : new Array(expectedSize).fill(0);
+        facultyMapPre.set(f.id, arr);
+      }
+      for (const fid of uniqueFacultyIdsPre) if (!facultyMapPre.has(fid)) facultyMapPre.set(fid, new Array(expectedSize).fill(0));
+
+      const roomMapPre = new Map<string, number[]>();
+      for (const r of roomsPre as any[]) {
+        const arr = Array.isArray(r.availability01) && r.availability01.length === expectedSize ? [...r.availability01] : new Array(expectedSize).fill(0);
+        roomMapPre.set(r.id, arr);
+      }
+      for (const rid of uniqueRoomIdsPre) if (!roomMapPre.has(rid)) roomMapPre.set(rid, new Array(expectedSize).fill(0));
+
+      for (const e of existingEntries) {
+        const index0 = e.day * scheduleSlots + e.slot;
+        if (Array.isArray(e.facultyIds)) {
+          for (const fid of e.facultyIds) {
+            const arr = facultyMapPre.get(fid);
+            if (arr && index0 >= 0 && index0 < arr.length) arr[index0] = 0;
           }
-        },
-        scheduleSemesters: {
-          include: {
-            semester: {
-              include: {
-                schema: true
-                // Excluding courses - we only want assigned courses from assignments
-              }
-            }
-          }
-        },
-        assignments: {
-          include: {
-            course: true,
-            semester: true,
-            section: {
-              include: {
-                batches: true
-              }
-            },
-            room: {
-              include: {
-                academicBlock: true
-              }
-            },
-            faculties: {
-              include: {
-                department: true
-              }
-            }
+        }
+        if (Array.isArray(e.roomIds)) {
+          for (const rid of e.roomIds) {
+            const arr = roomMapPre.get(rid);
+            if (arr && index0 >= 0 && index0 < arr.length) arr[index0] = 0;
           }
         }
       }
-    });
 
-    if (!schedule) {
-      res.status(404).json({ error: "Schedule not found" });
+      const txPre: any[] = [];
+      for (const [fid, arr] of facultyMapPre.entries()) {
+        txPre.push(prisma.faculty.update({ where: { id: fid }, data: { availability: arr } }));
+      }
+      for (const [rid, arr] of roomMapPre.entries()) {
+        txPre.push(prisma.room.update({ where: { id: rid }, data: { availability01: arr } }));
+      }
+      txPre.push(prisma.timetableEntry.deleteMany({ where: { scheduleId } }));
+      await prisma.$transaction(txPre);
+    }
+
+    const data= await dataFetcher(scheduleId);
+    const timetable=await generateTimetable(data as JsonObject);
+    // // const timetable=scheduleAll(data as JsonObject);
+    const purified = typeof timetable === 'string' ? purifyToJson<any>(timetable) : (timetable as any);
+
+    // Expect structure like opData.timetables; fallback to test opData if absent
+    const timetables = purified?.timetables;
+    const updatedAvailability = purified?.updatedAvailability as any | undefined;
+
+    if (!timetables || typeof timetables !== 'object') {
+      res.status(400).json({ error: 'Generated timetable missing or invalid structure.' });
       return;
     }
 
-    // Get all semester IDs from this schedule
-    const semesterIds = schedule.scheduleSemesters.map((ss: any) => ss.semester.id);
+    // Existing entries already deleted above if present
 
-    // Get additional data that might not be directly linked
-    const additionalData = await prisma.$transaction([
-      // Get all sections for this department with batches
-      prisma.section.findMany({
-        where: { departmentId: schedule.departmentId },
-        include: { 
-          batches: true,
-          department: true,
-          schema: true
+    // Transform generated timetable into TimetableEntry rows
+    const entries: any[] = [];
+    for (const sectionId of Object.keys(timetables)) {
+      const sectionBlock = timetables[sectionId];
+      const daysArr = sectionBlock?.days || [];
+      for (let dayIndex = 0; dayIndex < daysArr.length; dayIndex++) {
+        const slots = daysArr[dayIndex] || [];
+        for (let slotIndex = 0; slotIndex < slots.length; slotIndex++) {
+          const slot = slots[slotIndex];
+          // Skip breaks or empty slots
+          if (!slot || slot.type === 'BREAK' || !slot.courseid) continue;
+
+          const courseId = slot.courseid;
+          const facultyIds = slot.facultyid ? [slot.facultyid] : [];
+          const roomIds = slot.roomid ? [slot.roomid] : [];
+          const providedIndex: number | undefined = typeof slot.index === 'number' ? slot.index : undefined;
+
+          entries.push({
+            scheduleId,
+            sectionId,
+            courseId,
+            facultyIds,
+            roomIds,
+            day: dayIndex,
+            slot: slotIndex,
+            duration: 1,
+            _globalIndex: providedIndex // carry through for availability updates if provided (1-based)
+          });
         }
-      }),
-      
-      // Get all rooms for this university (through academic blocks) and department
-      prisma.room.findMany({
-        where: { 
-          AND: [
-            {
-              academicBlock: {
-                universityId: schedule.department.school.universityId
-              }
-            },
-            {
-              OR: [
-                { departmentId: schedule.departmentId },
-                { departmentId: null }
-              ]
-            }
-          ]
-        },
-        include: {
-          academicBlock: true,
-          department: true,
-          assignments: {
-            include: {
-              course: true,
-              semester: true,
-              faculties: true
-            }
+      }
+    }
+
+    let createdCount = 0;
+    if (entries.length > 0) {
+      const entriesToCreate = entries.map(({ _globalIndex, ...rest }) => rest);
+      const createRes = await prisma.timetableEntry.createMany({ data: entriesToCreate, skipDuplicates: true });
+      createdCount = createRes.count;
+    }
+
+
+    if (updatedAvailability && (updatedAvailability.faculty || updatedAvailability.rooms)) {
+      const tx: any[] = [];
+      if (updatedAvailability.faculty) {
+        for (const fid of Object.keys(updatedAvailability.faculty)) {
+          const arr: number[] = updatedAvailability.faculty[fid] || [];
+          tx.push(prisma.faculty.update({ where: { id: fid }, data: { availability: arr } }));
+        }
+      }
+      if (updatedAvailability.rooms) {
+        for (const rid of Object.keys(updatedAvailability.rooms)) {
+          const arr: number[] = updatedAvailability.rooms[rid] || [];
+          tx.push(prisma.room.update({ where: { id: rid }, data: { availability01: arr } }));
+        }
+      }
+      if (tx.length) await prisma.$transaction(tx);
+    } else if (entries.length > 0) {
+      const uniqueFacultyIds = Array.from(new Set(entries.flatMap(e => e.facultyIds || [])));
+      const uniqueRoomIds = Array.from(new Set(entries.flatMap(e => e.roomIds || [])));
+
+      const [faculties, rooms] = await Promise.all([
+        uniqueFacultyIds.length ? prisma.faculty.findMany({ where: { id: { in: uniqueFacultyIds } }, select: { id: true, availability: true } }) : Promise.resolve([]),
+        uniqueRoomIds.length ? prisma.room.findMany({ where: { id: { in: uniqueRoomIds } }, select: { id: true, availability01: true } }) : Promise.resolve([])
+      ]);
+
+      const facultyMap = new Map<string, number[]>();
+      for (const f of faculties as any[]) {
+        const arr = Array.isArray(f.availability) && f.availability.length === expectedSize ? [...f.availability] : new Array(expectedSize).fill(0);
+        facultyMap.set(f.id, arr);
+      }
+      for (const fid of uniqueFacultyIds) if (!facultyMap.has(fid)) facultyMap.set(fid, new Array(expectedSize).fill(0));
+
+      const roomMap = new Map<string, number[]>();
+      for (const r of rooms as any[]) {
+        const arr = Array.isArray(r.availability01) && r.availability01.length === expectedSize ? [...r.availability01] : new Array(expectedSize).fill(0);
+        roomMap.set(r.id, arr);
+      }
+      for (const rid of uniqueRoomIds) if (!roomMap.has(rid)) roomMap.set(rid, new Array(expectedSize).fill(0));
+
+      for (const e of entries) {
+        const index0 = typeof e._globalIndex === 'number' && e._globalIndex > 0
+          ? (e._globalIndex - 1)
+          : (e.day * scheduleSlots + e.slot);
+        if (Array.isArray(e.facultyIds)) {
+          for (const fid of e.facultyIds) {
+            const arr = facultyMap.get(fid);
+            if (arr && index0 >= 0 && index0 < arr.length) arr[index0] = 1;
           }
         }
-      }),
-      
-      // Get all faculty for this department with availability
-      prisma.faculty.findMany({
-        where: { departmentId: schedule.departmentId },
-        include: {
-          department: true,
-          assignments: {
-            include: {
-              course: true,
-              semester: true,
-              room: true
-            }
+        if (Array.isArray(e.roomIds)) {
+          for (const rid of e.roomIds) {
+            const arr = roomMap.get(rid);
+            if (arr && index0 >= 0 && index0 < arr.length) arr[index0] = 1;
           }
         }
-      }),
+      }
 
-      // Get academic blocks for this university with all rooms
-      prisma.academicBlock.findMany({
-        where: {
-          universityId: schedule.department.school.universityId
-        },
-        include: {
-          rooms: true
-        }
-      }),
+      const tx: any[] = [];
+      for (const [fid, arr] of facultyMap.entries()) {
+        tx.push(prisma.faculty.update({ where: { id: fid }, data: { availability: arr } }));
+      }
+      for (const [rid, arr] of roomMap.entries()) {
+        tx.push(prisma.room.update({ where: { id: rid }, data: { availability01: arr } }));
+      }
+      if (tx.length) await prisma.$transaction(tx);
+    }
 
-      // Get all schemes for this department
-      prisma.scheme.findMany({
-        where: { departmentId: schedule.departmentId },
-        include: {
-          semesters: true,
-          sections: true
-        }
-      })
-    ]);
-
-    const [sections, rooms, faculty, academicBlocks, schemes] = additionalData;
-
-    // Process assignments to include roomIds array, facultyIds array, and fix sectionId
-    const processedAssignments = schedule.assignments.map((assignment: any) => {
-      // Get all room IDs for this assignment
-      const allRoomIds = assignment.roomIds || (assignment.roomId ? [assignment.roomId] : []);
-      
-      // Find all room details for the roomIds array
-      const assignedRooms = allRoomIds.map((roomId: string) => {
-        return rooms.find((room: any) => room.id === roomId);
-      }).filter(Boolean); // Remove any undefined rooms
-      
-      return {
-        ...assignment,
-        roomIds: allRoomIds,
-        roomId: assignment.roomId || null, // Always include roomId field
-        assignedRooms: assignedRooms, // Full room details for all assigned rooms
-        facultyIds: assignment.faculties ? assignment.faculties.map((f: any) => f.id) : [],
-        // Ensure sectionId is present if assignment has a section
-        sectionId: assignment.sectionId || null
-      };
+    res.status(200).json({
+      scheduleId,
+      createdCount,
+      sections: Object.keys(timetables).length,
+      entriesPreview: entries.slice(0, 5).map(({ _globalIndex, ...rest }) => rest)
     });
-
-    // Process rooms to ensure availability array is consistent (days × slots)
-    const processedRooms = rooms.map((room: any) => {
-      const expectedSize = schedule.days * schedule.slots;
-      let availability = room.availability || [];
-      let availability01 = (room as any).availability01 || [];
-      
-      // Check if room has any assignments
-      const hasAssignments = room.assignments && room.assignments.length > 0;
-      
-      // If room has no assignments, use zeros
-      // If room has assignments but availability is null/wrong size, use zeros
-      if (!hasAssignments || !availability || availability.length !== expectedSize) {
-        availability = new Array(expectedSize).fill(0);
-      }
-      
-      // Ensure availability01 is also properly sized (0=free, 1=blocked)
-      if (!availability01 || availability01.length !== expectedSize) {
-        availability01 = new Array(expectedSize).fill(0); // 0 = free by default
-      }
-      
-      return {
-        ...room,
-        availability: availability,
-        availability01: availability01
-      };
-    });
-
-    // Process faculty - keep their actual availability, don't use zeros
-    const processedFaculty = faculty.map((fac: any) => {
-      const expectedSize = schedule.days * schedule.slots;
-      let availability = fac.availability || [];
-      
-      // If availability is null or wrong size, create array of zeros
-      if (!availability || availability.length !== expectedSize) {
-        availability = new Array(expectedSize).fill(0);
-      }
-      
-      return {
-        ...fac,
-        availability: availability
-      };
-    });
-
-    // Create comprehensive response
-    const comprehensiveData = {
-      schedule: {
-        id: schedule.id,
-        name: schedule.name,
-        days: schedule.days,
-        slots: schedule.slots,
-        departmentId: schedule.departmentId,
-        semesterIds: semesterIds
-      },
-      department: schedule.department,
-      semesters: schedule.scheduleSemesters.map((ss: any) => ({
-        id: ss.semester.id,
-        number: ss.semester.number,
-        startDate: ss.semester.startDate,
-        endDate: ss.semester.endDate,
-        schemaId: ss.semester.schemaId,
-        availability: ss.semester.availability,
-        schema: ss.semester.schema
-        // Excluding courses array - we only want assigned courses from assignments
-      })),
-      assignments: processedAssignments,
-      sections: sections,
-      rooms: processedRooms,
-      faculty: processedFaculty,
-      academicBlocks: academicBlocks,
-      schemes: schemes,
-      // Summary statistics
-      summary: {
-        totalAssignments: schedule.assignments.length,
-        totalSections: sections.length,
-        totalRooms: rooms.length,
-        totalFaculty: faculty.length,
-        totalAcademicBlocks: academicBlocks.length,
-        totalSchemes: schemes.length,
-        timetableSlots: schedule.days * schedule.slots
-      }
-    };
-
-    res.status(200).json(comprehensiveData);
-  } catch (error) {
-    console.error('Error fetching comprehensive schedule data:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+  }
+  catch(error){
+    res.status(500).json(error);
   }
 });
 
@@ -435,3 +407,119 @@ algoRouter.get('/rooms/availability/:departmentId', async (req, res) => {
 });
 
 export default algoRouter;
+
+// Delete timetable and revert availability for a schedule
+algoRouter.delete('/schedule/:scheduleId/timetable', verifyToken, async (req, res) => {
+  try {
+    const { scheduleId } = req.params;
+    const schedule = await prisma.schedule.findUnique({ where: { id: scheduleId } });
+    if (!schedule) {
+      res.status(404).json({ error: 'Schedule not found' });
+      return;
+    }
+    const scheduleSlots = schedule.slots ?? 8;
+    const scheduleDays = schedule.days ?? 5;
+    const expectedSize = scheduleSlots * scheduleDays;
+
+    const existingEntries = await prisma.timetableEntry.findMany({
+      where: { scheduleId },
+      select: { day: true, slot: true, facultyIds: true, roomIds: true }
+    });
+
+    if (existingEntries.length === 0) {
+      res.status(200).json({ scheduleId, message: 'No timetable entries to delete.' });
+      return;
+    }
+
+    const uniqueFacultyIds = Array.from(new Set(existingEntries.flatMap(e => e.facultyIds || [])));
+    const uniqueRoomIds = Array.from(new Set(existingEntries.flatMap(e => e.roomIds || [])));
+
+    const [faculties, rooms] = await Promise.all([
+      uniqueFacultyIds.length ? prisma.faculty.findMany({ where: { id: { in: uniqueFacultyIds } }, select: { id: true, availability: true } }) : Promise.resolve([]),
+      uniqueRoomIds.length ? prisma.room.findMany({ where: { id: { in: uniqueRoomIds } }, select: { id: true, availability01: true } }) : Promise.resolve([])
+    ]);
+
+    const facultyMap = new Map<string, number[]>();
+    for (const f of faculties as any[]) {
+      const arr = Array.isArray(f.availability) && f.availability.length === expectedSize ? [...f.availability] : new Array(expectedSize).fill(0);
+      facultyMap.set(f.id, arr);
+    }
+    for (const fid of uniqueFacultyIds) if (!facultyMap.has(fid)) facultyMap.set(fid, new Array(expectedSize).fill(0));
+
+    const roomMap = new Map<string, number[]>();
+    for (const r of rooms as any[]) {
+      const arr = Array.isArray(r.availability01) && r.availability01.length === expectedSize ? [...r.availability01] : new Array(expectedSize).fill(0);
+      roomMap.set(r.id, arr);
+    }
+    for (const rid of uniqueRoomIds) if (!roomMap.has(rid)) roomMap.set(rid, new Array(expectedSize).fill(0));
+
+    for (const e of existingEntries) {
+      const index0 = e.day * scheduleSlots + e.slot;
+      if (Array.isArray(e.facultyIds)) {
+        for (const fid of e.facultyIds) {
+          const arr = facultyMap.get(fid);
+          if (arr && index0 >= 0 && index0 < arr.length) arr[index0] = 0;
+        }
+      }
+      if (Array.isArray(e.roomIds)) {
+        for (const rid of e.roomIds) {
+          const arr = roomMap.get(rid);
+          if (arr && index0 >= 0 && index0 < arr.length) arr[index0] = 0;
+        }
+      }
+    }
+
+    const tx: any[] = [];
+    for (const [fid, arr] of facultyMap.entries()) {
+      tx.push(prisma.faculty.update({ where: { id: fid }, data: { availability: arr } }));
+    }
+    for (const [rid, arr] of roomMap.entries()) {
+      tx.push(prisma.room.update({ where: { id: rid }, data: { availability01: arr } }));
+    }
+    tx.push(prisma.timetableEntry.deleteMany({ where: { scheduleId } }));
+    await prisma.$transaction(tx);
+
+    res.status(200).json({ scheduleId, deleted: existingEntries.length });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+// Get all timetable entries for a schedule
+algoRouter.get('/schedule/:scheduleId/timetable', async (req, res) => {
+  try {
+    const { scheduleId } = req.params;
+    const entries = await prisma.timetableEntry.findMany({
+      where: { scheduleId },
+      include: {
+        section: true,
+        course: true,
+      },
+      orderBy: [{ day: 'asc' }, { slot: 'asc' }]
+    });
+
+    // Build lookup maps for faculty and rooms to translate IDs → names/codes
+    const allFacultyIds = Array.from(new Set(entries.flatMap((e: any) => e.facultyIds || [])));
+    const allRoomIds = Array.from(new Set(entries.flatMap((e: any) => e.roomIds || [])));
+
+    const [faculties, rooms] = await Promise.all([
+      allFacultyIds.length ? prisma.faculty.findMany({ where: { id: { in: allFacultyIds } }, select: { id: true, name: true } }) : Promise.resolve([]),
+      allRoomIds.length ? prisma.room.findMany({ where: { id: { in: allRoomIds } }, select: { id: true, code: true } }) : Promise.resolve([])
+    ]);
+
+    const facultyIdToName = new Map<string, string>();
+    for (const f of faculties as any[]) facultyIdToName.set(f.id, f.name);
+    const roomIdToCode = new Map<string, string>();
+    for (const r of rooms as any[]) roomIdToCode.set(r.id, r.code);
+
+    const enriched = entries.map((e: any) => ({
+      ...e,
+      facultyNames: (e.facultyIds || []).map((id: string) => facultyIdToName.get(id) || id),
+      roomCodes: (e.roomIds || []).map((id: string) => roomIdToCode.get(id) || id),
+    }));
+
+    res.status(200).json({ scheduleId, count: enriched.length, entries: enriched });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});

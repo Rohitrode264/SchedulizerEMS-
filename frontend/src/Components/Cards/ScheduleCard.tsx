@@ -6,9 +6,12 @@ interface ScheduleCardProps {
   onView: (scheduleId: string) => void;
   onDelete: (scheduleId: string) => void;
   onGenerateTimetable: (scheduleId: string) => void;
+  onViewTimetable: (scheduleId: string) => void;
+  onDeleteTimetable: (scheduleId: string) => void;
+  timetableAvailable?: boolean;
 }
 
-export function ScheduleCard({ schedule, onView, onDelete, onGenerateTimetable }: ScheduleCardProps) {
+export function ScheduleCard({ schedule, onView, onDelete, onGenerateTimetable, onViewTimetable, onDeleteTimetable, timetableAvailable }: ScheduleCardProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -82,15 +85,25 @@ export function ScheduleCard({ schedule, onView, onDelete, onGenerateTimetable }
         </span>
       </div>
 
-      <div className="pt-4 border-t border-gray-100">
+      <div className="pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <button
+          onClick={() => onViewTimetable(schedule.id)}
+          disabled={!timetableAvailable}
+          className={`py-2.5 rounded-xl shadow-md transform transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 ${timetableAvailable ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white hover:shadow-lg hover:-translate-y-0.5 focus:ring-blue-500' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+        >
+          View Timetable
+        </button>
         <button
           onClick={() => onGenerateTimetable(schedule.id)}
-          className="w-full py-2.5 bg-gradient-to-r from-green-500 to-green-600
-                   rounded-xl shadow-md hover:shadow-lg transform transition-all
-                   duration-200 text-white font-medium hover:-translate-y-0.5
-                   focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+          className="py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-200 text-white font-medium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
         >
           Generate Timetable
+        </button>
+        <button
+          onClick={() => onDeleteTimetable(schedule.id)}
+          className="py-2.5 bg-gradient-to-r from-rose-500 to-red-600 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-200 text-white font-medium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+        >
+          Delete Timetable
         </button>
       </div>
     </div>
