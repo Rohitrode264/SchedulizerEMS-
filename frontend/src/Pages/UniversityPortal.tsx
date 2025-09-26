@@ -44,7 +44,7 @@ export const UniversityToggle = () => {
           <div className={`${theme.surface.card} ${theme.spacing.lg} max-w-2xl mx-auto`}>
             <div className="flex items-center space-x-4 mb-8 pb-6 border-b border-gray-100">
               <div className={`flex items-center justify-center w-10 h-10 ${theme.primary.main} ${theme.rounded.lg}`}>
-                <LogIn className="h-5 w-5 text-white" />
+                <LogIn className="h-5 w-5 text-whit" />
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">

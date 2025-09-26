@@ -9,9 +9,10 @@ interface ScheduleCardProps {
   onViewTimetable: (scheduleId: string) => void;
   onDeleteTimetable: (scheduleId: string) => void;
   timetableAvailable?: boolean;
+  viewLoading?: boolean;
 }
 
-export function ScheduleCard({ schedule, onView, onDelete, onGenerateTimetable, onViewTimetable, onDeleteTimetable, timetableAvailable }: ScheduleCardProps) {
+export function ScheduleCard({ schedule, onView, onDelete, onGenerateTimetable, onViewTimetable, onDeleteTimetable, timetableAvailable, viewLoading }: ScheduleCardProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -88,10 +89,11 @@ export function ScheduleCard({ schedule, onView, onDelete, onGenerateTimetable, 
       <div className="pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-3">
         <button
           onClick={() => onViewTimetable(schedule.id)}
-          disabled={!timetableAvailable}
-          className={`py-2.5 rounded-xl shadow-md transform transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 ${timetableAvailable ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white hover:shadow-lg hover:-translate-y-0.5 focus:ring-blue-500' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+          disabled={!timetableAvailable || viewLoading}
+          className={`flex items-center justify-center gap-2 py-2.5 rounded-xl shadow-md transform transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 ${(!timetableAvailable || viewLoading) ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-sky-500 to-blue-600 text-white hover:shadow-lg hover:-translate-y-0.5 focus:ring-blue-500'}`}
         >
-          View Timetable
+          {viewLoading && <span className="inline-block h-4 w-4 rounded-full border-2 border-white/60 border-t-white animate-spin"></span>}
+          <span>View Timetable</span>
         </button>
         <button
           onClick={() => onGenerateTimetable(schedule.id)}

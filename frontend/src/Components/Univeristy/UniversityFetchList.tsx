@@ -263,11 +263,11 @@ export default function UniversityList() {
               <button
                 onClick={() => setShowLoginForm(!showLoginForm)}
                 className={`group relative overflow-hidden ${theme.rounded.lg} ${theme.shadow.md} hover:${theme.shadow.lg} 
-                           ${theme.transition.transform} hover:-translate-y-1 h-28
+                           ${theme.transition.transform} hover:-translate-y-1 h-14  
                            bg-gradient-to-br from-gray-800 to-gray-700`}
               >
-                <div className="relative px-4 py-4 flex flex-col items-center justify-center h-full text-white">
-                  <HiAcademicCap className="w-7 h-7 mb-3 group-hover:scale-110 transition-transform" />
+                <div className="relative px-2 py-2 flex  items-center justify-center h-full text-white gap-1">
+                  <HiAcademicCap className="w-7 h-7  group-hover:scale-110 transition-transform flex items-center" />
                   <span className="font-medium text-sm text-center">
                     {showLoginForm ? 'Hide Admin Login' : 'University Admin'}
                   </span>

@@ -6,6 +6,7 @@ import { useSchedule } from '../hooks/useSchedule';
 import { ScheduleForm } from '../Components/Forms/ScheduleForm';
 import { ScheduleCard } from '../Components/Cards/ScheduleCard';
 import type { Schedule } from '../types/schedule';
+import ProcessorLoader from '../Components/Loader';
 
 export default function ScheduleManagement() {
   const { departmentId } = useParams();
@@ -18,6 +19,7 @@ export default function ScheduleManagement() {
   const [showGenerateConfirm, setShowGenerateConfirm] = useState<{ open: boolean; scheduleId?: string }>({ open: false });
   const [showGenerating, setShowGenerating] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ open: boolean; scheduleId?: string }>({ open: false });
+  const [viewLoadingId, setViewLoadingId] = useState<string | null>(null);
 
   const handleCreateSchedule = async (scheduleData: any) => {
     const newSchedule = await createSchedule(scheduleData);
@@ -84,6 +86,7 @@ export default function ScheduleManagement() {
 
   const handleViewTimetable = async (scheduleId: string) => {
     try {
+      setViewLoadingId(scheduleId);
       const res = await getTimetableEntries(scheduleId);
       if (!res.count) {
         toast.error('No timetable available');
@@ -92,6 +95,8 @@ export default function ScheduleManagement() {
       navigate(`/department/${departmentId}/timetable/${scheduleId}`);
     } catch {
       // error toast handled in hook
+    } finally {
+      setViewLoadingId(null);
     }
   };
 
@@ -211,6 +216,7 @@ export default function ScheduleManagement() {
                       onViewTimetable={handleViewTimetable}
                       onDeleteTimetable={handleDeleteTimetable}
                       timetableAvailable={(timetableCounts[schedule.id] || 0) > 0}
+                      viewLoading={viewLoadingId === schedule.id}
                     />
                   ))}
                 </div>
@@ -279,7 +285,7 @@ export default function ScheduleManagement() {
                     </button>
                     <button
                       onClick={() => handleGenerateTimetable(selectedSchedule.id)}
-                      className="py-2.5 bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-200 text-white font-medium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                      className="py-2.5 bg-gradient-to-r from-green-700 to-green-900 rounded-xl shadow-md hover:shadow-lg transform transition-all duration-200 text-white font-medium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                     >
                       Generate Timetable
                     </button>
@@ -337,13 +343,13 @@ export default function ScheduleManagement() {
       {/* Generating Modal (no close) */}
       {showGenerating && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 text-center border border-gray-100">
-            <div className="mx-auto mb-4 h-12 w-12 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-1">Generating your timetable</h4>
-            <p className="text-gray-600">Please wait while we prepare an optimized schedule for you.</p>
-            <div className="mt-4 text-xs text-gray-400">This may take a couple of minutes depending on data size.</div>
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 text-center border border-gray-100">
+          <div className='m-10'>
+          <ProcessorLoader />
           </div>
+          <div className="mt-5 text-xs text-gray-400">This may take a moment.</div>
         </div>
+      </div>
       )}
 
       {/* Delete Timetable Confirmation Modal */}
