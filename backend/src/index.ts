@@ -1,5 +1,5 @@
 import express from 'express';
-import dotenv from 'dotenv';
+import dotenv from 'dotenv'
 import cors from 'cors';
 import authRoutes from './routes/auth.routes';
 import excelRouter from "./routes/excelRouter";

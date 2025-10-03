@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../config/env';
 
 interface AuthRequest extends Request {
     user?: any;
@@ -26,7 +25,7 @@ export const verifyToken = async (req: AuthRequest, res: Response, next: NextFun
         }
 
         try {
-            const decoded = jwt.verify(token, JWT_SECRET!);
+            const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
             req.user = decoded;
             next();
         } catch (jwtError) {
