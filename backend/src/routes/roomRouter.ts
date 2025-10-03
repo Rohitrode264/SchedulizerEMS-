@@ -527,20 +527,19 @@ roomRouter.get('/stats/overview', async (req: Request, res: Response): Promise<v
       prisma.room.count({ where: { isLab: true } }),
       prisma.room.count({ where: { isLab: false } }),
       prisma.academicBlock.count(),
-      prisma.room.groupBy({
-        by: ['academicBlockId'],
-        _count: { id: true }
+      prisma.academicBlock.findMany({
+        select: {
+          id: true,
+          _count: { select: { rooms: true } }
+        }
       })
     ]);
 
-    const [totalRooms, totalLabs, totalClassrooms, totalBlocks, roomsByBlock] = stats;
+    const [totalRooms, totalLabs, totalClassrooms, totalBlocks, blocksWithCounts] = stats as any;
 
-    // Sort in JS to avoid complex Prisma type interactions in orderBy for groupBy
-    const roomsByBlockSorted = [...roomsByBlock].sort((a: any, b: any) => {
-      const aCount = typeof a._count === 'object' ? (a._count.id || 0) : 0;
-      const bCount = typeof b._count === 'object' ? (b._count.id || 0) : 0;
-      return bCount - aCount;
-    });
+    const roomsByBlockSorted = (blocksWithCounts as any[])
+      .map((b: any) => ({ blockId: b.id, roomCount: b._count?.rooms ?? 0 }))
+      .sort((a, b) => b.roomCount - a.roomCount);
 
     res.status(200).json({
       success: true,
@@ -549,10 +548,7 @@ roomRouter.get('/stats/overview', async (req: Request, res: Response): Promise<v
         totalLabs,
         totalClassrooms,
         totalBlocks,
-        roomsByBlock: roomsByBlockSorted.map((item: { academicBlockId: any; _count: { id: any; }; }) => ({
-          blockId: item.academicBlockId,
-          roomCount: typeof item._count === 'object' ? item._count.id || 0 : 0
-        }))
+        roomsByBlock: roomsByBlockSorted
       }
     });
   } catch (error) {
