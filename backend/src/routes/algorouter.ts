@@ -262,8 +262,9 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
       entriesPreview: entries.slice(0, 5).map(({ _globalIndex, ...rest }) => rest)
     });
   }
-  catch (error) {
-    res.status(500).json(error);
+  catch (error: any) {
+    console.error("[all-data] Timetable generation error:", error?.message || error);
+    res.status(500).json({ error: error?.message || 'Internal server error during timetable generation' });
   }
 });
 
