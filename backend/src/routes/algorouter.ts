@@ -29,7 +29,7 @@ function purifyToJson<T = any>(rawStr: string): T {
 algoRouter.get('/debug/assignments/:semesterId', async (req, res) => {
   try {
     const { semesterId } = req.params;
-    
+
     // Get all assignments for this semester
     const assignments = await prisma.assignment.findMany({
       where: { semesterId: semesterId },
@@ -41,10 +41,10 @@ algoRouter.get('/debug/assignments/:semesterId', async (req, res) => {
         schedule: true
       }
     });
-    
+
     // Find schedule that contains this semester
     const schedule = await prisma.schedule.findFirst({
-      where: { 
+      where: {
         scheduleSemesters: {
           some: {
             semesterId: semesterId
@@ -52,7 +52,7 @@ algoRouter.get('/debug/assignments/:semesterId', async (req, res) => {
         }
       }
     });
-    
+
     res.status(200).json({
       semesterId,
       totalAssignments: assignments.length,
@@ -69,8 +69,8 @@ algoRouter.get('/debug/assignments/:semesterId', async (req, res) => {
 
 // Comprehensive endpoint: Get ALL data using schedule ID
 algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
-  try{
-    const {scheduleId}=req.params;
+  try {
+    const { scheduleId } = req.params;
     // Load schedule for slots/days metadata
     const schedule = await prisma.schedule.findUnique({ where: { id: scheduleId } });
     const scheduleSlots = schedule?.slots ?? 8;
@@ -133,8 +133,8 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
       await prisma.$transaction(txPre);
     }
 
-    const data= await dataFetcher(scheduleId);
-    const timetable=await generateTimetable(data as JsonObject);
+    const data = await dataFetcher(scheduleId);
+    const timetable = await generateTimetable(data as JsonObject);
     // // const timetable=scheduleAll(data as JsonObject);
     const purified = typeof timetable === 'string' ? purifyToJson<any>(timetable) : (timetable as any);
 
@@ -262,7 +262,7 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
       entriesPreview: entries.slice(0, 5).map(({ _globalIndex, ...rest }) => rest)
     });
   }
-  catch(error){
+  catch (error) {
     res.status(500).json(error);
   }
 });
@@ -271,7 +271,7 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
 algoRouter.post('/schedule/:scheduleId/link-assignments', verifyToken, async (req, res) => {
   try {
     const { scheduleId } = req.params;
-    
+
     // Get the schedule to find its semester IDs
     const schedule = await prisma.schedule.findUnique({
       where: { id: scheduleId },
@@ -279,29 +279,29 @@ algoRouter.post('/schedule/:scheduleId/link-assignments', verifyToken, async (re
         scheduleSemesters: true
       }
     });
-    
+
     if (!schedule) {
       res.status(404).json({ error: 'Schedule not found' });
       return;
     }
-    
+
     if (!schedule.scheduleSemesters || schedule.scheduleSemesters.length === 0) {
       res.status(400).json({ error: 'Schedule has no semesters assigned' });
       return;
     }
-    
+
     const semesterIds = schedule.scheduleSemesters.map((ss: any) => ss.semesterId);
-    
+
     // Link all assignments of these semesters to this schedule
     const result = await prisma.assignment.updateMany({
-      where: { 
+      where: {
         semesterId: { in: semesterIds },
         scheduleId: null // Only update unlinked assignments
       },
       data: { scheduleId: scheduleId }
     });
-    
-    res.status(200).json({ 
+
+    res.status(200).json({
       message: `Linked ${result.count} assignments to schedule`,
       linkedCount: result.count
     });
@@ -315,7 +315,7 @@ algoRouter.post('/schedule/:scheduleId/link-assignments', verifyToken, async (re
 algoRouter.get('/rooms/availability/:departmentId', async (req, res) => {
   try {
     const { departmentId } = req.params;
-    
+
     // Get department with university info for proper filtering
     const department = await prisma.department.findUnique({
       where: { id: departmentId },
@@ -327,14 +327,14 @@ algoRouter.get('/rooms/availability/:departmentId', async (req, res) => {
         }
       }
     });
-    
+
     if (!department) {
       res.status(404).json({ error: 'Department not found' });
       return;
     }
-    
+
     const rooms = await prisma.room.findMany({
-      where: { 
+      where: {
         AND: [
           {
             academicBlock: {
@@ -367,21 +367,21 @@ algoRouter.get('/rooms/availability/:departmentId', async (req, res) => {
       const expectedSize = 40; // 5 days × 8 slots
       let availability = room.availability || [];
       let availability01 = (room as any).availability01 || [];
-      
+
       // Check if room has any assignments
       const hasAssignments = room.assignments && room.assignments.length > 0;
-      
+
       // If room has no assignments, use zeros
       // If room has assignments but availability is null/wrong size, use zeros
       if (!hasAssignments || !availability || availability.length !== expectedSize) {
         availability = new Array(expectedSize).fill(0);
       }
-      
+
       // Ensure availability01 is also properly sized (0=free, 1=blocked)
       if (!availability01 || availability01.length !== expectedSize) {
         availability01 = new Array(expectedSize).fill(0); // 0 = free by default
       }
-      
+
       return {
         id: room.id,
         code: room.code,

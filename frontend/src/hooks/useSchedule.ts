@@ -11,7 +11,7 @@ export const useSchedule = (departmentId: string) => {
   // Get all schedules for a department
   const fetchSchedules = async () => {
     if (!departmentId) return;
-    
+
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -24,7 +24,7 @@ export const useSchedule = (departmentId: string) => {
           'Authorization': token.replace(/['"]+/g, '')
         }
       });
-      
+
       setSchedules(response.data.schedules || []);
       setError(null);
     } catch (err: any) {
@@ -48,7 +48,7 @@ export const useSchedule = (departmentId: string) => {
           'Authorization': token.replace(/['"]+/g, '')
         }
       });
-      
+
       setError(null);
       return response.data;
     } catch (err: any) {
@@ -138,7 +138,7 @@ export const useSchedule = (departmentId: string) => {
           'Authorization': token.replace(/['"]+/g, '')
         }
       });
-      
+
       await fetchSchedules(); // Refresh the list
       setError(null);
       return response.data;
@@ -165,7 +165,7 @@ export const useSchedule = (departmentId: string) => {
           'Authorization': token.replace(/['"]+/g, '')
         }
       });
-      
+
       await fetchSchedules(); // Refresh the list
       setError(null);
     } catch (err: any) {
@@ -191,7 +191,7 @@ export const useSchedule = (departmentId: string) => {
           'Authorization': token.replace(/['"]+/g, '')
         }
       });
-      
+
       setError(null);
       return response.data;
     } catch (err: any) {
