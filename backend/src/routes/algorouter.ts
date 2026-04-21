@@ -84,8 +84,8 @@ algoRouter.get('/schedule/all-data/:scheduleId', async (req, res) => {
     });
 
     if (existingEntries.length > 0) {
-      const uniqueFacultyIdsPre = Array.from(new Set(existingEntries.flatMap(e => e.facultyIds || [])));
-      const uniqueRoomIdsPre = Array.from(new Set(existingEntries.flatMap(e => e.roomIds || [])));
+      const uniqueFacultyIdsPre = Array.from(new Set(existingEntries.flatMap(e => e.facultyIds || []))) as string[];
+      const uniqueRoomIdsPre = Array.from(new Set(existingEntries.flatMap(e => e.roomIds || []))) as string[];
 
       const [facultiesPre, roomsPre] = await Promise.all([
         uniqueFacultyIdsPre.length ? prisma.faculty.findMany({ where: { id: { in: uniqueFacultyIdsPre } }, select: { id: true, availability: true } }) : Promise.resolve([]),
@@ -432,8 +432,8 @@ algoRouter.delete('/schedule/:scheduleId/timetable', verifyToken, async (req, re
       return;
     }
 
-    const uniqueFacultyIds = Array.from(new Set(existingEntries.flatMap(e => e.facultyIds || [])));
-    const uniqueRoomIds = Array.from(new Set(existingEntries.flatMap(e => e.roomIds || [])));
+    const uniqueFacultyIds = Array.from(new Set(existingEntries.flatMap(e => e.facultyIds || []))) as string[];
+    const uniqueRoomIds = Array.from(new Set(existingEntries.flatMap(e => e.roomIds || []))) as string[];
 
     const [faculties, rooms] = await Promise.all([
       uniqueFacultyIds.length ? prisma.faculty.findMany({ where: { id: { in: uniqueFacultyIds } }, select: { id: true, availability: true } }) : Promise.resolve([]),
